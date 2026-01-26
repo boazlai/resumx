@@ -10,11 +10,6 @@ Write your resume in markdown. Render it anywhere.
 - **AI-friendly** — Let AI help write and refine your resume
 - **No lock-in** — Grab the stylesheet, skip the CLI entirely if you want
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 10px;">
-    <img src="assets/source.png" alt="resum8 source code" />
-    <img src="assets/rendered.png" alt="resum8 rendered" />
-</div>
-
 ## Get Started
 
 ### Option 1: Use the CLI (recommended)
