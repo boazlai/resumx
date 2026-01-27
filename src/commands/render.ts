@@ -145,7 +145,8 @@ function runRender(
 		return false
 	}
 
-	console.log(`Building resume from: ${inputPath}`)
+	const relativeInputPath = relative(cwd, inputPath)
+	console.log(`Building resume from: ${chalk.cyan(relativeInputPath)}`)
 	console.log('')
 
 	// Render content (frontmatter already stripped)
@@ -166,7 +167,9 @@ function runRender(
 			const relativePath = relative(cwd, result.outputPath)
 			console.log(`  ${formatLabel}... ${chalk.green('✓')} ${relativePath}`)
 		} else {
-			console.log(`  ${formatLabel}... ${chalk.red('✗')} ${result.error}`)
+			console.log(
+				`  ${formatLabel}... ${chalk.red('✗')} ${chalk.red(result.error)}`,
+			)
 			allSuccess = false
 		}
 	}
