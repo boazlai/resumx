@@ -58,15 +58,28 @@ _Senior Software Engineer, Infrastructure Platform Team_ [San Francisco, CA](#ri
 
 ### Option 1: Use the CLI (recommended)
 
+Install the CLI:
+
 ```bash
 npm install -g resum8
-
-m8 john-doe.md                 # -> john-doe.pdf
-m8 john-doe.md --style formal  # Use a specific style
-m8 john-doe.md --html --word   # Render to HTML and Word
 ```
 
-### Option 2: Just grab a stylesheet
+Create your first resume:
+
+```bash
+m8 init resume.md   # Generate a template resume
+m8 resume.md        # Render to PDF
+```
+
+Customize your output:
+
+```bash
+m8 resume.md --style formal   # Apply a different style
+m8 resume.md --html --word    # Generate HTML and Word formats
+m8 resume.md --watch          # Auto-rebuild on changes
+```
+
+### Option 2: Grab a stylesheet
 
 Want to use your preferred tooling? Download a stylesheet and use it directly.
 
