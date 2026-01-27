@@ -5,7 +5,6 @@ import chokidar from 'chokidar'
 import { requireDependencies } from '../lib/check.js'
 import { resolveStyle, getDefaultStyle } from '../lib/styles.js'
 import {
-	loadConfig,
 	parseVarFlags,
 	mergeVariables,
 	getStyleVariables,
@@ -15,6 +14,7 @@ import {
 	getOutputName,
 	type OutputFormat,
 } from '../lib/pandoc.js'
+import { parseFrontmatter } from '../lib/frontmatter.js'
 
 export interface RenderCommandOptions {
 	style?: string
@@ -29,26 +29,36 @@ export interface RenderCommandOptions {
 }
 
 /**
- * Determine which formats to render based on flags
+ * Determine which formats to render based on CLI options and frontmatter
+ * CLI flags take precedence over frontmatter
  */
-function getFormats(options: RenderCommandOptions): OutputFormat[] {
+function resolveFormats(
+	options: RenderCommandOptions,
+	frontmatterFormats?: OutputFormat[],
+): OutputFormat[] {
 	// --all takes precedence
 	if (options.all) {
 		return ['pdf', 'html', 'docx']
 	}
 
-	const formats: OutputFormat[] = []
+	// Check if any CLI format flags are set
+	const cliFormats: OutputFormat[] = []
+	if (options.pdf) cliFormats.push('pdf')
+	if (options.html) cliFormats.push('html')
+	if (options.word) cliFormats.push('docx')
 
-	if (options.pdf) formats.push('pdf')
-	if (options.html) formats.push('html')
-	if (options.word) formats.push('docx')
-
-	// Default to PDF if no format specified
-	if (formats.length === 0) {
-		formats.push('pdf')
+	// If CLI format flags are set, use them
+	if (cliFormats.length > 0) {
+		return cliFormats
 	}
 
-	return formats
+	// If frontmatter specifies formats, use them
+	if (frontmatterFormats && frontmatterFormats.length > 0) {
+		return frontmatterFormats
+	}
+
+	// Default to PDF
+	return ['pdf']
 }
 
 /**
@@ -60,11 +70,16 @@ function runRender(
 	options: RenderCommandOptions,
 	cwd: string,
 ): boolean {
-	// Load config file
-	const config = loadConfig(cwd)
+	// Parse frontmatter from input file
+	const { config: fmConfig, content, warnings } = parseFrontmatter(inputPath)
 
-	// Resolve style (CLI > config > default)
-	const styleArg = options.style ?? config?.style
+	// Display warnings for unknown frontmatter fields
+	for (const warning of warnings) {
+		console.warn(chalk.yellow(`Warning: ${warning}`))
+	}
+
+	// Resolve style (CLI > Frontmatter > Global default)
+	const styleArg = options.style ?? fmConfig?.style
 	const styleName = styleArg ?? getDefaultStyle()
 	let cssPath: string
 	try {
@@ -74,23 +89,27 @@ function runRender(
 		return false
 	}
 
-	// Merge variables (CLI > project config > global style defaults)
+	// Merge variables (CLI > Frontmatter > Global style defaults)
 	const globalStyleVars = getStyleVariables(styleName, options._configDir)
 	const cliVars = options.var ? parseVarFlags(options.var) : undefined
-	const variables = mergeVariables(globalStyleVars, config?.variables, cliVars)
+	const variables = mergeVariables(
+		globalStyleVars,
+		fmConfig?.variables,
+		cliVars,
+	)
 	const hasVariables = Object.keys(variables).length > 0
 
-	// Determine output name and directory
+	// Determine output name and directory (CLI > Frontmatter > defaults)
 	let outputName: string
 	let outputDir: string
 
 	if (options.output) {
-		// Check if output ends with slash (directory only, preserve input filename)
+		// CLI -o flag takes precedence
 		const endsWithSlash = options.output.endsWith('/')
 
 		if (endsWithSlash) {
-			// Use input filename in specified directory
-			outputName = getOutputName(inputPath)
+			// Use frontmatter outputName or input filename in specified directory
+			outputName = fmConfig?.outputName ?? getOutputName(inputPath)
 			outputDir = resolve(cwd, options.output)
 		} else {
 			// Split path into directory and filename
@@ -109,13 +128,13 @@ function runRender(
 			outputName = baseName
 		}
 	} else {
-		// No -o flag: output to cwd
-		outputName = getOutputName(inputPath)
-		outputDir = cwd
+		// No CLI -o flag: check frontmatter, then defaults
+		outputName = fmConfig?.outputName ?? getOutputName(inputPath)
+		outputDir = fmConfig?.outputDir ? resolve(cwd, fmConfig.outputDir) : cwd
 	}
 
-	// Get formats to render
-	const formats = getFormats(options)
+	// Get formats to render (CLI > Frontmatter > default)
+	const formats = resolveFormats(options, fmConfig?.formats)
 
 	// Check dependencies
 	const needsPdf = formats.includes('pdf')
@@ -129,9 +148,9 @@ function runRender(
 	console.log(chalk.yellow(`Building resume from: ${inputPath}`))
 	console.log('')
 
-	// Render each format
+	// Render content (frontmatter already stripped)
 	const results = renderMultiple(
-		inputPath,
+		content,
 		outputDir,
 		outputName,
 		formats,
@@ -191,9 +210,9 @@ export async function renderCommand(
 	console.log('')
 	console.log(chalk.yellow('Watching for changes...') + ' (Ctrl+C to stop)')
 
-	// Resolve style for watching
-	const config = loadConfig(cwd)
-	const styleArg = options.style ?? config?.style
+	// Resolve style for watching (re-parse frontmatter to get style)
+	const { config: fmConfig } = parseFrontmatter(inputPath)
+	const styleArg = options.style ?? fmConfig?.style
 	let cssPath: string
 	try {
 		cssPath = resolveStyle(styleArg, cwd)

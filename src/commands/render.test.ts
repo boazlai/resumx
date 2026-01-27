@@ -5,6 +5,7 @@ import {
 	rmSync,
 	copyFileSync,
 	readFileSync,
+	writeFileSync,
 } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -508,6 +509,212 @@ describe('render command', () => {
 			// Should contain CLI override, not global
 			expect(htmlContent).toContain('--font-family: CLIFont, monospace')
 			expect(htmlContent).not.toContain('GlobalFont')
+		})
+	})
+
+	describe('frontmatter configuration', () => {
+		it('uses style from YAML frontmatter', async () => {
+			const mdContent = `---
+style: formal
+---
+# Test Person
+
+Test content`
+			writeFileSync(join(tempDir, 'with-style.md'), mdContent)
+
+			await execa('node', [CLI_PATH, 'with-style.md', '--html'], {
+				cwd: tempDir,
+			})
+
+			// Should render successfully with formal style
+			const htmlContent = readFileSync(
+				join(tempDir, 'with-style.html'),
+				'utf-8',
+			)
+			// Verify formal style font is applied (Palatino Linotype is distinctive to formal)
+			expect(htmlContent).toContain('Palatino Linotype')
+		})
+
+		it('uses outputName from frontmatter', async () => {
+			const mdContent = `---
+outputName: custom-output-name
+---
+# Test Person
+
+Test content`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await execa('node', [CLI_PATH, 'resume.md', '--html'], {
+				cwd: tempDir,
+			})
+
+			// Should create file with custom output name
+			expect(existsSync(join(tempDir, 'custom-output-name.html'))).toBe(true)
+			// Original filename should NOT be used
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(false)
+		})
+
+		it('uses outputDir from frontmatter', async () => {
+			const mdContent = `---
+outputDir: ./dist
+---
+# Test Person
+
+Test content`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await execa('node', [CLI_PATH, 'resume.md', '--html'], {
+				cwd: tempDir,
+			})
+
+			// Should create file in specified directory
+			expect(existsSync(join(tempDir, 'dist/resume.html'))).toBe(true)
+		})
+
+		it('uses formats from frontmatter', async () => {
+			const mdContent = `---
+formats:
+  - html
+  - pdf
+---
+# Test Person
+
+Test content`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			// No explicit format flags - should use frontmatter formats
+			await execa('node', [CLI_PATH, 'resume.md'], {
+				cwd: tempDir,
+			})
+
+			// Should create both formats specified in frontmatter
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume.pdf'))).toBe(true)
+			// docx should NOT be created (not in frontmatter)
+			expect(existsSync(join(tempDir, 'resume.docx'))).toBe(false)
+		})
+
+		it('applies variables from frontmatter to CSS', async () => {
+			const mdContent = `---
+variables:
+  font-family: "FrontmatterFont, serif"
+---
+# Test Person
+
+Test content`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await execa('node', [CLI_PATH, 'resume.md', '--html'], {
+				cwd: tempDir,
+			})
+
+			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(htmlContent).toContain('--font-family: FrontmatterFont, serif')
+		})
+
+		it('CLI flags override frontmatter values', async () => {
+			const mdContent = `---
+outputName: frontmatter-name
+style: minimal
+---
+# Test Person
+
+Test content`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			// CLI -o should override frontmatter outputName
+			await execa(
+				'node',
+				[CLI_PATH, 'resume.md', '--html', '-o', 'cli-name', '-s', 'formal'],
+				{
+					cwd: tempDir,
+				},
+			)
+
+			// CLI output name should be used
+			expect(existsSync(join(tempDir, 'cli-name.html'))).toBe(true)
+			// Frontmatter name should NOT be used
+			expect(existsSync(join(tempDir, 'frontmatter-name.html'))).toBe(false)
+		})
+
+		it('frontmatter is stripped from HTML output', async () => {
+			const mdContent = `---
+style: formal
+outputName: test
+---
+# Test Person
+
+Test content`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await execa('node', [CLI_PATH, 'resume.md', '--html'], {
+				cwd: tempDir,
+			})
+
+			const htmlContent = readFileSync(join(tempDir, 'test.html'), 'utf-8')
+
+			// Frontmatter should not appear in output
+			expect(htmlContent).not.toContain('style: formal')
+			expect(htmlContent).not.toContain('outputName: test')
+			// But content should be present
+			expect(htmlContent).toContain('Test Person')
+		})
+
+		it('parses TOML frontmatter', async () => {
+			const mdContent = `+++
+style = "formal"
+outputName = "toml-output"
++++
+# Test Person
+
+Test content`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await execa('node', [CLI_PATH, 'resume.md', '--html'], {
+				cwd: tempDir,
+			})
+
+			expect(existsSync(join(tempDir, 'toml-output.html'))).toBe(true)
+		})
+
+		it('combines outputName and outputDir from frontmatter', async () => {
+			const mdContent = `---
+outputName: combined
+outputDir: ./build/output
+---
+# Test Person
+
+Test content`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await execa('node', [CLI_PATH, 'resume.md', '--html'], {
+				cwd: tempDir,
+			})
+
+			expect(existsSync(join(tempDir, 'build/output/combined.html'))).toBe(true)
+		})
+
+		it('CLI --var overrides frontmatter variables', async () => {
+			const mdContent = `---
+variables:
+  font-family: "FrontmatterFont, serif"
+---
+# Test Person
+
+Test content`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await execa(
+				'node',
+				[CLI_PATH, 'resume.md', '--html', '--var', 'font-family=CLIFont, sans'],
+				{
+					cwd: tempDir,
+				},
+			)
+
+			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(htmlContent).toContain('--font-family: CLIFont, sans')
+			expect(htmlContent).not.toContain('FrontmatterFont')
 		})
 	})
 })

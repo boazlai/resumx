@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { join } from 'node:path'
 
 // =============================================================================
 // Global Config (~/.config/m8/config.json)
@@ -132,69 +132,6 @@ export function resetStyleVariables(
 	delete styleVariables[styleName]
 
 	writeGlobalConfig({ styleVariables }, configDir)
-}
-
-// =============================================================================
-// Project Config (m8.config.json in cwd)
-// =============================================================================
-
-export const CONFIG_FILENAME = 'm8.config.json'
-
-export interface ProjectConfig {
-	style?: string
-	variables?: Record<string, string>
-}
-
-/**
- * Load project config from cwd
- * Throws on invalid JSON or invalid config shape
- */
-export function loadConfig(cwd: string = process.cwd()): ProjectConfig | null {
-	const configPath = join(cwd, CONFIG_FILENAME)
-
-	if (!existsSync(configPath)) {
-		return null
-	}
-
-	const content = readFileSync(configPath, 'utf-8')
-
-	let parsed: unknown
-	try {
-		parsed = JSON.parse(content)
-	} catch {
-		throw new Error(`Invalid JSON in ${CONFIG_FILENAME}`)
-	}
-
-	// Validate config shape
-	if (typeof parsed !== 'object' || parsed === null) {
-		throw new Error(`${CONFIG_FILENAME} must be an object`)
-	}
-
-	const config = parsed as Record<string, unknown>
-	const style = config['style']
-	const variables = config['variables']
-
-	if (style !== undefined && typeof style !== 'string') {
-		throw new Error("'style' must be a string")
-	}
-
-	if (variables !== undefined) {
-		if (typeof variables !== 'object' || variables === null) {
-			throw new Error("'variables' must be an object")
-		}
-
-		const varsObj = variables as Record<string, unknown>
-		for (const [key, value] of Object.entries(varsObj)) {
-			if (typeof value !== 'string') {
-				throw new Error(`variable '${key}' must be a string`)
-			}
-		}
-	}
-
-	return {
-		style: style as string | undefined,
-		variables: variables as Record<string, string> | undefined,
-	}
 }
 
 // =============================================================================
