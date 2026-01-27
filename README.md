@@ -137,6 +137,37 @@ m8 resume.md --style formal  # use formal style
 m8 resume.md --output cv     # → cv.pdf
 ```
 
+### Frontmatter Configuration
+
+Configure rendering options directly in your markdown file using YAML or TOML frontmatter:
+
+```yaml
+---
+style: formal
+outputName: john-doe-resume
+outputDir: ./dist
+formats:
+  - pdf
+  - html
+variables:
+  font-family: 'Inter, sans-serif'
+  section-header-color: '#2563eb'
+---
+# John Doe
+
+Your resume content here...
+```
+
+| Field        | Type   | Description                             |
+| ------------ | ------ | --------------------------------------- |
+| `style`      | string | Style to use (classic, formal, minimal) |
+| `outputName` | string | Output filename (without extension)     |
+| `outputDir`  | string | Output directory path                   |
+| `formats`    | array  | Output formats: `pdf`, `html`, `docx`   |
+| `variables`  | object | CSS variable overrides                  |
+
+CLI flags always take precedence over frontmatter values.
+
 ### CSS Variable Customization
 
 Override CSS variables without ejecting:
@@ -144,18 +175,6 @@ Override CSS variables without ejecting:
 ```bash
 m8 resume.md --var font-family="Arial"
 m8 resume.md --var section-header-color="#0066cc"
-```
-
-Or create `resum8.config.json`:
-
-```json
-{
-	"style": "formal",
-	"variables": {
-		"font-family": "Inter, sans-serif",
-		"section-header-color": "#2563eb"
-	}
-}
 ```
 
 ## Styles

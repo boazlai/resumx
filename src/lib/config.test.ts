@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { existsSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import {
-	loadConfig,
 	parseVarFlags,
 	mergeVariables,
 	generateVariablesCSS,
@@ -12,8 +11,6 @@ import {
 	resetStyleVariables,
 	readGlobalConfig,
 	writeGlobalConfig,
-	getGlobalConfigDir,
-	CONFIG_FILENAME,
 } from './config.js'
 
 describe('config', () => {
@@ -28,75 +25,6 @@ describe('config', () => {
 		if (existsSync(tempDir)) {
 			rmSync(tempDir, { recursive: true, force: true })
 		}
-	})
-
-	describe('loadConfig', () => {
-		it('returns null when no config file exists', () => {
-			expect(loadConfig(tempDir)).toBeNull()
-		})
-
-		it('loads valid config file', () => {
-			const config = {
-				style: 'formal',
-				variables: {
-					'font-family': 'Arial',
-					'base-font-size': '11pt',
-				},
-			}
-			writeFileSync(
-				join(tempDir, CONFIG_FILENAME),
-				JSON.stringify(config, null, 2),
-			)
-
-			const loaded = loadConfig(tempDir)
-			expect(loaded).toEqual(config)
-		})
-
-		it('loads config with only style', () => {
-			writeFileSync(
-				join(tempDir, CONFIG_FILENAME),
-				JSON.stringify({ style: 'minimal' }),
-			)
-
-			const loaded = loadConfig(tempDir)
-			expect(loaded?.style).toBe('minimal')
-			expect(loaded?.variables).toBeUndefined()
-		})
-
-		it('throws on invalid JSON', () => {
-			writeFileSync(join(tempDir, CONFIG_FILENAME), '{ invalid json }')
-
-			expect(() => loadConfig(tempDir)).toThrow('Invalid JSON')
-		})
-
-		it('throws on non-string style', () => {
-			writeFileSync(
-				join(tempDir, CONFIG_FILENAME),
-				JSON.stringify({ style: 123 }),
-			)
-
-			expect(() => loadConfig(tempDir)).toThrow("'style' must be a string")
-		})
-
-		it('throws on non-object variables', () => {
-			writeFileSync(
-				join(tempDir, CONFIG_FILENAME),
-				JSON.stringify({ variables: 'not-an-object' }),
-			)
-
-			expect(() => loadConfig(tempDir)).toThrow("'variables' must be an object")
-		})
-
-		it('throws on non-string variable value', () => {
-			writeFileSync(
-				join(tempDir, CONFIG_FILENAME),
-				JSON.stringify({ variables: { size: 12 } }),
-			)
-
-			expect(() => loadConfig(tempDir)).toThrow(
-				"variable 'size' must be a string",
-			)
-		})
 	})
 
 	describe('parseVarFlags', () => {

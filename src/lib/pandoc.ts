@@ -1,4 +1,4 @@
-import { execSync, spawn, type ChildProcess } from 'node:child_process'
+import { execSync } from 'node:child_process'
 import {
 	readFileSync,
 	writeFileSync,
@@ -13,7 +13,7 @@ import { generateVariablesCSS } from './config.js'
 export type OutputFormat = 'pdf' | 'html' | 'docx'
 
 export interface RenderOptions {
-	input: string
+	content: string
 	output: string
 	format: OutputFormat
 	cssPath: string
@@ -48,38 +48,20 @@ function createTempCSS(
 }
 
 /**
- * Get the pandoc output format string
- */
-function getPandocFormat(format: OutputFormat): string {
-	switch (format) {
-		case 'pdf':
-			return 'pdf'
-		case 'html':
-			return 'html'
-		case 'docx':
-			return 'docx'
-	}
-}
-
-/**
  * Build pandoc arguments for rendering
  */
 function buildPandocArgs(
-	options: RenderOptions,
-	tempCssPath: string,
+	inputPath: string,
+	outputPath: string,
+	format: OutputFormat,
+	cssPath: string,
 ): string[] {
-	const args = [
-		options.input,
-		'--standalone',
-		`--css=${tempCssPath}`,
-		'-o',
-		options.output,
-	]
+	const args = [inputPath, '--standalone', `--css=${cssPath}`, '-o', outputPath]
 
 	// Add format-specific options
-	if (options.format === 'pdf') {
+	if (format === 'pdf') {
 		args.push('--pdf-engine=weasyprint')
-	} else if (options.format === 'html') {
+	} else if (format === 'html') {
 		args.push('--embed-resources')
 	}
 
@@ -87,7 +69,17 @@ function buildPandocArgs(
 }
 
 /**
- * Render a markdown file to the specified format
+ * Create a temporary markdown file with the given content
+ */
+function createTempMarkdown(content: string): string {
+	const tempDir = tmpdir()
+	const tempPath = join(tempDir, `resum8-${Date.now()}.md`)
+	writeFileSync(tempPath, content)
+	return tempPath
+}
+
+/**
+ * Render markdown content to the specified format
  */
 export function render(options: RenderOptions): RenderResult {
 	const hasVariables =
@@ -99,6 +91,9 @@ export function render(options: RenderOptions): RenderResult {
 			createTempCSS(options.cssPath, options.variables)
 		:	options.cssPath
 
+	// Always create temp markdown file from content
+	const inputPath = createTempMarkdown(options.content)
+
 	try {
 		// Ensure output directory exists
 		const outputDir = dirname(options.output)
@@ -106,7 +101,12 @@ export function render(options: RenderOptions): RenderResult {
 			mkdirSync(outputDir, { recursive: true })
 		}
 
-		const args = buildPandocArgs(options, cssPath)
+		const args = buildPandocArgs(
+			inputPath,
+			options.output,
+			options.format,
+			cssPath,
+		)
 
 		execSync(`pandoc ${args.map(a => `"${a}"`).join(' ')}`, {
 			stdio: ['pipe', 'pipe', 'pipe'],
@@ -134,14 +134,22 @@ export function render(options: RenderOptions): RenderResult {
 				// Ignore cleanup errors
 			}
 		}
+		// Cleanup temp markdown
+		if (existsSync(inputPath)) {
+			try {
+				unlinkSync(inputPath)
+			} catch {
+				// Ignore cleanup errors
+			}
+		}
 	}
 }
 
 /**
- * Render to multiple formats
+ * Render content to multiple formats
  */
 export function renderMultiple(
-	input: string,
+	content: string,
 	outputDir: string,
 	outputName: string,
 	formats: OutputFormat[],
@@ -155,7 +163,7 @@ export function renderMultiple(
 		const output = join(outputDir, `${outputName}.${ext}`)
 
 		const result = render({
-			input,
+			content,
 			output,
 			format,
 			cssPath,
