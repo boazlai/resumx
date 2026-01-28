@@ -40,19 +40,6 @@ function getVersion(
 }
 
 /**
- * Check pandoc installation
- */
-export function checkPandoc(): DependencyStatus {
-	const installed = commandExists('pandoc')
-	return {
-		name: 'pandoc',
-		installed,
-		version: installed ? getVersion('pandoc') : undefined,
-		installHint: 'brew install pandoc',
-	}
-}
-
-/**
  * Check weasyprint installation
  */
 export function checkWeasyprint(): DependencyStatus {
@@ -66,39 +53,58 @@ export function checkWeasyprint(): DependencyStatus {
 }
 
 /**
+ * Check pdf2docx installation
+ */
+export function checkPdf2docx(): DependencyStatus {
+	const installed = commandExists('pdf2docx')
+	return {
+		name: 'pdf2docx',
+		installed,
+		version: installed ? getVersion('pdf2docx') : undefined,
+		installHint: 'pip install pdf2docx',
+	}
+}
+
+/**
  * Check all required dependencies
  */
 export function checkDependencies(): {
-	pandoc: DependencyStatus
 	weasyprint: DependencyStatus
+	pdf2docx: DependencyStatus
 	allInstalled: boolean
 } {
-	const pandoc = checkPandoc()
 	const weasyprint = checkWeasyprint()
+	const pdf2docx = checkPdf2docx()
 
 	return {
-		pandoc,
 		weasyprint,
-		allInstalled: pandoc.installed && weasyprint.installed,
+		pdf2docx,
+		allInstalled: weasyprint.installed && pdf2docx.installed,
 	}
 }
 
 /**
  * Require dependencies or throw
+ * WeasyPrint is required for PDF output
+ * pdf2docx is required for DOCX output (converts PDF to DOCX for high fidelity)
  */
-export function requireDependencies(options: { pdf?: boolean } = {}): void {
-	const pandoc = checkPandoc()
-	if (!pandoc.installed) {
-		throw new Error(
-			`pandoc is required but not installed. Install with: ${pandoc.installHint}`,
-		)
-	}
-
+export function requireDependencies(
+	options: { pdf?: boolean; docx?: boolean } = {},
+): void {
 	if (options.pdf !== false) {
 		const weasyprint = checkWeasyprint()
 		if (!weasyprint.installed) {
 			throw new Error(
 				`weasyprint is required for PDF output. Install with: ${weasyprint.installHint}`,
+			)
+		}
+	}
+
+	if (options.docx) {
+		const pdf2docx = checkPdf2docx()
+		if (!pdf2docx.installed) {
+			throw new Error(
+				`pdf2docx is required for DOCX output. Install with: ${pdf2docx.installHint}`,
 			)
 		}
 	}
