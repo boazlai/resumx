@@ -13,7 +13,7 @@ import {
 	renderMultiple,
 	getOutputName,
 	type OutputFormat,
-} from '../lib/pandoc.js'
+} from '../lib/renderer.js'
 import { parseFrontmatter } from '../lib/frontmatter.js'
 
 export interface RenderCommandOptions {
@@ -64,12 +64,12 @@ function resolveFormats(
 /**
  * Run a single render cycle
  */
-function runRender(
+async function runRender(
 	inputFile: string,
 	inputPath: string,
 	options: RenderCommandOptions,
 	cwd: string,
-): boolean {
+): Promise<boolean> {
 	// Parse frontmatter from input file
 	const { config: fmConfig, content, warnings } = parseFrontmatter(inputPath)
 
@@ -137,9 +137,11 @@ function runRender(
 	const formats = resolveFormats(options, fmConfig?.formats)
 
 	// Check dependencies
-	const needsPdf = formats.includes('pdf')
+	// PDF and DOCX both require weasyprint (DOCX generates PDF first, then converts)
+	const needsPdf = formats.includes('pdf') || formats.includes('docx')
+	const needsDocx = formats.includes('docx')
 	try {
-		requireDependencies({ pdf: needsPdf })
+		requireDependencies({ pdf: needsPdf, docx: needsDocx })
 	} catch (error) {
 		console.error(chalk.red(`Error: ${(error as Error).message}`))
 		return false
@@ -150,7 +152,7 @@ function runRender(
 	console.log('')
 
 	// Render content (frontmatter already stripped)
-	const results = renderMultiple(
+	const results = await renderMultiple(
 		content,
 		outputDir,
 		outputName,
@@ -228,7 +230,7 @@ export async function renderCommand(
 	}
 
 	// Run initial render
-	const success = runRender(inputFile, inputPath, options, cwd)
+	const success = await runRender(inputFile, inputPath, options, cwd)
 
 	if (!options.watch) {
 		process.exit(success ? 0 : 1)
@@ -245,15 +247,15 @@ export async function renderCommand(
 		},
 	})
 
-	watcher.on('change', path => {
+	watcher.on('change', () => {
 		if (debounceTimer) {
 			clearTimeout(debounceTimer)
 		}
 
-		debounceTimer = setTimeout(() => {
+		debounceTimer = setTimeout(async () => {
 			console.log('')
 			console.log(chalk.blue('Change detected, rebuilding...'))
-			runRender(inputFile, inputPath, options, cwd)
+			await runRender(inputFile, inputPath, options, cwd)
 		}, 150)
 	})
 

@@ -17,11 +17,12 @@ Write your resume in markdown. Render it anywhere.
 
 ## Why resum8?
 
-- **Freeform markdown** — No schema, no HTML, just natural prose
-- **Portable** — Works with Pandoc, md-to-pdf, mdpdf, or any markdown tool
-- **Own your styles** — Adopt template styles to your project, tweak it, and make it yours
-- **AI-friendly** — Let AI help write and refine your resume
-- **No lock-in** — Grab the stylesheet, skip the CLI entirely if you want
+- **Just markdown** — No schema, no templating language, just syntax you already know
+- **Beautiful defaults** — Professional templates that look great out of the box
+- **Git-native** — Plain text files, meaningful diffs, branch your resume versions
+- **AI-friendly** — Markdown plays well with LLMs for writing and editing
+- **Tailwind-compatible** — Use the same class for styling as Tailwind CSS
+- **Easily ejectable** — Copy the stylesheet to your project and customize it to your liking
 
 ## Sample
 
@@ -32,7 +33,7 @@ Write your resume in markdown. Render it anywhere.
 
 ## Education
 
-### Stanford University [Sept 2018 - June 2022](#right)
+### Stanford University [Sept 2018 - June 2022]{.float-right}
 
 _Bachelor of Science in Computer Science, Summa Cum Laude_
 
@@ -42,9 +43,9 @@ _Bachelor of Science in Computer Science, Summa Cum Laude_
 
 ## Work Experience
 
-### Google [June 2022 - Present](#right)
+### Google [June 2022 - Present]{.float-right}
 
-_Senior Software Engineer, Infrastructure Platform Team_ [San Francisco, CA](#right)
+_Senior Software Engineer, Infrastructure Platform Team_ [San Francisco, CA]{.float-right}
 
 - Architected distributed microservices orchestration platform with `Kubernetes` and `Docker`
 - Reduced deployment latency by 60% across 50+ services
@@ -56,49 +57,40 @@ _Senior Software Engineer, Infrastructure Platform Team_ [San Francisco, CA](#ri
 
 ## Get Started
 
-### Option 1: Use the CLI (recommended)
+1. Install WeasyPrint:
 
-Install the CLI:
+   **macOS**
 
-```bash
-npm install -g resum8
-```
+   ```bash
+   brew install weasyprint
+   ```
 
-Create your first resume:
+   **Windows**
 
-```bash
-m8 init resume.md   # Generate a template resume
-m8 resume.md        # Render to PDF
-```
+   ```bash
+   choco install weasyprint
+   ```
 
-Customize your output:
+2. Install the CLI:
 
-```bash
-m8 resume.md --style formal   # Apply a different style
-m8 resume.md --html --word    # Generate HTML and Word formats
-m8 resume.md --watch          # Auto-rebuild on changes
-```
+   ```bash
+   npm install -g resum8
+   ```
 
-### Option 2: Grab a stylesheet
+3. Create your first resume:
 
-Want to use your preferred tooling? Download a stylesheet and use it directly.
+   ```bash
+   m8 init resume.md   # Generate a template resume
+   m8 resume.md        # Render to PDF
+   ```
 
-- [classic.css](styles/classic.css) — Elegant serif, traditional feel
-- [formal.css](styles/formal.css) — Clean, professional
-- [minimal.css](styles/minimal.css) — Modern, minimal
+4. (Optional) Customize your output:
 
-```bash
-# With Pandoc
-pandoc resume.md --pdf-engine=weasyprint -c classic.css -o resume.pdf
-
-# With md-to-pdf
-md-to-pdf resume.md --stylesheet classic.css
-
-# With mdpdf
-mdpdf resume.md --style classic.css
-
-# Or other tools...
-```
+   ```bash
+   m8 resume.md --style formal   # Apply a different style
+   m8 resume.md --html --word    # Generate HTML and Word formats
+   m8 resume.md --watch          # Auto-rebuild on changes
+   ```
 
 ## Writing Your Resume
 
@@ -111,18 +103,15 @@ Write your resume in standard markdown syntax. Use `[text](#right)` to right-ali
 
 ## Experience
 
-### Acme Corp [Jan 2022 - Present](#right)
+### Acme Corp [Jan 2022 - Present]{.float-right}
 
-_Senior Software Engineer_ [San Francisco, CA](#right)
+_Senior Software Engineer_ [San Francisco, CA]{.float-right}
 
 - Built REST API serving 10k requests/min using `Node.js` and `Redis`
 - Led team of 10 engineers to deliver project on time
 ```
 
-- Use a blockquote (`>`) with pipe-separated links
-- The `[text](#right)` link floats right via CSS—use it for dates and locations.
-
-See the [full syntax reference](docs/syntax.md) for tables, skills sections, and enhanced Pandoc features.
+See the [full syntax reference](docs/syntax.md) for tables, skills sections, and more.
 
 ## CLI Commands
 
@@ -206,12 +195,11 @@ m8 eject formal               # Copy to ./styles/ for customization
 **For CLI:**
 
 - [Node.js](https://nodejs.org/) 20+
-- [Pandoc](https://pandoc.org/)
-- [WeasyPrint](https://weasyprint.org/)
+- [WeasyPrint](https://weasyprint.org/) (for PDF output)
 
 ```bash
 # macOS
-brew install pandoc weasyprint
+brew install weasyprint
 ```
 
 **For stylesheet-only:** Any markdown-to-HTML/PDF tool that supports custom CSS.
