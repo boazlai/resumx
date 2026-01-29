@@ -252,5 +252,55 @@ Color: #2563eb`)
 				expect(result).toBe('start middle end')
 			})
 		})
+
+		describe('nested object literals', () => {
+			it('handles single-level nested object', async () => {
+				const content = 'Config: {{ {debug: true} }}'
+				const result = await processExpressions(content, {})
+				expect(result).toBe('Config: {"debug":true}')
+			})
+
+			it('handles multi-level nested object', async () => {
+				const content = 'Config: {{ {config: {debug: true}} }}'
+				const result = await processExpressions(content, {})
+				expect(result).toBe('Config: {"config":{"debug":true}}')
+			})
+
+			it('handles nested object with multiple properties', async () => {
+				const content = 'Data: {{ {user: {name: "John", age: 30}} }}'
+				const result = await processExpressions(content, {})
+				expect(result).toBe('Data: {"user":{"name":"John","age":30}}')
+			})
+
+			it('handles nested array of objects', async () => {
+				const content = 'Items: {{ [{id: 1}, {id: 2}] }}'
+				const result = await processExpressions(content, {})
+				expect(result).toBe('Items: [{"id":1},{"id":2}]')
+			})
+
+			it('handles string literals containing }}', async () => {
+				const content = 'Config: {{ {config: {debug: "}}"}} }}'
+				const result = await processExpressions(content, {})
+				expect(result).toBe('Config: {"config":{"debug":"}}"}}')
+			})
+
+			it('handles string literals containing {{ and }}', async () => {
+				const content = 'Template: {{ {template: "{{ value }}"} }}'
+				const result = await processExpressions(content, {})
+				expect(result).toBe('Template: {"template":"{{ value }}"}')
+			})
+
+			it('handles single quotes with }}', async () => {
+				const content = "Config: {{ {msg: '}}'} }}"
+				const result = await processExpressions(content, {})
+				expect(result).toBe('Config: {"msg":"}}"}')
+			})
+
+			it('handles escaped quotes in strings', async () => {
+				const content = 'Text: {{ {quote: "He said \\"}}\\""} }}'
+				const result = await processExpressions(content, {})
+				expect(result).toBe('Text: {"quote":"He said \\"}}\\""}')
+			})
+		})
 	})
 })
