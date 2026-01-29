@@ -5,6 +5,7 @@ import {
 	listStyles,
 	getDefaultStyle,
 	parseCssVariables,
+	type StyleInfo,
 } from '../lib/styles.js'
 import {
 	writeGlobalConfig,
@@ -26,6 +27,33 @@ export interface StyleCommandOptions {
 	_configDir?: string // For testing
 }
 
+/** Context passed to style subcommands (cwd + optional config dir for tests). */
+interface StyleContext {
+	cwd: string
+	configDir?: string
+}
+
+/** Resolve style by name. Returns null when not found. */
+function getStyle(styleName: string, cwd: string): StyleInfo | null {
+	const styles = listStyles(cwd)
+	const style = styles.find(s => s.name === styleName)
+	return style ?? null
+}
+
+/**
+ * Resolve style by name or exit with error.
+ * Single place for "style not found" exit so the CLI layer owns process.exit.
+ * Throws after process.exit(1) so when exit is mocked in tests we never return null.
+ */
+function requireStyle(styleName: string, ctx: StyleContext): StyleInfo {
+	const style = getStyle(styleName, ctx.cwd)
+	if (!style) {
+		console.error(formatStyleNotFoundError(styleName, listStyles(ctx.cwd)))
+		process.exit(1)
+	}
+	return style
+}
+
 /**
  * Style command - list styles or set default
  *
@@ -41,105 +69,67 @@ export async function styleCommand(
 	styleName: string | undefined,
 	options: StyleCommandOptions,
 ): Promise<void> {
-	const cwd = process.cwd()
+	const ctx: StyleContext = {
+		cwd: process.cwd(),
+		configDir: options._configDir,
+	}
 
-	// Set default style
 	if (options.default) {
-		await setDefaultStyle(options.default, cwd, options._configDir)
+		await setDefaultStyle(options.default, ctx)
 		return
 	}
 
-	// Reset all style variables (requires style name)
 	if (options.resetAll) {
 		if (!styleName) {
-			console.error(dedent`
-				${chalk.red('Error: A style name is required when using --reset-all')}
-
-				Usage:
-				  ${chalk.blue('m8 style <name> --reset-all')}
-			`)
+			console.error(
+				formatStyleNameRequired('--reset-all', 'm8 style <name> --reset-all'),
+			)
 			process.exit(1)
-			return // For testing where process.exit is mocked
 		}
-
-		await resetAllStyleVarOverrides(styleName, cwd, options._configDir)
+		await resetAllStyleVarOverrides(styleName, ctx)
 		return
 	}
 
-	// Reset specific style variable (requires style name)
 	if (options.reset) {
 		if (!styleName) {
-			console.error(dedent`
-				${chalk.red('Error: A style name is required when using --reset')}
-
-				Usage:
-				  ${chalk.blue('m8 style <name> --reset <variable-name>')}
-			`)
+			console.error(
+				formatStyleNameRequired(
+					'--reset',
+					'm8 style <name> --reset <variable-name>',
+				),
+			)
 			process.exit(1)
-			return // For testing where process.exit is mocked
 		}
-
-		await resetSingleStyleVarOverride(
-			styleName,
-			options.reset,
-			cwd,
-			options._configDir,
-		)
+		await resetSingleStyleVarOverride(styleName, options.reset, ctx)
 		return
 	}
 
-	// Set variable overrides (requires style name)
 	if (options.var && options.var.length > 0) {
 		if (!styleName) {
-			console.error(dedent`
-				${chalk.red('Error: A style name is required when using --var')}
-
-				Usage:
-				  ${chalk.blue('m8 style <name> --var key=value')}
-			`)
+			console.error(
+				formatStyleNameRequired('--var', 'm8 style <name> --var key=value'),
+			)
 			process.exit(1)
-			return // For testing where process.exit is mocked
 		}
-
-		await setStyleVarOverrides(styleName, options.var, cwd, options._configDir)
+		await setStyleVarOverrides(styleName, options.var, ctx)
 		return
 	}
 
-	// Show style info
 	if (styleName) {
-		await showStyleInfo(styleName, cwd, options._configDir)
+		await showStyleInfo(styleName, ctx)
 		return
 	}
 
-	// List all styles
-	await listAllStyles(cwd)
+	await listAllStyles(ctx.cwd)
 }
 
-/**
- * Reset all variable overrides for a style
- */
+/** Reset all variable overrides for a style. */
 async function resetAllStyleVarOverrides(
 	styleName: string,
-	cwd: string,
-	configDir?: string,
+	ctx: StyleContext,
 ): Promise<void> {
-	// Validate style exists
-	const styles = listStyles(cwd)
-	const style = styles.find(s => s.name === styleName)
-
-	if (!style) {
-		console.error(dedent.withOptions({ alignValues: true })`
-			${chalk.red(`Error: Style '${styleName}' not found.`)}
-
-			Available styles:
-			  ${styles.map(s => `${s.name}`).join('\n')}
-		`)
-		process.exit(1)
-		return // For testing where process.exit is mocked
-	}
-
-	// Clear saved variables
-	resetStyleVariables(styleName, configDir)
+	requireStyle(styleName, ctx)
+	resetStyleVariables(styleName, ctx.configDir)
 	console.log(dedent`
 		All variable overrides cleared for ${chalk.cyan(styleName)}
 
@@ -147,32 +137,14 @@ async function resetAllStyleVarOverrides(
 	`)
 }
 
-/**
- * Reset a single variable override for a style
- */
+/** Reset a single variable override for a style. */
 async function resetSingleStyleVarOverride(
 	styleName: string,
 	varName: string,
-	cwd: string,
-	configDir?: string,
+	ctx: StyleContext,
 ): Promise<void> {
-	// Validate style exists
-	const styles = listStyles(cwd)
-	const style = styles.find(s => s.name === styleName)
-
-	if (!style) {
-		console.error(dedent.withOptions({ alignValues: true })`
-			${chalk.red(`Error: Style '${styleName}' not found.`)}
-
-			Available styles:
-			  ${styles.map(s => `${s.name}`).join('\n')}
-		`)
-		process.exit(1)
-		return // For testing where process.exit is mocked
-	}
-
-	// Get current overrides
-	const currentOverrides = getStyleVariables(styleName, configDir)
+	requireStyle(styleName, ctx)
+	const currentOverrides = getStyleVariables(styleName, ctx.configDir)
 
 	// Check if the variable has an override
 	if (!currentOverrides[varName]) {
@@ -184,25 +156,21 @@ async function resetSingleStyleVarOverride(
 			  ${overrideKeys.length > 0 ? overrideKeys.map(k => chalk.cyan(`--${k}`)).join('\n') : chalk.dim('(none)')}
 		`)
 		process.exit(1)
-		return // For testing where process.exit is mocked
 	}
 
 	// Remove the specific variable
 	const updatedOverrides = { ...currentOverrides }
 	delete updatedOverrides[varName]
 
-	// Update the config with remaining overrides
-	// If no overrides remain, reset entirely
 	if (Object.keys(updatedOverrides).length === 0) {
-		resetStyleVariables(styleName, configDir)
+		resetStyleVariables(styleName, ctx.configDir)
 	} else {
-		// Get current config and merge properly
-		const config = readGlobalConfig(configDir)
+		const config = readGlobalConfig(ctx.configDir)
 		const updatedStyleVariables = {
 			...config.styleVariables,
 			[styleName]: updatedOverrides,
 		}
-		writeGlobalConfig({ styleVariables: updatedStyleVariables }, configDir)
+		writeGlobalConfig({ styleVariables: updatedStyleVariables }, ctx.configDir)
 	}
 
 	console.log(dedent`
@@ -212,34 +180,15 @@ async function resetSingleStyleVarOverride(
 	`)
 }
 
-/**
- * Set variable overrides for a style
- */
+/** Set variable overrides for a style. */
 async function setStyleVarOverrides(
 	styleName: string,
 	varFlags: string[],
-	cwd: string,
-	configDir?: string,
+	ctx: StyleContext,
 ): Promise<void> {
-	// Validate style exists
-	const styles = listStyles(cwd)
-	const style = styles.find(s => s.name === styleName)
-
-	if (!style) {
-		console.error(dedent.withOptions({ alignValues: true })`
-			${chalk.red(`Error: Style '${styleName}' not found.`)}
-
-			Available styles:
-			  ${styles.map(s => `${s.name}`).join('\n')}
-
-		`)
-		process.exit(1)
-		return // For testing where process.exit is mocked
-	}
-
-	// Parse and save variables
+	requireStyle(styleName, ctx)
 	const variables = parseVarFlags(varFlags)
-	setStyleVariables(styleName, variables, configDir)
+	setStyleVariables(styleName, variables, ctx.configDir)
 
 	console.log(dedent.withOptions({ alignValues: true })`
 		Default variable overrides saved for ${chalk.cyan(styleName)}:
@@ -252,108 +201,66 @@ async function setStyleVarOverrides(
 	`)
 }
 
-/**
- * Show info for a specific style including configurable variables
- */
+/** Show info for a specific style including configurable variables. */
 async function showStyleInfo(
 	styleName: string,
-	cwd: string,
-	configDir?: string,
+	ctx: StyleContext,
 ): Promise<void> {
-	// Find the style
-	const styles = listStyles(cwd)
-	const style = styles.find(s => s.name === styleName)
-
-	if (!style) {
-		console.error(chalk.red(`Error: Style '${styleName}' not found.`))
-		console.log(dedent.withOptions({ alignValues: true })`
-
-			Available styles:
-			  ${styles.map(s => `${s.name}`).join('\n')}
-		`)
-		process.exit(1)
-		return // For testing where process.exit is mocked
-	}
-
-	// Read and parse CSS variables
+	const style = requireStyle(styleName, ctx)
 	const css = readFileSync(style.path, 'utf-8')
 	const variables = parseCssVariables(css)
+	const savedOverrides = getStyleVariables(styleName, ctx.configDir)
 
-	// Get saved variable overrides
-	const savedOverrides = getStyleVariables(styleName, configDir)
-	const hasSavedOverrides = Object.keys(savedOverrides).length > 0
-
-	// Display style info
-	if (style.isLocal) {
-		const relativePath = relative(cwd, style.path)
-		console.log(
-			`${chalk.bold(`Style: ${styleName}`)} ${chalk.yellow(`(overridden in ${relativePath})`)}`,
-		)
-	} else {
-		console.log(chalk.bold(`Style: ${styleName}`))
-	}
+	console.log(
+		chalk.bold(
+			`Style: ${chalk.cyan(styleName)}${style.isLocal ? ` (overridden in ${relative(ctx.cwd, style.path)})` : ''}\n`,
+		),
+	)
 
 	if (variables.length === 0) {
 		console.log(chalk.dim('No configurable CSS variables found.'))
 	} else {
 		console.log(chalk.bold('Configurable variables:'))
-		console.log('')
 		for (const v of variables) {
 			const varName = v.name.slice(2) // Remove -- prefix
 			const override = savedOverrides[varName]
 
-			console.log(`  ${chalk.cyan(varName)}`)
+			console.log(`    ${chalk.cyan(varName)}`)
 			if (override && override !== v.value) {
 				console.log(
-					`    ${chalk.dim(v.value)} ${chalk.yellow('→')} ${chalk.green(override)}`,
+					`      ${chalk.dim(v.value)} ${chalk.yellow('→')} ${chalk.green(override)}`,
 				)
 			} else {
-				console.log(`    ${chalk.dim(v.value)}`)
+				console.log(`      ${chalk.dim(v.value)}`)
 			}
 		}
 	}
+	console.log('')
 	console.log(dedent`
 		Override with:
-		  ${chalk.blue(`m8 resume.md --var ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}
+		    ${chalk.blue(`m8 resume.md --var ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}
 
 		Set default override:
-		  ${chalk.blue(`m8 style ${styleName} --set ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}
+		    ${chalk.blue(`m8 style ${styleName} --set ${variables[0]?.name.slice(2) ?? 'font-family'}="value"`)}
 
 		Reset specific variable:
-		  ${chalk.blue(`m8 style ${styleName} --reset ${variables[0]?.name.slice(2) ?? 'font-family'}`)}
+		    ${chalk.blue(`m8 style ${styleName} --reset ${variables[0]?.name.slice(2) ?? 'font-family'}`)}
 
 		Reset all overrides:
-		  ${chalk.blue(`m8 style ${styleName} --reset-all`)}
+		    ${chalk.blue(`m8 style ${styleName} --reset-all`)}
 
 		Or customize fully:
-		  ${chalk.blue(`m8 eject ${styleName}`)}
+		    ${chalk.blue(`m8 eject ${styleName}`)}
 	`)
 }
 
-/**
- * Set the global default style
- */
+/** Set the global default style. */
 async function setDefaultStyle(
 	styleName: string,
-	cwd: string,
-	configDir?: string,
+	ctx: StyleContext,
 ): Promise<void> {
-	// Validate style exists
-	const styles = listStyles(cwd)
-	const styleExists = styles.some(s => s.name === styleName)
-
-	if (!styleExists) {
-		console.error(dedent.withOptions({ alignValues: true })`
-			${chalk.red(`Error: Style '${styleName}' not found.`)}
-
-			Available styles:
-			  ${styles.map(s => `${s.name}`).join('\n')}
-		`)
-		process.exit(1)
-	}
-
-	// Write to global config
-	writeGlobalConfig({ defaultStyle: styleName }, configDir)
+	requireStyle(styleName, ctx)
+	writeGlobalConfig({ defaultStyle: styleName }, ctx.configDir)
 
 	console.log(dedent`
 		Default style set to ${chalk.cyan(styleName)}
@@ -361,40 +268,59 @@ async function setDefaultStyle(
 	`)
 }
 
-/**
- * List all available styles
- */
+/** List all available styles. */
 async function listAllStyles(cwd: string): Promise<void> {
 	const styles = listStyles(cwd)
 	const defaultStyle = getDefaultStyle()
 
 	console.log(chalk.bold('Available styles:'))
-	console.log('')
 
-	for (const style of styles) {
-		const isDefault = style.name === defaultStyle
-
-		const name = isDefault ? chalk.cyan(style.name) : style.name
-		let markerStr = ''
-		if (style.isLocal) {
-			const relativePath = relative(cwd, style.path)
-			markerStr = chalk.yellow(` (overridden in ${relativePath})`)
-		}
-
-		console.log(`  ${name}${markerStr}`)
+	for (const s of styles) {
+		const isDefault = s.name === defaultStyle
+		const styleNameStr = isDefault ? chalk.cyan(s.name) : s.name
+		let markerStr =
+			s.isLocal ? chalk.yellow(` (overridden in ${relative(cwd, s.path)})`) : ''
+		console.log(`    ${styleNameStr}${markerStr}`)
 	}
+	console.log('')
 
 	console.log(dedent`
 		Usage:
-		  ${chalk.blue('m8 resume.md --style <name>')}
+		    ${chalk.blue('m8 resume.md --style <name>')}
 
 		View style details:
-		  ${chalk.blue('m8 style <name>')}
+		    ${chalk.blue('m8 style <name>')}
 
 		Set default style:
-		  ${chalk.blue('m8 style --default <name>')}
+		    ${chalk.blue('m8 style --default <name>')}
 
 		Customize a style:
-		  ${chalk.blue('m8 eject <name>')}  Copy to ./styles/ for editing
+		    ${chalk.blue('m8 eject <name>')}  Copy to ./styles/ for editing
 	`)
+}
+
+/** Format "style not found" error message. */
+function formatStyleNotFoundError(
+	notFoundStyleName: string,
+	availableStyles: StyleInfo[],
+): string {
+	return dedent.withOptions({ alignValues: true })`
+		${chalk.red(`Error: Style '${notFoundStyleName}' not found.`)}
+
+		Available styles:
+		    ${availableStyles.map(s => s.name).join('\n')}
+	`
+}
+
+/** Format "style name required" error message. */
+function formatStyleNameRequired(
+	optionName: string,
+	usageExample: string,
+): string {
+	return dedent`
+		${chalk.red(`Error: A style name is required when using ${optionName}`)}
+
+		Usage:
+		    ${chalk.blue(usageExample)}
+	`
 }
