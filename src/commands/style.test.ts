@@ -16,6 +16,29 @@ let consoleOutput: string[] = []
 const originalLog = console.log
 const originalError = console.error
 
+/** Thrown when process.exit is mocked so the test runner doesn't actually exit. */
+class ExitError extends Error {
+	constructor(public readonly code: number) {
+		super(`process.exit(${code})`)
+		this.name = 'ExitError'
+	}
+}
+
+/**
+ * Mock process.exit to throw ExitError(code) instead of exiting.
+ * Execution stops at the first exit call; no fall-through.
+ * Returns a restorer; call it in finally or after the test.
+ */
+function withExitThrowing(): () => void {
+	const originalExit = process.exit
+	process.exit = ((code?: number) => {
+		throw new ExitError(code ?? 0)
+	}) as typeof process.exit
+	return () => {
+		process.exit = originalExit
+	}
+}
+
 describe('style command', () => {
 	let tempDir: string
 
@@ -90,21 +113,18 @@ describe('style command', () => {
 
 		it('shows error for non-existent style', async () => {
 			const originalCwd = process.cwd
-			const originalExit = process.exit
-			let exitCode: number | undefined
 			process.cwd = () => tempDir
-			process.exit = ((code: number) => {
-				exitCode = code
-			}) as typeof process.exit
-
-			await styleCommand('nonexistent', { _configDir: globalConfigDir })
-
-			process.cwd = originalCwd
-			process.exit = originalExit
-
-			const output = consoleOutput.join('\n')
-			expect(output).toContain('not found')
-			expect(exitCode).toBe(1)
+			const restoreExit = withExitThrowing()
+			try {
+				await expect(
+					styleCommand('nonexistent', { _configDir: globalConfigDir }),
+				).rejects.toMatchObject({ name: 'ExitError', code: 1 })
+				const output = consoleOutput.join('\n')
+				expect(output).toContain('not found')
+			} finally {
+				restoreExit()
+				process.cwd = originalCwd
+			}
 		})
 	})
 
@@ -167,24 +187,21 @@ describe('style command', () => {
 
 		it('shows error when setting var without style name', async () => {
 			const originalCwd = process.cwd
-			const originalExit = process.exit
-			let exitCode: number | undefined
 			process.cwd = () => tempDir
-			process.exit = ((code: number) => {
-				exitCode = code
-			}) as typeof process.exit
-
-			await styleCommand(undefined, {
-				var: ['font-family=Arial'],
-				_configDir: globalConfigDir,
-			})
-
-			process.cwd = originalCwd
-			process.exit = originalExit
-
-			const output = consoleOutput.join('\n')
-			expect(output).toContain('style name')
-			expect(exitCode).toBe(1)
+			const restoreExit = withExitThrowing()
+			try {
+				await expect(
+					styleCommand(undefined, {
+						var: ['font-family=Arial'],
+						_configDir: globalConfigDir,
+					}),
+				).rejects.toMatchObject({ name: 'ExitError', code: 1 })
+				const output = consoleOutput.join('\n')
+				expect(output).toContain('style name')
+			} finally {
+				restoreExit()
+				process.cwd = originalCwd
+			}
 		})
 
 		it('shows saved overrides inline with default values', async () => {
@@ -310,24 +327,21 @@ describe('style command', () => {
 
 			it('shows error when resetting all without style name', async () => {
 				const originalCwd = process.cwd
-				const originalExit = process.exit
-				let exitCode: number | undefined
 				process.cwd = () => tempDir
-				process.exit = ((code: number) => {
-					exitCode = code
-				}) as typeof process.exit
-
-				await styleCommand(undefined, {
-					resetAll: true,
-					_configDir: globalConfigDir,
-				})
-
-				process.cwd = originalCwd
-				process.exit = originalExit
-
-				const output = consoleOutput.join('\n')
-				expect(output).toContain('style name')
-				expect(exitCode).toBe(1)
+				const restoreExit = withExitThrowing()
+				try {
+					await expect(
+						styleCommand(undefined, {
+							resetAll: true,
+							_configDir: globalConfigDir,
+						}),
+					).rejects.toMatchObject({ name: 'ExitError', code: 1 })
+					const output = consoleOutput.join('\n')
+					expect(output).toContain('style name')
+				} finally {
+					restoreExit()
+					process.cwd = originalCwd
+				}
 			})
 
 			it('does not affect other styles when resetting all', async () => {
@@ -423,35 +437,30 @@ describe('style command', () => {
 
 			it('shows error when resetting non-existent override', async () => {
 				const originalCwd = process.cwd
-				const originalExit = process.exit
-				let exitCode: number | undefined
 				process.cwd = () => tempDir
-				process.exit = ((code: number) => {
-					exitCode = code
-				}) as typeof process.exit
-
-				// Set some variables but not the one we'll try to reset
-				writeGlobalConfig(
-					{
-						styleVariables: {
-							classic: { 'font-family': 'Arial' },
+				const restoreExit = withExitThrowing()
+				try {
+					writeGlobalConfig(
+						{
+							styleVariables: {
+								classic: { 'font-family': 'Arial' },
+							},
 						},
-					},
-					globalConfigDir,
-				)
-
-				await styleCommand('classic', {
-					reset: 'text-color',
-					_configDir: globalConfigDir,
-				})
-
-				process.cwd = originalCwd
-				process.exit = originalExit
-
-				const output = consoleOutput.join('\n')
-				expect(output).toContain('No override found')
-				expect(output).toContain('text-color')
-				expect(exitCode).toBe(1)
+						globalConfigDir,
+					)
+					await expect(
+						styleCommand('classic', {
+							reset: 'text-color',
+							_configDir: globalConfigDir,
+						}),
+					).rejects.toMatchObject({ name: 'ExitError', code: 1 })
+					const output = consoleOutput.join('\n')
+					expect(output).toContain('No override found')
+					expect(output).toContain('text-color')
+				} finally {
+					restoreExit()
+					process.cwd = originalCwd
+				}
 			})
 
 			it('shows confirmation after resetting specific variable', async () => {
@@ -481,24 +490,21 @@ describe('style command', () => {
 
 			it('shows error when resetting without style name', async () => {
 				const originalCwd = process.cwd
-				const originalExit = process.exit
-				let exitCode: number | undefined
 				process.cwd = () => tempDir
-				process.exit = ((code: number) => {
-					exitCode = code
-				}) as typeof process.exit
-
-				await styleCommand(undefined, {
-					reset: 'font-family',
-					_configDir: globalConfigDir,
-				})
-
-				process.cwd = originalCwd
-				process.exit = originalExit
-
-				const output = consoleOutput.join('\n')
-				expect(output).toContain('style name')
-				expect(exitCode).toBe(1)
+				const restoreExit = withExitThrowing()
+				try {
+					await expect(
+						styleCommand(undefined, {
+							reset: 'font-family',
+							_configDir: globalConfigDir,
+						}),
+					).rejects.toMatchObject({ name: 'ExitError', code: 1 })
+					const output = consoleOutput.join('\n')
+					expect(output).toContain('style name')
+				} finally {
+					restoreExit()
+					process.cwd = originalCwd
+				}
 			})
 		})
 	})
