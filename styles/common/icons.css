@@ -3,11 +3,11 @@
 }
 
 /* Iconify icons - align with text */
-iconify-icon {
-	width: 1em;
-	height: 1em;
+.iconify {
 	vertical-align: text-top;
 	display: var(--logo);
+	height: 1em;
+	overflow: visible;
 }
 
 /* Email */
