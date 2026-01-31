@@ -4,12 +4,10 @@ import { resolve, dirname, relative, basename } from 'node:path'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import { requireDependencies } from '../lib/check.js'
-import { resolveStyle, getDefaultStyle } from '../lib/styles.js'
-import {
-	parseVarFlags,
-	mergeVariables,
-	getStyleVariables,
-} from '../lib/config.js'
+import { resolveStyle } from '../lib/styles.js'
+import { config, type ConfigStore } from '../lib/config.js'
+import { parseVarFlags } from './utils/var-flags.js'
+import { mergeVariables } from '../lib/styles.js'
 import {
 	renderMultiple,
 	getOutputName,
@@ -26,7 +24,6 @@ export interface RenderCommandOptions {
 	docx?: boolean
 	all?: boolean
 	watch?: boolean
-	_configDir?: string // For testing global style variables
 }
 
 /**
@@ -70,6 +67,7 @@ async function runRender(
 	inputPath: string,
 	options: RenderCommandOptions,
 	cwd: string,
+	store: ConfigStore = config,
 ): Promise<boolean> {
 	// Parse frontmatter from input file
 	const { config: fmConfig, content, warnings } = parseFrontmatter(inputPath)
@@ -81,7 +79,7 @@ async function runRender(
 
 	// Resolve style (CLI > Frontmatter > Global default)
 	const styleArg = options.style ?? fmConfig?.style
-	const styleName = styleArg ?? getDefaultStyle()
+	const styleName = styleArg ?? store.defaultStyle
 	let cssPath: string
 	try {
 		cssPath = resolveStyle(styleArg, cwd)
@@ -91,7 +89,7 @@ async function runRender(
 	}
 
 	// Merge variables (CLI > Frontmatter > Global style defaults)
-	const globalStyleVars = getStyleVariables(styleName, options._configDir)
+	const globalStyleVars = store.getStyleVariables(styleName)
 	const cliVars = options.var ? parseVarFlags(options.var) : undefined
 	const variables = mergeVariables(
 		globalStyleVars,
@@ -214,6 +212,7 @@ async function runRender(
 export async function renderCommand(
 	inputFile: string,
 	options: RenderCommandOptions,
+	store: ConfigStore = config,
 ): Promise<void> {
 	const cwd = process.cwd()
 
@@ -251,7 +250,7 @@ export async function renderCommand(
 	}
 
 	// Run initial render
-	const success = await runRender(inputFile, inputPath, options, cwd)
+	const success = await runRender(inputFile, inputPath, options, cwd, store)
 
 	if (!options.watch) {
 		process.exit(success ? 0 : 1)
@@ -275,7 +274,7 @@ export async function renderCommand(
 
 		debounceTimer = setTimeout(async () => {
 			console.log(chalk.blue('\nChange detected, rebuilding...'))
-			await runRender(inputFile, inputPath, options, cwd)
+			await runRender(inputFile, inputPath, options, cwd, store)
 		}, 150)
 	})
 

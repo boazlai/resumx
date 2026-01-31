@@ -11,7 +11,7 @@ import { join, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
-import { writeGlobalConfig } from '../lib/config.js'
+import { createConfigStore } from '../lib/config.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const CLI_PATH = join(__dirname, '../../dist/index.js')
@@ -24,10 +24,7 @@ describe('render command', () => {
 	 * Helper to run CLI with test config directory
 	 */
 	const runCLI = (args: string[], options: { cwd: string; reject?: false }) => {
-		return execa('node', [CLI_PATH, ...args], {
-			...options,
-			env: { ...process.env, RESUM8_CONFIG_DIR: process.env.RESUM8_CONFIG_DIR },
-		})
+		return execa('node', [CLI_PATH, ...args], options)
 	}
 
 	/**
@@ -453,14 +450,10 @@ describe('render command', () => {
 
 		it('applies global style variables to HTML output', async () => {
 			// Set up global style variables for classic style
-			writeGlobalConfig(
-				{
-					styleVariables: {
-						classic: { 'font-family': 'TestFont, sans-serif' },
-					},
-				},
-				globalConfigDir,
-			)
+			const store = createConfigStore(globalConfigDir)
+			store.setStyleVariables('classic', {
+				'font-family': 'TestFont, sans-serif',
+			})
 
 			// Render using classic style with the test config directory
 			const { renderCommand } = await import('./render.js')
@@ -470,11 +463,14 @@ describe('render command', () => {
 			process.cwd = () => tempDir
 			process.exit = (() => {}) as typeof process.exit
 
-			await renderCommand('sample.md', {
-				html: true,
-				style: 'classic', // Explicitly use classic to match the styleVariables
-				_configDir: globalConfigDir,
-			})
+			await renderCommand(
+				'sample.md',
+				{
+					html: true,
+					style: 'classic', // Explicitly use classic to match the styleVariables
+				},
+				store,
+			)
 
 			process.cwd = originalCwd
 			process.exit = originalExit
@@ -489,14 +485,8 @@ describe('render command', () => {
 
 		it('CLI --var overrides global style variables', async () => {
 			// Set up global style variables for classic style
-			writeGlobalConfig(
-				{
-					styleVariables: {
-						classic: { 'font-family': 'GlobalFont, serif' },
-					},
-				},
-				globalConfigDir,
-			)
+			const store = createConfigStore(globalConfigDir)
+			store.setStyleVariables('classic', { 'font-family': 'GlobalFont, serif' })
 
 			const { renderCommand } = await import('./render.js')
 
@@ -506,12 +496,15 @@ describe('render command', () => {
 			process.exit = (() => {}) as typeof process.exit
 
 			// CLI --var should override global style variables
-			await renderCommand('sample.md', {
-				html: true,
-				style: 'classic', // Explicitly use classic to match the styleVariables
-				var: ['font-family=CLIFont, monospace'],
-				_configDir: globalConfigDir,
-			})
+			await renderCommand(
+				'sample.md',
+				{
+					html: true,
+					style: 'classic', // Explicitly use classic to match the styleVariables
+					var: ['font-family=CLIFont, monospace'],
+				},
+				store,
+			)
 
 			process.cwd = originalCwd
 			process.exit = originalExit
