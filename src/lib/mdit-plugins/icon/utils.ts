@@ -8,5 +8,5 @@ import { escapeHtml } from '@mdit/helper'
  */
 export function iconifyHtml(iconId: string): string {
 	const id = iconId.trim()
-	return `<iconify-icon icon="${escapeHtml(id)}" style="vertical-align: -0.125em; display: inline-block;"></iconify-icon>`
+	return `<span class="iconify" data-icon="${escapeHtml(id)}" style="display: inline-block;"></span>`
 }

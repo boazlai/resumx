@@ -107,7 +107,7 @@ async function markdownToHtml(
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+<script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
 <style>
 ${combinedCSS}
 </style>
