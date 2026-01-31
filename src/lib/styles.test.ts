@@ -14,7 +14,9 @@ import {
 
 // Mock config to isolate tests from user's global config
 vi.mock('./config.js', () => ({
-	getConfiguredDefaultStyle: () => undefined,
+	config: {
+		defaultStyle: 'classic',
+	},
 }))
 
 describe('styles', () => {

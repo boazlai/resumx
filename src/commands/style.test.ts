@@ -1,15 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import {
-	existsSync,
-	mkdirSync,
-	writeFileSync,
-	rmSync,
-	readFileSync,
-} from 'node:fs'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { existsSync, mkdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { styleCommand } from './style.js'
-import { readGlobalConfig, writeGlobalConfig } from '../lib/config.js'
+import { createConfigStore } from '../lib/config.js'
 
 // Mock console.log to capture output
 let consoleOutput: string[] = []
@@ -75,7 +69,8 @@ describe('style command', () => {
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
-			await styleCommand('classic', { _configDir: globalConfigDir })
+			const store = createConfigStore(globalConfigDir)
+			await styleCommand('classic', {}, store)
 
 			process.cwd = originalCwd
 
@@ -90,7 +85,8 @@ describe('style command', () => {
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
-			await styleCommand('formal', { _configDir: globalConfigDir })
+			const store = createConfigStore(globalConfigDir)
+			await styleCommand('formal', {}, store)
 
 			process.cwd = originalCwd
 
@@ -103,7 +99,8 @@ describe('style command', () => {
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
-			await styleCommand('classic', { _configDir: globalConfigDir })
+			const store = createConfigStore(globalConfigDir)
+			await styleCommand('classic', {}, store)
 
 			process.cwd = originalCwd
 
@@ -116,8 +113,9 @@ describe('style command', () => {
 			process.cwd = () => tempDir
 			const restoreExit = withExitThrowing()
 			try {
+				const store = createConfigStore(globalConfigDir)
 				await expect(
-					styleCommand('nonexistent', { _configDir: globalConfigDir }),
+					styleCommand('nonexistent', {}, store),
 				).rejects.toMatchObject({ name: 'ExitError', code: 1 })
 				const output = consoleOutput.join('\n')
 				expect(output).toContain('not found')
@@ -140,30 +138,36 @@ describe('style command', () => {
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
-			await styleCommand('classic', {
-				var: ['font-family=Arial'],
-				_configDir: globalConfigDir,
-			})
+			const store = createConfigStore(globalConfigDir)
+			await styleCommand(
+				'classic',
+				{
+					var: ['font-family=Arial'],
+				},
+				store,
+			)
 
 			process.cwd = originalCwd
 
-			const config = readGlobalConfig(globalConfigDir)
-			expect(config.styleVariables?.classic?.['font-family']).toBe('Arial')
+			expect(store.store.styleVariables?.classic?.['font-family']).toBe('Arial')
 		})
 
 		it('saves multiple variable overrides', async () => {
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
-			await styleCommand('classic', {
-				var: ['font-family=Arial', 'text-color=#000'],
-				_configDir: globalConfigDir,
-			})
+			const store = createConfigStore(globalConfigDir)
+			await styleCommand(
+				'classic',
+				{
+					var: ['font-family=Arial', 'text-color=#000'],
+				},
+				store,
+			)
 
 			process.cwd = originalCwd
 
-			const config = readGlobalConfig(globalConfigDir)
-			expect(config.styleVariables?.classic).toEqual({
+			expect(store.store.styleVariables?.classic).toEqual({
 				'font-family': 'Arial',
 				'text-color': '#000',
 			})
@@ -173,10 +177,14 @@ describe('style command', () => {
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
-			await styleCommand('classic', {
-				var: ['font-family=Arial'],
-				_configDir: globalConfigDir,
-			})
+			const store = createConfigStore(globalConfigDir)
+			await styleCommand(
+				'classic',
+				{
+					var: ['font-family=Arial'],
+				},
+				store,
+			)
 
 			process.cwd = originalCwd
 
@@ -190,11 +198,15 @@ describe('style command', () => {
 			process.cwd = () => tempDir
 			const restoreExit = withExitThrowing()
 			try {
+				const store = createConfigStore(globalConfigDir)
 				await expect(
-					styleCommand(undefined, {
-						var: ['font-family=Arial'],
-						_configDir: globalConfigDir,
-					}),
+					styleCommand(
+						undefined,
+						{
+							var: ['font-family=Arial'],
+						},
+						store,
+					),
 				).rejects.toMatchObject({ name: 'ExitError', code: 1 })
 				const output = consoleOutput.join('\n')
 				expect(output).toContain('style name')
@@ -209,17 +221,14 @@ describe('style command', () => {
 			process.cwd = () => tempDir
 
 			// First, set some variables
-			writeGlobalConfig(
-				{
-					styleVariables: {
-						classic: { 'font-family': 'Arial', 'text-color': '#333' },
-					},
-				},
-				globalConfigDir,
-			)
+			const store = createConfigStore(globalConfigDir)
+			store.setStyleVariables('classic', {
+				'font-family': 'Arial',
+				'text-color': '#333',
+			})
 
 			// Then view style info
-			await styleCommand('classic', { _configDir: globalConfigDir })
+			await styleCommand('classic', {}, store)
 
 			process.cwd = originalCwd
 
@@ -235,17 +244,11 @@ describe('style command', () => {
 			process.cwd = () => tempDir
 
 			// Set a variable to the same value as its default
-			writeGlobalConfig(
-				{
-					styleVariables: {
-						classic: { 'font-size': '11pt' }, // Same as default in classic.css
-					},
-				},
-				globalConfigDir,
-			)
+			const store = createConfigStore(globalConfigDir)
+			store.setStyleVariables('classic', { 'font-size': '11pt' }) // Same as default in classic.css
 
 			// Then view style info
-			await styleCommand('classic', { _configDir: globalConfigDir })
+			await styleCommand('classic', {}, store)
 
 			process.cwd = originalCwd
 
@@ -277,25 +280,24 @@ describe('style command', () => {
 				process.cwd = () => tempDir
 
 				// First, set some variables
-				writeGlobalConfig(
-					{
-						styleVariables: {
-							classic: { 'font-family': 'Arial', 'text-color': '#333' },
-						},
-					},
-					globalConfigDir,
-				)
+				const store = createConfigStore(globalConfigDir)
+				store.setStyleVariables('classic', {
+					'font-family': 'Arial',
+					'text-color': '#333',
+				})
 
 				// Then reset them
-				await styleCommand('classic', {
-					resetAll: true,
-					_configDir: globalConfigDir,
-				})
+				await styleCommand(
+					'classic',
+					{
+						resetAll: true,
+					},
+					store,
+				)
 
 				process.cwd = originalCwd
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.styleVariables?.classic).toBeUndefined()
+				expect(store.store.styleVariables?.classic).toBeUndefined()
 			})
 
 			it('shows confirmation after resetting all variables', async () => {
@@ -303,20 +305,17 @@ describe('style command', () => {
 				process.cwd = () => tempDir
 
 				// First, set some variables
-				writeGlobalConfig(
-					{
-						styleVariables: {
-							classic: { 'font-family': 'Arial' },
-						},
-					},
-					globalConfigDir,
-				)
+				const store = createConfigStore(globalConfigDir)
+				store.setStyleVariables('classic', { 'font-family': 'Arial' })
 
 				// Then reset them
-				await styleCommand('classic', {
-					resetAll: true,
-					_configDir: globalConfigDir,
-				})
+				await styleCommand(
+					'classic',
+					{
+						resetAll: true,
+					},
+					store,
+				)
 
 				process.cwd = originalCwd
 
@@ -330,11 +329,15 @@ describe('style command', () => {
 				process.cwd = () => tempDir
 				const restoreExit = withExitThrowing()
 				try {
+					const store = createConfigStore(globalConfigDir)
 					await expect(
-						styleCommand(undefined, {
-							resetAll: true,
-							_configDir: globalConfigDir,
-						}),
+						styleCommand(
+							undefined,
+							{
+								resetAll: true,
+							},
+							store,
+						),
 					).rejects.toMatchObject({ name: 'ExitError', code: 1 })
 					const output = consoleOutput.join('\n')
 					expect(output).toContain('style name')
@@ -349,27 +352,23 @@ describe('style command', () => {
 				process.cwd = () => tempDir
 
 				// Set variables for multiple styles
-				writeGlobalConfig(
-					{
-						styleVariables: {
-							classic: { 'font-family': 'Arial' },
-							formal: { 'font-family': 'Times' },
-						},
-					},
-					globalConfigDir,
-				)
+				const store = createConfigStore(globalConfigDir)
+				store.setStyleVariables('classic', { 'font-family': 'Arial' })
+				store.setStyleVariables('formal', { 'font-family': 'Times' })
 
 				// Reset only classic
-				await styleCommand('classic', {
-					resetAll: true,
-					_configDir: globalConfigDir,
-				})
+				await styleCommand(
+					'classic',
+					{
+						resetAll: true,
+					},
+					store,
+				)
 
 				process.cwd = originalCwd
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.styleVariables?.classic).toBeUndefined()
-				expect(config.styleVariables?.formal).toEqual({
+				expect(store.store.styleVariables?.classic).toBeUndefined()
+				expect(store.store.styleVariables?.formal).toEqual({
 					'font-family': 'Times',
 				})
 			})
@@ -381,29 +380,25 @@ describe('style command', () => {
 				process.cwd = () => tempDir
 
 				// First, set multiple variables
-				writeGlobalConfig(
-					{
-						styleVariables: {
-							classic: {
-								'font-family': 'Arial',
-								'text-color': '#333',
-								'base-font-size': '12pt',
-							},
-						},
-					},
-					globalConfigDir,
-				)
+				const store = createConfigStore(globalConfigDir)
+				store.setStyleVariables('classic', {
+					'font-family': 'Arial',
+					'text-color': '#333',
+					'base-font-size': '12pt',
+				})
 
 				// Reset only font-family
-				await styleCommand('classic', {
-					reset: 'font-family',
-					_configDir: globalConfigDir,
-				})
+				await styleCommand(
+					'classic',
+					{
+						reset: 'font-family',
+					},
+					store,
+				)
 
 				process.cwd = originalCwd
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.styleVariables?.classic).toEqual({
+				expect(store.store.styleVariables?.classic).toEqual({
 					'text-color': '#333',
 					'base-font-size': '12pt',
 				})
@@ -414,25 +409,21 @@ describe('style command', () => {
 				process.cwd = () => tempDir
 
 				// Set only one variable
-				writeGlobalConfig(
-					{
-						styleVariables: {
-							classic: { 'font-family': 'Arial' },
-						},
-					},
-					globalConfigDir,
-				)
+				const store = createConfigStore(globalConfigDir)
+				store.setStyleVariables('classic', { 'font-family': 'Arial' })
 
 				// Reset it
-				await styleCommand('classic', {
-					reset: 'font-family',
-					_configDir: globalConfigDir,
-				})
+				await styleCommand(
+					'classic',
+					{
+						reset: 'font-family',
+					},
+					store,
+				)
 
 				process.cwd = originalCwd
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.styleVariables?.classic).toBeUndefined()
+				expect(store.store.styleVariables?.classic).toBeUndefined()
 			})
 
 			it('shows error when resetting non-existent override', async () => {
@@ -440,19 +431,16 @@ describe('style command', () => {
 				process.cwd = () => tempDir
 				const restoreExit = withExitThrowing()
 				try {
-					writeGlobalConfig(
-						{
-							styleVariables: {
-								classic: { 'font-family': 'Arial' },
-							},
-						},
-						globalConfigDir,
-					)
+					const store = createConfigStore(globalConfigDir)
+					store.setStyleVariables('classic', { 'font-family': 'Arial' })
 					await expect(
-						styleCommand('classic', {
-							reset: 'text-color',
-							_configDir: globalConfigDir,
-						}),
+						styleCommand(
+							'classic',
+							{
+								reset: 'text-color',
+							},
+							store,
+						),
 					).rejects.toMatchObject({ name: 'ExitError', code: 1 })
 					const output = consoleOutput.join('\n')
 					expect(output).toContain('No override found')
@@ -467,19 +455,19 @@ describe('style command', () => {
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 
-				writeGlobalConfig(
-					{
-						styleVariables: {
-							classic: { 'font-family': 'Arial', 'text-color': '#333' },
-						},
-					},
-					globalConfigDir,
-				)
-
-				await styleCommand('classic', {
-					reset: 'font-family',
-					_configDir: globalConfigDir,
+				const store = createConfigStore(globalConfigDir)
+				store.setStyleVariables('classic', {
+					'font-family': 'Arial',
+					'text-color': '#333',
 				})
+
+				await styleCommand(
+					'classic',
+					{
+						reset: 'font-family',
+					},
+					store,
+				)
 
 				process.cwd = originalCwd
 
@@ -493,11 +481,15 @@ describe('style command', () => {
 				process.cwd = () => tempDir
 				const restoreExit = withExitThrowing()
 				try {
+					const store = createConfigStore(globalConfigDir)
 					await expect(
-						styleCommand(undefined, {
-							reset: 'font-family',
-							_configDir: globalConfigDir,
-						}),
+						styleCommand(
+							undefined,
+							{
+								reset: 'font-family',
+							},
+							store,
+						),
 					).rejects.toMatchObject({ name: 'ExitError', code: 1 })
 					const output = consoleOutput.join('\n')
 					expect(output).toContain('style name')

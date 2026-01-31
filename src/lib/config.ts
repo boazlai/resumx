@@ -1,213 +1,118 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import Conf from 'conf'
+import type { Schema } from 'conf'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 
 // =============================================================================
-// Global Config (~/.config/m8/config.json)
+// Types
 // =============================================================================
-
-/**
- * Get global config directory
- * Supports RESUM8_CONFIG_DIR env var for testing
- */
-function getGlobalConfigDir(): string {
-	if (process.env['RESUM8_CONFIG_DIR']) {
-		return process.env['RESUM8_CONFIG_DIR']
-	}
-	return join(homedir(), '.config', 'resum8')
-}
-
-const GLOBAL_CONFIG_DIR = getGlobalConfigDir()
-const GLOBAL_CONFIG_FILE = join(GLOBAL_CONFIG_DIR, 'config.json')
 
 export interface GlobalConfig {
 	defaultStyle?: string
 	styleVariables?: Record<string, Record<string, string>>
 }
 
-/**
- * Get path to global config directory
- */
-export function getGlobalConfigDirPath(): string {
-	return GLOBAL_CONFIG_DIR
+type StyleVariables = Record<string, string>
+
+const schema: Schema<GlobalConfig> = {
+	defaultStyle: {
+		type: 'string',
+	},
+	styleVariables: {
+		type: 'object',
+		additionalProperties: {
+			type: 'object',
+			additionalProperties: { type: 'string' },
+		},
+	},
+}
+
+const defaults: GlobalConfig = {
+	defaultStyle: 'classic',
+	styleVariables: {},
+}
+
+export interface ConfigStore {
+	/** Full path to config file */
+	readonly path: string
+
+	/** Raw config object */
+	readonly store: GlobalConfig
+
+	/** Default style name (use resetDefaultStyle to restore to 'classic') */
+	defaultStyle: string
+
+	/** Set default style back to 'classic' (explicit set; conf does not restore defaults on delete). */
+	resetDefaultStyle(): void
+
+	/** Get style variable overrides */
+	getStyleVariables(style: string): StyleVariables
+
+	/** Set style variables (merges with existing) */
+	setStyleVariables(style: string, vars: StyleVariables): void
+
+	/** Clear all variables for a style */
+	resetStyleVariables(style: string): void
+
+	/** Clear entire config */
+	clear(): void
 }
 
 /**
- * Get path to global config file
+ * Create a config store.
+ * @param cwd - Config directory. Defaults to ~/.config/resum8 (pass custom path for testing).
  */
-export function getConfigPath(): string {
-	return GLOBAL_CONFIG_FILE
-}
+export function createConfigStore(
+	cwd = join(homedir(), '.config', 'resum8'),
+): ConfigStore {
+	const conf = new Conf<GlobalConfig>({
+		cwd,
+		configName: 'config',
+		schema,
+		defaults,
+	})
 
-/**
- * Read global config
- * @param configDir - Optional config directory for testing
- */
-export function readGlobalConfig(configDir?: string): GlobalConfig {
-	const configFile =
-		configDir ? join(configDir, 'config.json') : GLOBAL_CONFIG_FILE
+	return {
+		get path() {
+			return conf.path
+		},
 
-	if (!existsSync(configFile)) {
-		return {}
+		get store() {
+			return conf.store
+		},
+
+		get defaultStyle() {
+			return conf.get('defaultStyle') as string
+		},
+
+		set defaultStyle(value: string) {
+			conf.set('defaultStyle', value)
+		},
+
+		resetDefaultStyle(): void {
+			conf.set('defaultStyle', 'classic')
+		},
+
+		getStyleVariables(style: string): StyleVariables {
+			return (conf.get(`styleVariables.${style}`) as StyleVariables) ?? {}
+		},
+
+		setStyleVariables(style: string, vars: StyleVariables): void {
+			const existing = this.getStyleVariables(style)
+			conf.set(`styleVariables.${style}`, { ...existing, ...vars })
+		},
+
+		resetStyleVariables(style: string): void {
+			const all = conf.get('styleVariables') ?? {}
+			delete all[style]
+			conf.set('styleVariables', all)
+		},
+
+		clear(): void {
+			conf.clear()
+		},
 	}
-
-	try {
-		const content = readFileSync(configFile, 'utf-8')
-		return JSON.parse(content) as GlobalConfig
-	} catch {
-		// Invalid JSON or read error - return empty config
-		return {}
-	}
 }
 
-/**
- * Write global config (merges with existing)
- * @param configDir - Optional config directory for testing
- */
-export function writeGlobalConfig(
-	updates: Partial<GlobalConfig>,
-	configDir?: string,
-): void {
-	const dir = configDir ?? GLOBAL_CONFIG_DIR
-	const configFile = join(dir, 'config.json')
-
-	const existing = readGlobalConfig(configDir)
-	const merged = { ...existing, ...updates }
-
-	// Ensure config directory exists
-	if (!existsSync(dir)) {
-		mkdirSync(dir, { recursive: true })
-	}
-
-	writeFileSync(configFile, JSON.stringify(merged, null, 2) + '\n')
-}
-
-/**
- * Get the configured default style (or undefined if not set)
- */
-export function getConfiguredDefaultStyle(): string | undefined {
-	const config = readGlobalConfig()
-	return config.defaultStyle
-}
-
-/**
- * Get per-style variable overrides from global config
- * @param styleName - The style name to get variables for
- * @param configDir - Optional config directory for testing
- */
-export function getStyleVariables(
-	styleName: string,
-	configDir?: string,
-): Record<string, string> {
-	const config = readGlobalConfig(configDir)
-	return config.styleVariables?.[styleName] ?? {}
-}
-
-/**
- * Set per-style variable overrides in global config
- * Merges with existing variables for the style
- * @param styleName - The style name to set variables for
- * @param variables - Variables to set (merged with existing)
- * @param configDir - Optional config directory for testing
- */
-export function setStyleVariables(
-	styleName: string,
-	variables: Record<string, string>,
-	configDir?: string,
-): void {
-	const config = readGlobalConfig(configDir)
-	const existingStyleVars = config.styleVariables?.[styleName] ?? {}
-
-	const updatedStyleVariables = {
-		...config.styleVariables,
-		[styleName]: { ...existingStyleVars, ...variables },
-	}
-
-	writeGlobalConfig({ styleVariables: updatedStyleVariables }, configDir)
-}
-
-/**
- * Reset per-style variable overrides in global config
- * Clears all variables for the given style
- * @param styleName - The style name to reset variables for
- * @param configDir - Optional config directory for testing
- */
-export function resetStyleVariables(
-	styleName: string,
-	configDir?: string,
-): void {
-	const config = readGlobalConfig(configDir)
-	const styleVariables = { ...config.styleVariables }
-
-	// Remove the style's variables entirely
-	delete styleVariables[styleName]
-
-	writeGlobalConfig({ styleVariables }, configDir)
-}
-
-// =============================================================================
-// Variable Utilities
-// =============================================================================
-
-/**
- * Parse CLI --var flags into a variables object
- * Input: ["primary-color=#ff0000", "font-size=14px"]
- * Output: { "primary-color": "#ff0000", "font-size": "14px" }
- * Throws on invalid format
- */
-export function parseVarFlags(flags: string[]): Record<string, string> {
-	const variables: Record<string, string> = {}
-
-	for (const flag of flags) {
-		const eqIndex = flag.indexOf('=')
-		if (eqIndex === -1) {
-			throw new Error(`Invalid --var format: '${flag}'. Expected name=value`)
-		}
-
-		const key = flag.slice(0, eqIndex)
-		const value = flag.slice(eqIndex + 1)
-
-		if (!key) {
-			throw new Error('Variable name is empty')
-		}
-
-		variables[key] = value
-	}
-
-	return variables
-}
-
-/**
- * Merge variable objects (later objects override earlier)
- */
-export function mergeVariables(
-	...sources: (Record<string, string> | undefined)[]
-): Record<string, string> {
-	const result: Record<string, string> = {}
-
-	for (const source of sources) {
-		if (source) {
-			Object.assign(result, source)
-		}
-	}
-
-	return result
-}
-
-/**
- * Generate CSS variable overrides
- * Input: { "primary-color": "#ff0000" }
- * Output: ":root { --primary-color: #ff0000; }\n"
- */
-export function generateVariablesCSS(
-	variables: Record<string, string>,
-): string {
-	const entries = Object.entries(variables)
-	if (entries.length === 0) return ''
-
-	const declarations = entries
-		.map(([key, value]) => `  --${key}: ${value};`)
-		.join('\n')
-
-	return `:root {\n${declarations}\n}\n`
-}
+/** Default config store singleton */
+export const config = createConfigStore()

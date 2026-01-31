@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from 'node:fs'
 import { dirname, join, resolve, isAbsolute, basename } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { getConfiguredDefaultStyle } from './config.js'
+import { config } from './config.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -14,14 +14,38 @@ export const FALLBACK_DEFAULT_STYLE = 'classic'
 // Alias for backwards compatibility
 export const DEFAULT_STYLE = FALLBACK_DEFAULT_STYLE
 
+// =============================================================================
+// CSS Variable Utilities
+// =============================================================================
+
+export type StyleVariables = Record<string, string>
+
 /**
- * Get the effective default style (global config > fallback)
+ * Merge variable objects (later wins)
  */
-export function getDefaultStyle(): string {
-	return getConfiguredDefaultStyle() ?? FALLBACK_DEFAULT_STYLE
+export function mergeVariables(
+	...sources: (StyleVariables | undefined)[]
+): StyleVariables {
+	return Object.assign({}, ...sources.filter(Boolean))
 }
 
-// Available bundled styles
+/**
+ * Generate CSS :root block from variables
+ */
+export function generateVariablesCSS(variables: StyleVariables): string {
+	const entries = Object.entries(variables)
+	if (entries.length === 0) return ''
+
+	const declarations = entries
+		.map(([key, value]) => `  --${key}: ${value};`)
+		.join('\n')
+
+	return `:root {\n${declarations}\n}\n`
+}
+
+// =============================================================================
+// Style Resolution
+// =============================================================================
 export const BUNDLED_STYLES = ['classic', 'formal', 'minimal'] as const
 export type BundledStyle = (typeof BUNDLED_STYLES)[number]
 
@@ -123,7 +147,7 @@ export function resolveStyle(
 ): string {
 	// No style specified - use default
 	if (!styleArg) {
-		const defaultStyle = getDefaultStyle()
+		const defaultStyle = config.defaultStyle
 
 		// Check if local default exists
 		const localDefault = getLocalStylePath(defaultStyle, cwd)

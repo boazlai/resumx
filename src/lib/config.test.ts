@@ -2,16 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { existsSync, mkdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import {
-	parseVarFlags,
-	mergeVariables,
-	generateVariablesCSS,
-	getStyleVariables,
-	setStyleVariables,
-	resetStyleVariables,
-	readGlobalConfig,
-	writeGlobalConfig,
-} from './config.js'
+import { createConfigStore } from './config.js'
+import { mergeVariables, generateVariablesCSS } from './styles.js'
 
 describe('config', () => {
 	let tempDir: string
@@ -27,49 +19,14 @@ describe('config', () => {
 		}
 	})
 
-	describe('parseVarFlags', () => {
-		it('parses single variable', () => {
-			const vars = parseVarFlags(['font-family=Arial'])
-			expect(vars).toEqual({ 'font-family': 'Arial' })
-		})
-
-		it('parses multiple variables', () => {
-			const vars = parseVarFlags(['font-family=Arial', 'base-font-size=11pt'])
-			expect(vars).toEqual({
-				'font-family': 'Arial',
-				'base-font-size': '11pt',
-			})
-		})
-
-		it('handles values with equals signs', () => {
-			const vars = parseVarFlags(['color=rgba(0,0,0,0.5)'])
-			expect(vars).toEqual({ color: 'rgba(0,0,0,0.5)' })
-		})
-
-		it('throws on missing equals', () => {
-			expect(() => parseVarFlags(['invalid'])).toThrow(
-				"Invalid --var format: 'invalid'",
-			)
-		})
-
-		it('throws on empty name', () => {
-			expect(() => parseVarFlags(['=value'])).toThrow('Variable name is empty')
-		})
-
-		it('allows empty value', () => {
-			const vars = parseVarFlags(['name='])
-			expect(vars).toEqual({ name: '' })
-		})
-	})
-
 	describe('mergeVariables', () => {
 		it('returns empty object when no variables', () => {
 			expect(mergeVariables(undefined, undefined)).toEqual({})
 		})
 
 		it('returns config vars when no CLI vars', () => {
-			const config = { a: '1', b: '2' }
-			expect(mergeVariables(config, undefined)).toEqual(config)
+			const configVars = { a: '1', b: '2' }
+			expect(mergeVariables(configVars, undefined)).toEqual(configVars)
 		})
 
 		it('returns CLI vars when no config vars', () => {
@@ -78,9 +35,9 @@ describe('config', () => {
 		})
 
 		it('CLI vars override config vars', () => {
-			const config = { a: 'config', b: 'config' }
+			const configVars = { a: 'config', b: 'config' }
 			const cli = { a: 'cli' }
-			expect(mergeVariables(config, cli)).toEqual({
+			expect(mergeVariables(configVars, cli)).toEqual({
 				a: 'cli',
 				b: 'config',
 			})
@@ -105,134 +62,98 @@ describe('config', () => {
 		})
 	})
 
-	describe('global style variables', () => {
-		let globalConfigDir: string
+	describe('ConfigStore', () => {
+		let configDir: string
 
 		beforeEach(() => {
-			globalConfigDir = join(tempDir, '.config', 'resum8')
-			mkdirSync(globalConfigDir, { recursive: true })
+			configDir = join(tempDir, '.config', 'resum8')
+			mkdirSync(configDir, { recursive: true })
 		})
 
 		describe('getStyleVariables', () => {
 			it('returns empty object when no config exists', () => {
-				const vars = getStyleVariables('classic', globalConfigDir)
-				expect(vars).toEqual({})
+				const store = createConfigStore(configDir)
+				expect(store.getStyleVariables('classic')).toEqual({})
 			})
 
 			it('returns empty object when style has no variables', () => {
-				writeGlobalConfig({ defaultStyle: 'formal' }, globalConfigDir)
-				const vars = getStyleVariables('classic', globalConfigDir)
-				expect(vars).toEqual({})
+				const store = createConfigStore(configDir)
+				store.defaultStyle = 'formal'
+				expect(store.getStyleVariables('classic')).toEqual({})
 			})
 
 			it('returns variables for a style', () => {
-				writeGlobalConfig(
-					{
-						styleVariables: {
-							classic: { 'font-family': 'Arial', 'text-color': '#000' },
-						},
-					},
-					globalConfigDir,
-				)
+				const store = createConfigStore(configDir)
+				store.setStyleVariables('classic', {
+					'font-family': 'Arial',
+					'text-color': '#000',
+				})
 
-				const vars = getStyleVariables('classic', globalConfigDir)
-				expect(vars).toEqual({ 'font-family': 'Arial', 'text-color': '#000' })
+				expect(store.getStyleVariables('classic')).toEqual({
+					'font-family': 'Arial',
+					'text-color': '#000',
+				})
 			})
 
 			it('returns empty object for different style', () => {
-				writeGlobalConfig(
-					{
-						styleVariables: {
-							classic: { 'font-family': 'Arial' },
-						},
-					},
-					globalConfigDir,
-				)
+				const store = createConfigStore(configDir)
+				store.setStyleVariables('classic', { 'font-family': 'Arial' })
 
-				const vars = getStyleVariables('formal', globalConfigDir)
-				expect(vars).toEqual({})
+				expect(store.getStyleVariables('formal')).toEqual({})
 			})
 		})
 
 		describe('setStyleVariables', () => {
 			it('creates config and sets variables for new style', () => {
-				setStyleVariables(
-					'classic',
-					{ 'font-family': 'Arial' },
-					globalConfigDir,
-				)
+				const store = createConfigStore(configDir)
+				store.setStyleVariables('classic', { 'font-family': 'Arial' })
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.styleVariables?.classic).toEqual({
+				expect(store.store.styleVariables?.classic).toEqual({
 					'font-family': 'Arial',
 				})
 			})
 
 			it('merges with existing style variables', () => {
-				setStyleVariables(
-					'classic',
-					{ 'font-family': 'Arial' },
-					globalConfigDir,
-				)
-				setStyleVariables('classic', { 'text-color': '#000' }, globalConfigDir)
+				const store = createConfigStore(configDir)
+				store.setStyleVariables('classic', { 'font-family': 'Arial' })
+				store.setStyleVariables('classic', { 'text-color': '#000' })
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.styleVariables?.classic).toEqual({
+				expect(store.store.styleVariables?.classic).toEqual({
 					'font-family': 'Arial',
 					'text-color': '#000',
 				})
 			})
 
 			it('overwrites existing variable value', () => {
-				setStyleVariables(
-					'classic',
-					{ 'font-family': 'Arial' },
-					globalConfigDir,
-				)
-				setStyleVariables(
-					'classic',
-					{ 'font-family': 'Helvetica' },
-					globalConfigDir,
-				)
+				const store = createConfigStore(configDir)
+				store.setStyleVariables('classic', { 'font-family': 'Arial' })
+				store.setStyleVariables('classic', { 'font-family': 'Helvetica' })
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.styleVariables?.classic?.['font-family']).toBe(
+				expect(store.store.styleVariables?.classic?.['font-family']).toBe(
 					'Helvetica',
 				)
 			})
 
 			it('preserves other styles when setting variables', () => {
-				setStyleVariables(
-					'classic',
-					{ 'font-family': 'Arial' },
-					globalConfigDir,
-				)
-				setStyleVariables(
-					'formal',
-					{ 'section-header-color': '#0066cc' },
-					globalConfigDir,
-				)
+				const store = createConfigStore(configDir)
+				store.setStyleVariables('classic', { 'font-family': 'Arial' })
+				store.setStyleVariables('formal', { 'section-header-color': '#0066cc' })
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.styleVariables?.classic).toEqual({
+				expect(store.store.styleVariables?.classic).toEqual({
 					'font-family': 'Arial',
 				})
-				expect(config.styleVariables?.formal).toEqual({
+				expect(store.store.styleVariables?.formal).toEqual({
 					'section-header-color': '#0066cc',
 				})
 			})
 
 			it('preserves other config settings', () => {
-				writeGlobalConfig({ defaultStyle: 'formal' }, globalConfigDir)
-				setStyleVariables(
-					'classic',
-					{ 'font-family': 'Arial' },
-					globalConfigDir,
-				)
+				const store = createConfigStore(configDir)
+				store.defaultStyle = 'formal'
+				store.setStyleVariables('classic', { 'font-family': 'Arial' })
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.defaultStyle).toBe('formal')
-				expect(config.styleVariables?.classic).toEqual({
+				expect(store.defaultStyle).toBe('formal')
+				expect(store.store.styleVariables?.classic).toEqual({
 					'font-family': 'Arial',
 				})
 			})
@@ -240,69 +161,99 @@ describe('config', () => {
 
 		describe('resetStyleVariables', () => {
 			it('removes variables for a style', () => {
-				setStyleVariables(
-					'classic',
-					{ 'font-family': 'Arial', 'text-color': '#000' },
-					globalConfigDir,
-				)
-				resetStyleVariables('classic', globalConfigDir)
+				const store = createConfigStore(configDir)
+				store.setStyleVariables('classic', {
+					'font-family': 'Arial',
+					'text-color': '#000',
+				})
+				store.resetStyleVariables('classic')
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.styleVariables?.classic).toBeUndefined()
+				expect(store.store.styleVariables?.classic).toBeUndefined()
 			})
 
 			it('preserves other styles when resetting', () => {
-				setStyleVariables(
-					'classic',
-					{ 'font-family': 'Arial' },
-					globalConfigDir,
-				)
-				setStyleVariables(
-					'formal',
-					{ 'section-header-color': '#0066cc' },
-					globalConfigDir,
-				)
+				const store = createConfigStore(configDir)
+				store.setStyleVariables('classic', { 'font-family': 'Arial' })
+				store.setStyleVariables('formal', { 'section-header-color': '#0066cc' })
 
-				resetStyleVariables('classic', globalConfigDir)
+				store.resetStyleVariables('classic')
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.styleVariables?.classic).toBeUndefined()
-				expect(config.styleVariables?.formal).toEqual({
+				expect(store.store.styleVariables?.classic).toBeUndefined()
+				expect(store.store.styleVariables?.formal).toEqual({
 					'section-header-color': '#0066cc',
 				})
 			})
 
 			it('preserves other config settings when resetting', () => {
-				writeGlobalConfig({ defaultStyle: 'formal' }, globalConfigDir)
-				setStyleVariables(
-					'classic',
-					{ 'font-family': 'Arial' },
-					globalConfigDir,
-				)
+				const store = createConfigStore(configDir)
+				store.defaultStyle = 'formal'
+				store.setStyleVariables('classic', { 'font-family': 'Arial' })
 
-				resetStyleVariables('classic', globalConfigDir)
+				store.resetStyleVariables('classic')
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.defaultStyle).toBe('formal')
-				expect(config.styleVariables?.classic).toBeUndefined()
+				expect(store.defaultStyle).toBe('formal')
+				expect(store.store.styleVariables?.classic).toBeUndefined()
 			})
 
 			it('does nothing if style has no variables', () => {
-				writeGlobalConfig({ defaultStyle: 'formal' }, globalConfigDir)
+				const store = createConfigStore(configDir)
+				store.defaultStyle = 'formal'
 
 				// Should not throw
-				resetStyleVariables('classic', globalConfigDir)
+				store.resetStyleVariables('classic')
 
-				const config = readGlobalConfig(globalConfigDir)
-				expect(config.defaultStyle).toBe('formal')
+				expect(store.defaultStyle).toBe('formal')
 			})
 
 			it('does nothing if config does not exist', () => {
-				// Should not throw
-				resetStyleVariables('classic', globalConfigDir)
+				const store = createConfigStore(configDir)
 
-				const vars = getStyleVariables('classic', globalConfigDir)
-				expect(vars).toEqual({})
+				// Should not throw
+				store.resetStyleVariables('classic')
+
+				expect(store.getStyleVariables('classic')).toEqual({})
+			})
+		})
+
+		describe('defaultStyle', () => {
+			it('returns default when not set', () => {
+				const store = createConfigStore(configDir)
+				expect(store.defaultStyle).toBe('classic')
+			})
+
+			it('can be set and retrieved', () => {
+				const store = createConfigStore(configDir)
+				store.defaultStyle = 'modern'
+				expect(store.defaultStyle).toBe('modern')
+			})
+
+			it('can be reset with resetDefaultStyle()', () => {
+				const store = createConfigStore(configDir)
+				store.defaultStyle = 'modern'
+				store.resetDefaultStyle()
+				expect(store.defaultStyle).toBe('classic')
+			})
+		})
+
+		describe('path', () => {
+			it('returns config file path', () => {
+				const store = createConfigStore(configDir)
+				expect(store.path).toContain('config.json')
+				expect(store.path).toContain(configDir)
+			})
+		})
+
+		describe('clear', () => {
+			it('clears all config', () => {
+				const store = createConfigStore(configDir)
+				store.defaultStyle = 'modern'
+				store.setStyleVariables('classic', { color: 'red' })
+
+				store.clear()
+
+				// clear() wipes file; conf returns defaults for missing keys
+				expect(store.defaultStyle).toBe('classic')
+				expect(store.getStyleVariables('classic')).toEqual({})
 			})
 		})
 	})

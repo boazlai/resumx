@@ -1,21 +1,9 @@
 import chalk from 'chalk'
 import { readFileSync } from 'node:fs'
 import { relative } from 'node:path'
-import {
-	listStyles,
-	getDefaultStyle,
-	parseCssVariables,
-	type StyleInfo,
-} from '../lib/styles.js'
-import {
-	writeGlobalConfig,
-	readGlobalConfig,
-	getConfigPath,
-	parseVarFlags,
-	setStyleVariables,
-	resetStyleVariables,
-	getStyleVariables,
-} from '../lib/config.js'
+import { listStyles, parseCssVariables, type StyleInfo } from '../lib/styles.js'
+import { config, type ConfigStore } from '../lib/config.js'
+import { parseVarFlags } from './utils/var-flags.js'
 import dedent from 'dedent'
 
 export interface StyleCommandOptions {
@@ -24,26 +12,23 @@ export interface StyleCommandOptions {
 	set?: string[] // CLI uses --set to avoid conflict with main program's --var
 	reset?: string // Reset a specific style variable to default
 	resetAll?: boolean // Reset all style variables to defaults
-	_configDir?: string // For testing
 }
 
-/** Context passed to style subcommands (cwd + optional config dir for tests). */
+/** Context passed to style subcommands. */
 interface StyleContext {
 	cwd: string
-	configDir?: string
+	store: ConfigStore
 }
 
 /** Resolve style by name. Returns null when not found. */
 function getStyle(styleName: string, cwd: string): StyleInfo | null {
 	const styles = listStyles(cwd)
-	const style = styles.find(s => s.name === styleName)
-	return style ?? null
+	return styles.find(s => s.name === styleName) ?? null
 }
 
 /**
  * Resolve style by name or exit with error.
  * Single place for "style not found" exit so the CLI layer owns process.exit.
- * Throws after process.exit(1) so when exit is mocked in tests we never return null.
  */
 function requireStyle(styleName: string, ctx: StyleContext): StyleInfo {
 	const style = getStyle(styleName, ctx.cwd)
@@ -68,10 +53,11 @@ function requireStyle(styleName: string, ctx: StyleContext): StyleInfo {
 export async function styleCommand(
 	styleName: string | undefined,
 	options: StyleCommandOptions,
+	store: ConfigStore = config,
 ): Promise<void> {
 	const ctx: StyleContext = {
 		cwd: process.cwd(),
-		configDir: options._configDir,
+		store,
 	}
 
 	if (options.default) {
@@ -129,7 +115,7 @@ async function resetAllStyleVarOverrides(
 	ctx: StyleContext,
 ): Promise<void> {
 	requireStyle(styleName, ctx)
-	resetStyleVariables(styleName, ctx.configDir)
+	ctx.store.resetStyleVariables(styleName)
 	console.log(dedent`
 		All variable overrides cleared for ${chalk.cyan(styleName)}
 
@@ -144,7 +130,7 @@ async function resetSingleStyleVarOverride(
 	ctx: StyleContext,
 ): Promise<void> {
 	requireStyle(styleName, ctx)
-	const currentOverrides = getStyleVariables(styleName, ctx.configDir)
+	const currentOverrides = ctx.store.getStyleVariables(styleName)
 
 	// Check if the variable has an override
 	if (!currentOverrides[varName]) {
@@ -163,14 +149,14 @@ async function resetSingleStyleVarOverride(
 	delete updatedOverrides[varName]
 
 	if (Object.keys(updatedOverrides).length === 0) {
-		resetStyleVariables(styleName, ctx.configDir)
+		ctx.store.resetStyleVariables(styleName)
 	} else {
-		const config = readGlobalConfig(ctx.configDir)
-		const updatedStyleVariables = {
-			...config.styleVariables,
-			[styleName]: updatedOverrides,
-		}
-		writeGlobalConfig({ styleVariables: updatedStyleVariables }, ctx.configDir)
+		// Get current styleVariables and update just this style
+		const allStyleVars = ctx.store.store.styleVariables ?? {}
+		const newStore = { ...allStyleVars, [styleName]: updatedOverrides }
+		// Clear and re-set to replace (not merge)
+		ctx.store.resetStyleVariables(styleName)
+		ctx.store.setStyleVariables(styleName, updatedOverrides)
 	}
 
 	console.log(dedent`
@@ -188,7 +174,7 @@ async function setStyleVarOverrides(
 ): Promise<void> {
 	requireStyle(styleName, ctx)
 	const variables = parseVarFlags(varFlags)
-	setStyleVariables(styleName, variables, ctx.configDir)
+	ctx.store.setStyleVariables(styleName, variables)
 
 	console.log(dedent.withOptions({ alignValues: true })`
 		Default variable overrides saved for ${chalk.cyan(styleName)}:
@@ -209,7 +195,7 @@ async function showStyleInfo(
 	const style = requireStyle(styleName, ctx)
 	const css = readFileSync(style.path, 'utf-8')
 	const variables = parseCssVariables(css)
-	const savedOverrides = getStyleVariables(styleName, ctx.configDir)
+	const savedOverrides = ctx.store.getStyleVariables(styleName)
 
 	console.log(
 		chalk.bold(
@@ -260,18 +246,18 @@ async function setDefaultStyle(
 	ctx: StyleContext,
 ): Promise<void> {
 	requireStyle(styleName, ctx)
-	writeGlobalConfig({ defaultStyle: styleName }, ctx.configDir)
+	ctx.store.defaultStyle = styleName
 
 	console.log(dedent`
 		Default style set to ${chalk.cyan(styleName)}
-		${chalk.dim(`Config saved to ${getConfigPath()}`)}
+		${chalk.dim(`Config saved to ${config.path}`)}
 	`)
 }
 
 /** List all available styles. */
 async function listAllStyles(cwd: string): Promise<void> {
 	const styles = listStyles(cwd)
-	const defaultStyle = getDefaultStyle()
+	const defaultStyle = config.defaultStyle
 
 	console.log(chalk.bold('Available styles:'))
 
