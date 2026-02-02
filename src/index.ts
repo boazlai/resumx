@@ -6,6 +6,10 @@ import { renderCommand, type RenderCommandOptions } from './commands/render.js'
 import { initCommand, type InitCommandOptions } from './commands/init.js'
 import { ejectCommand, type EjectCommandOptions } from './commands/eject.js'
 import { styleCommand, type StyleCommandOptions } from './commands/style.js'
+import {
+	validateCommand,
+	type ValidateCommandOptions,
+} from './commands/validate.js'
 
 const program = new Command()
 
@@ -180,6 +184,20 @@ program
 			options.var = options.set
 		}
 		await styleCommand(name, options)
+	})
+
+// validate command
+program
+	.command('validate [file]')
+	.description('Validate resume structure and content')
+	.option('--strict', 'Exit with error if any issues exist')
+	.option(
+		'--min-severity <level>',
+		'Minimum severity to display (critical/warning/note/bonus)',
+		'bonus',
+	)
+	.action(async (file: string | undefined, options: ValidateCommandOptions) => {
+		await validateCommand(file ?? 'resume.md', options)
 	})
 
 // Helper to collect repeatable options
