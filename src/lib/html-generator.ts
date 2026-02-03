@@ -3,6 +3,8 @@
  * Converts markdown content to standalone HTML with embedded CSS
  */
 
+import jsBeautify from 'js-beautify'
+const { html: beautifyHtml } = jsBeautify
 import { generateVariablesCSS } from './styles.js'
 import { resolveCssImports } from './css-resolver.js'
 import { compileTailwindCSS } from './tailwind.js'
@@ -41,10 +43,10 @@ function resolveBaseCSS(
 }
 
 /**
- * Assemble final HTML document
+ * Assemble final HTML document with formatted output
  */
 function assembleHtml(body: string, css: string): string {
-	return `<!DOCTYPE html>
+	const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -58,6 +60,18 @@ ${css}
 ${body}
 </body>
 </html>`
+
+	// Format with js-beautify for readable output
+	return beautifyHtml(html, {
+		indent_with_tabs: true,
+		indent_size: 1,
+		max_preserve_newlines: 1,
+		preserve_newlines: true,
+		wrap_line_length: 0, // Don't wrap lines
+		unformatted: ['code', 'pre', 'script', 'style'], // Don't format inside these
+		content_unformatted: ['pre', 'code'], // Preserve content whitespace
+		extra_liners: ['head', 'body', '/html'], // Add extra newline before these
+	})
 }
 
 /**
