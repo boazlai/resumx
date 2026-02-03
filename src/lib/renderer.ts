@@ -64,7 +64,6 @@ async function renderPdf(html: string, outputPath: string): Promise<void> {
 		await page.setContent(html, { waitUntil: 'networkidle' })
 		await page.pdf({
 			path: outputPath,
-			format: 'Letter',
 			printBackground: true,
 			preferCSSPageSize: true,
 		})
