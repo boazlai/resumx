@@ -357,7 +357,8 @@ describe('renderer', () => {
 
 				expect(result.success).toBe(true)
 				const html = readFileSync(result.outputPath, 'utf-8')
-				expect(html).toContain('<h1>Title</h1>')
+				// h1 may have data-field="name" attribute from classifyHeader
+				expect(html).toMatch(/<h1[^>]*>Title<\/h1>/)
 				expect(html).toContain('<h2>Section</h2>')
 				expect(html).toContain('<li>List item 1</li>')
 				expect(html).toContain('<strong>Bold</strong>')
