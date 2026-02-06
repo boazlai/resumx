@@ -2,7 +2,7 @@
  * Shared Location Detection
  *
  * Handles detection of location text using city database and patterns.
- * This module is used by both classify-header and classify-entry-fields processors.
+ * This module is used by the classify-header processor.
  */
 
 import citiesData from 'cities.json' with { type: 'json' }

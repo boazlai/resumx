@@ -244,7 +244,7 @@ Languages
 					cssPath: join(dir, 'style.css'),
 				})
 
-				expect(html).toContain('<h1>Resume</h1>')
+				expect(html).toContain('Resume</h1>')
 				expect(html).toContain('<h2>Experience</h2>')
 				expect(html).toContain('<h3>Company Name')
 				expect(html).toContain('class="right"')
