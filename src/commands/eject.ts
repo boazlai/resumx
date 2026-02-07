@@ -4,7 +4,7 @@ import chalk from 'chalk'
 import {
 	getBundledStylePath,
 	getLocalStylesDir,
-	BUNDLED_STYLES,
+	getBundledStyles,
 	FALLBACK_DEFAULT_STYLE,
 } from '../lib/styles.js'
 import dedent from 'dedent'
@@ -29,7 +29,7 @@ export async function ejectCommand(
 	if (!bundledPath) {
 		console.error(dedent`
 			${chalk.red('Error:')} '${name}' is not a bundled style.
-			Available styles: ${BUNDLED_STYLES.join(', ')}
+			Available styles: ${getBundledStyles().join(', ')}
 		`)
 		process.exit(1)
 	}

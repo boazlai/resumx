@@ -6,10 +6,10 @@ import {
 	resolveStyle,
 	listStyles,
 	getBundledStylePath,
+	getBundledStyles,
 	getLocalStylePath,
 	parseCssVariables,
 	FALLBACK_DEFAULT_STYLE,
-	BUNDLED_STYLES,
 } from './styles.js'
 
 describe('styles', () => {
@@ -28,7 +28,7 @@ describe('styles', () => {
 
 	describe('getBundledStylePath', () => {
 		it('returns path for bundled styles', () => {
-			for (const style of BUNDLED_STYLES) {
+			for (const style of getBundledStyles()) {
 				const path = getBundledStylePath(style)
 				expect(path).toBeDefined()
 				expect(existsSync(path!)).toBe(true)
@@ -111,7 +111,7 @@ describe('styles', () => {
 	describe('listStyles', () => {
 		it('lists bundled styles when no local', () => {
 			const styles = listStyles(tempDir)
-			expect(styles.length).toBe(BUNDLED_STYLES.length)
+			expect(styles.length).toBe(getBundledStyles().length)
 			expect(styles.every(s => s.isBundled)).toBe(true)
 			expect(styles.every(s => !s.isLocal)).toBe(true)
 		})

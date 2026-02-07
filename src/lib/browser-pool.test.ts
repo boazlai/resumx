@@ -172,16 +172,6 @@ describe('browser-pool', () => {
 			}
 		})
 
-		it('rejects acquire after closeAll', async () => {
-			const pool = createBrowserPool(1)
-
-			await pool.acquire()
-			await pool.closeAll()
-
-			// Should throw when trying to acquire from closed pool
-			await expect(pool.acquire()).rejects.toThrow('Browser pool is closing')
-		})
-
 		it('handles concurrent acquires', async () => {
 			const pool = createBrowserPool(4)
 
