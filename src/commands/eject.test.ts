@@ -254,7 +254,7 @@ describe('eject command', () => {
 			expect(output).toContain('Available styles')
 			expect(output).toContain('classic')
 			expect(output).toContain('formal')
-			expect(output).toContain('minimal')
+			expect(output).toContain('modern')
 		})
 	})
 
@@ -294,7 +294,7 @@ describe('eject command', () => {
 			process.cwd = () => tempDir
 			process.exit = (() => {}) as typeof process.exit
 
-			const styles = ['classic', 'formal', 'minimal']
+			const styles = ['classic', 'formal', 'modern']
 
 			for (const style of styles) {
 				consoleOutput = []

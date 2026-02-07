@@ -400,7 +400,7 @@ describe('render command', () => {
 		it('errors on extra positional argument with options', async () => {
 			const result = await execa(
 				'node',
-				[CLI_PATH, 'sample.md', '-s', 'minimal', 'extra.pdf'],
+				[CLI_PATH, 'sample.md', '-s', 'modern', 'extra.pdf'],
 				{
 					cwd: tempDir,
 					reject: false,
@@ -621,7 +621,7 @@ Test content`
 		it('CLI flags override frontmatter values', async () => {
 			const mdContent = `---
 outputName: frontmatter-name
-style: minimal
+style: modern
 ---
 # Test Person
 
@@ -976,14 +976,14 @@ roles:
 
 	describe('multi-style rendering', () => {
 		it('generates multiple style variants with style suffix', async () => {
-			// multi-style, no roles → resume-formal.html, resume-minimal.html
-			await runCLI(['sample.md', '--html', '--style', 'formal,minimal'], {
+			// multi-style, no roles → resume-formal.html, resume-modern.html
+			await runCLI(['sample.md', '--html', '--style', 'formal,modern'], {
 				cwd: tempDir,
 			})
 
 			// Should generate both style variants
 			expect(existsSync(join(tempDir, 'sample-formal.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'sample-minimal.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'sample-modern.html'))).toBe(true)
 
 			// Verify each uses the correct style
 			const formalHtml = readFileSync(
@@ -992,11 +992,11 @@ roles:
 			)
 			expect(formalHtml).toContain('Palatino Linotype') // formal style font
 
-			const minimalHtml = readFileSync(
-				join(tempDir, 'sample-minimal.html'),
+			const modernHtml = readFileSync(
+				join(tempDir, 'sample-modern.html'),
 				'utf-8',
 			)
-			expect(minimalHtml).toContain('Helvetica Neue') // minimal style font
+			expect(modernHtml).toContain('Helvetica Neue') // modern style font
 		})
 
 		it('generates role folders with style suffix for multi-style + roles', async () => {
@@ -1008,13 +1008,13 @@ roles:
 - Node.js {.role:backend}`
 			writeFileSync(join(tempDir, 'resume.md'), mdContent)
 
-			// multi-style + roles → frontend/resume-formal.html, frontend/resume-minimal.html, etc.
+			// multi-style + roles → frontend/resume-formal.html, frontend/resume-modern.html, etc.
 			await runCLI(
 				[
 					'resume.md',
 					'--html',
 					'--style',
-					'formal,minimal',
+					'formal,modern',
 					'--role',
 					'frontend,backend',
 				],
@@ -1027,13 +1027,11 @@ roles:
 			expect(existsSync(join(tempDir, 'frontend/resume-formal.html'))).toBe(
 				true,
 			)
-			expect(existsSync(join(tempDir, 'frontend/resume-minimal.html'))).toBe(
+			expect(existsSync(join(tempDir, 'frontend/resume-modern.html'))).toBe(
 				true,
 			)
 			expect(existsSync(join(tempDir, 'backend/resume-formal.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'backend/resume-minimal.html'))).toBe(
-				true,
-			)
+			expect(existsSync(join(tempDir, 'backend/resume-modern.html'))).toBe(true)
 
 			// Verify content filtering in frontend variant
 			const frontendFormalHtml = readFileSync(
@@ -1045,13 +1043,13 @@ roles:
 			expect(frontendFormalHtml).toContain('Palatino Linotype') // formal style
 
 			// Verify content filtering in backend variant
-			const backendMinimalHtml = readFileSync(
-				join(tempDir, 'backend/resume-minimal.html'),
+			const backendModernHtml = readFileSync(
+				join(tempDir, 'backend/resume-modern.html'),
 				'utf-8',
 			)
-			expect(backendMinimalHtml).toContain('Node.js')
-			expect(backendMinimalHtml).not.toContain('React')
-			expect(backendMinimalHtml).toContain('Helvetica Neue') // minimal style
+			expect(backendModernHtml).toContain('Node.js')
+			expect(backendModernHtml).not.toContain('React')
+			expect(backendModernHtml).toContain('Helvetica Neue') // modern style
 		})
 
 		it('single style with no roles produces no suffix', async () => {
@@ -1090,7 +1088,7 @@ roles:
 
 		it('supports repeated --style flags', async () => {
 			await runCLI(
-				['sample.md', '--html', '--style', 'formal', '--style', 'minimal'],
+				['sample.md', '--html', '--style', 'formal', '--style', 'modern'],
 				{
 					cwd: tempDir,
 				},
@@ -1098,7 +1096,7 @@ roles:
 
 			// Should generate both style variants
 			expect(existsSync(join(tempDir, 'sample-formal.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'sample-minimal.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'sample-modern.html'))).toBe(true)
 		})
 	})
 })

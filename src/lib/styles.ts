@@ -42,8 +42,26 @@ export function generateVariablesCSS(variables: StyleVariables): string {
 // =============================================================================
 // Style Resolution
 // =============================================================================
-export const BUNDLED_STYLES = ['classic', 'formal', 'minimal'] as const
-export type BundledStyle = (typeof BUNDLED_STYLES)[number]
+/**
+ * Discover bundled style names from top-level .css files in the styles directory
+ */
+function discoverBundledStyles(): string[] {
+	if (!existsSync(BUNDLED_STYLES_DIR)) return []
+	return readdirSync(BUNDLED_STYLES_DIR)
+		.filter(f => f.endsWith('.css'))
+		.map(f => basename(f, '.css'))
+		.sort()
+}
+
+/** Lazily-cached list of bundled style names */
+let _bundledStylesCache: string[] | null = null
+
+export function getBundledStyles(): string[] {
+	if (!_bundledStylesCache) {
+		_bundledStylesCache = discoverBundledStyles()
+	}
+	return _bundledStylesCache
+}
 
 export interface StyleInfo {
 	name: string
@@ -107,14 +125,14 @@ export function listStyles(cwd: string = process.cwd()): StyleInfo[] {
 				name,
 				path: join(localDir, file),
 				isLocal: true,
-				isBundled: BUNDLED_STYLES.includes(name as BundledStyle),
+				isBundled: getBundledStyles().includes(name),
 			})
 			seen.add(name)
 		}
 	}
 
 	// Bundled styles (not already shadowed by local)
-	for (const name of BUNDLED_STYLES) {
+	for (const name of getBundledStyles()) {
 		if (!seen.has(name)) {
 			styles.push({
 				name,
@@ -162,7 +180,7 @@ export function resolveStyle(
 	if (bundledPath) return bundledPath
 
 	throw new Error(
-		`Style '${style}' not found. Available styles: ${BUNDLED_STYLES.join(', ')}`,
+		`Style '${style}' not found. Available styles: ${getBundledStyles().join(', ')}`,
 	)
 }
 

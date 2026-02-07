@@ -24,7 +24,6 @@ export function createBrowserPool(size: number = 4): BrowserPool {
 	const browsers: Browser[] = []
 	const availableBrowsers: Browser[] = []
 	const pendingRequests: Array<(browser: Browser) => void> = []
-	let isClosing = false
 
 	async function launchBrowser(): Promise<Browser> {
 		try {
@@ -36,23 +35,29 @@ export function createBrowserPool(size: number = 4): BrowserPool {
 		}
 	}
 
+	let initPromise: Promise<void> | null = null
+
 	async function ensurePoolInitialized(): Promise<void> {
 		if (browsers.length > 0) return
 
-		// Launch all browsers in parallel
-		const browserPromises = Array.from({ length: size }, () => launchBrowser())
-		const launchedBrowsers = await Promise.all(browserPromises)
+		if (!initPromise) {
+			initPromise = (async () => {
+				// Launch all browsers in parallel
+				const browserPromises = Array.from({ length: size }, () =>
+					launchBrowser(),
+				)
+				const launchedBrowsers = await Promise.all(browserPromises)
 
-		browsers.push(...launchedBrowsers)
-		availableBrowsers.push(...launchedBrowsers)
+				browsers.push(...launchedBrowsers)
+				availableBrowsers.push(...launchedBrowsers)
+			})()
+		}
+
+		await initPromise
 	}
 
 	return {
 		async acquire(): Promise<Browser> {
-			if (isClosing) {
-				throw new Error('Browser pool is closing')
-			}
-
 			await ensurePoolInitialized()
 
 			// If there's an available browser, return it immediately
@@ -80,15 +85,13 @@ export function createBrowserPool(size: number = 4): BrowserPool {
 		},
 
 		async closeAll(): Promise<void> {
-			isClosing = true
-
 			// Close all browsers in parallel
 			await Promise.all(browsers.map(browser => browser.close()))
 
 			browsers.length = 0
 			availableBrowsers.length = 0
 			pendingRequests.length = 0
-			isClosing = false
+			initPromise = null
 		},
 
 		stats() {
