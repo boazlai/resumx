@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import { execSync } from 'node:child_process'
 import { resolve, dirname, relative, basename, join } from 'node:path'
+import { performance } from 'node:perf_hooks'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import { requireDependencies } from '../lib/check.js'
@@ -83,6 +84,21 @@ function resolveFormats(
 
 	// Default to PDF
 	return ['pdf']
+}
+
+function formatDuration(ms: number): string {
+	if (ms < 1000) {
+		return `${Math.round(ms)}ms`
+	}
+
+	const seconds = ms / 1000
+	if (seconds < 60) {
+		return `${seconds.toFixed(2)}s`
+	}
+
+	const minutes = Math.floor(seconds / 60)
+	const remainingSeconds = seconds - minutes * 60
+	return `${minutes}m ${remainingSeconds.toFixed(1)}s`
 }
 
 /**
@@ -170,6 +186,7 @@ async function runRender(
 	cwd: string,
 	store: ConfigStore = config,
 ): Promise<boolean> {
+	const renderStart = performance.now()
 	// Parse frontmatter from input file
 	const { config: fmConfig, content, warnings } = parseFrontmatter(inputPath)
 
@@ -351,10 +368,15 @@ async function runRender(
 
 	console.log('')
 
+	const renderDuration = formatDuration(performance.now() - renderStart)
 	if (allSuccess) {
-		console.log(chalk.green('Done!'))
+		console.log(
+			`${chalk.green('Done!')} ${chalk.gray(`(Time: ${renderDuration})`)}`,
+		)
 	} else {
-		console.log(chalk.red('Some formats failed to render.'))
+		console.log(
+			`${chalk.red('Some formats failed to render. ')} ${chalk.gray(`(Time: ${renderDuration})`)}`,
+		)
 	}
 
 	return allSuccess
