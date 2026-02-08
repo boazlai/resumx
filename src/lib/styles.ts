@@ -7,8 +7,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 // Bundled styles directory (relative to compiled dist)
 const BUNDLED_STYLES_DIR = resolve(__dirname, '../../styles')
 
-// Fallback default style name (when no config)
-export const FALLBACK_DEFAULT_STYLE = 'classic'
+// Default style name (single source of truth)
+export const DEFAULT_STYLE = 'zurich'
 
 // =============================================================================
 // CSS Variable Utilities

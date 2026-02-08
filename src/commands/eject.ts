@@ -5,7 +5,7 @@ import {
 	getBundledStylePath,
 	getLocalStylesDir,
 	getBundledStyles,
-	FALLBACK_DEFAULT_STYLE,
+	DEFAULT_STYLE,
 } from '../lib/styles.js'
 import dedent from 'dedent'
 
@@ -22,7 +22,7 @@ export async function ejectCommand(
 ): Promise<void> {
 	const cwd = process.cwd()
 
-	const name = styleName ?? FALLBACK_DEFAULT_STYLE
+	const name = styleName ?? DEFAULT_STYLE
 
 	// Check if it's a valid bundled style
 	const bundledPath = getBundledStylePath(name)

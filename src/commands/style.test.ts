@@ -35,8 +35,8 @@ function withExitThrowing(): () => void {
 
 /**
  * Local CSS fixture with known variables.
- * Written to tempDir/styles/classic.css so style resolution picks it up
- * instead of the bundled classic.css — isolates tests from real style changes.
+ * Written to tempDir/styles/<name>.css so style resolution picks it up
+ * as a local style — isolates tests from bundled style names.
  */
 const MOCK_CLASSIC_CSS = `
 :root {
@@ -47,7 +47,15 @@ const MOCK_CLASSIC_CSS = `
 }
 `
 
-/** Write the mock CSS into tempDir so `resolveStyle('classic', tempDir)` finds it. */
+const MOCK_FORMAL_CSS = `
+:root {
+	--font-family: 'Palatino Linotype', serif;
+	--font-size: 10pt;
+	--section-header-color: #c43218;
+}
+`
+
+/** Write a mock CSS into tempDir so `resolveStyle(name, tempDir)` finds it. */
 function writeMockStyle(
 	tempDir: string,
 	name = 'classic',
@@ -107,6 +115,7 @@ describe('style command', () => {
 		})
 
 		it('shows variables for formal style including section-header-color', async () => {
+			writeMockStyle(tempDir, 'formal', MOCK_FORMAL_CSS)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
@@ -121,6 +130,7 @@ describe('style command', () => {
 		})
 
 		it('shows usage hint for --var flag', async () => {
+			writeMockStyle(tempDir)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
@@ -160,6 +170,7 @@ describe('style command', () => {
 		})
 
 		it('saves variable override for a style', async () => {
+			writeMockStyle(tempDir)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
@@ -178,6 +189,7 @@ describe('style command', () => {
 		})
 
 		it('saves multiple variable overrides', async () => {
+			writeMockStyle(tempDir)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
@@ -199,6 +211,7 @@ describe('style command', () => {
 		})
 
 		it('shows confirmation after saving variables', async () => {
+			writeMockStyle(tempDir)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
@@ -303,6 +316,7 @@ describe('style command', () => {
 
 		describe('--reset-all', () => {
 			it('clears all variable overrides for a style', async () => {
+				writeMockStyle(tempDir)
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 
@@ -328,6 +342,7 @@ describe('style command', () => {
 			})
 
 			it('shows confirmation after resetting all variables', async () => {
+				writeMockStyle(tempDir)
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 
@@ -375,6 +390,8 @@ describe('style command', () => {
 			})
 
 			it('does not affect other styles when resetting all', async () => {
+				writeMockStyle(tempDir)
+				writeMockStyle(tempDir, 'formal', MOCK_FORMAL_CSS)
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 
@@ -403,6 +420,7 @@ describe('style command', () => {
 
 		describe('--reset <variable>', () => {
 			it('clears a specific variable override', async () => {
+				writeMockStyle(tempDir)
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 
@@ -432,6 +450,7 @@ describe('style command', () => {
 			})
 
 			it('removes style entry when resetting the last variable', async () => {
+				writeMockStyle(tempDir)
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 
@@ -454,6 +473,7 @@ describe('style command', () => {
 			})
 
 			it('shows error when resetting non-existent override', async () => {
+				writeMockStyle(tempDir)
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 				const restoreExit = withExitThrowing()
@@ -479,6 +499,7 @@ describe('style command', () => {
 			})
 
 			it('shows confirmation after resetting specific variable', async () => {
+				writeMockStyle(tempDir)
 				const originalCwd = process.cwd
 				process.cwd = () => tempDir
 

@@ -2,6 +2,7 @@ import Conf from 'conf'
 import type { Schema } from 'conf'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
+import { DEFAULT_STYLE } from './styles.js'
 
 // =============================================================================
 // Types
@@ -28,7 +29,7 @@ const schema: Schema<GlobalConfig> = {
 }
 
 const defaults: GlobalConfig = {
-	defaultStyle: 'classic',
+	defaultStyle: DEFAULT_STYLE,
 	styleVariables: {},
 }
 
@@ -39,10 +40,10 @@ export interface ConfigStore {
 	/** Raw config object */
 	readonly store: GlobalConfig
 
-	/** Default style name (use resetDefaultStyle to restore to 'classic') */
+	/** Default style name (use resetDefaultStyle to restore default) */
 	defaultStyle: string
 
-	/** Set default style back to 'classic' (explicit set; conf does not restore defaults on delete). */
+	/** Set default style back to DEFAULT_STYLE (explicit set; conf does not restore defaults on delete). */
 	resetDefaultStyle(): void
 
 	/** Get style variable overrides */
@@ -63,7 +64,8 @@ export interface ConfigStore {
  * @param cwd - Config directory. Defaults to ~/.config/resum8 (pass custom path for testing).
  */
 export function createConfigStore(
-	cwd = join(homedir(), '.config', 'resum8'),
+	cwd = process.env['RESUM8_CONFIG_DIR']
+		?? join(homedir(), '.config', 'resum8'),
 ): ConfigStore {
 	const conf = new Conf<GlobalConfig>({
 		cwd,
@@ -90,7 +92,7 @@ export function createConfigStore(
 		},
 
 		resetDefaultStyle(): void {
-			conf.set('defaultStyle', 'classic')
+			conf.set('defaultStyle', DEFAULT_STYLE)
 		},
 
 		getStyleVariables(style: string): StyleVariables {

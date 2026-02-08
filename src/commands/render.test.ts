@@ -17,6 +17,38 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const CLI_PATH = join(__dirname, '../../dist/index.js')
 const FIXTURE_PATH = join(__dirname, '../../tests/fixtures/sample.md')
 
+// =============================================================================
+// Mock style helpers — isolate tests from bundled style names
+// =============================================================================
+
+const MOCK_FORMAL_CSS = `
+:root {
+	--font-family: 'Palatino Linotype', 'Palatino', 'Georgia', serif;
+	--section-header-color: #c43218;
+}
+`
+
+const MOCK_MODERN_CSS = `
+:root {
+	--font-family: 'Helvetica Neue', 'Arial', sans-serif;
+	--accent-color: #2b6cb0;
+}
+`
+
+const MOCK_CLASSIC_CSS = `
+:root {
+	--font-family: 'Times New Roman', serif;
+	--font-size: 11pt;
+}
+`
+
+/** Write a mock CSS file into tempDir/styles/ so the CLI resolves it as a local style. */
+function writeMockStyle(dir: string, name: string, css: string) {
+	const stylesDir = join(dir, 'styles')
+	mkdirSync(stylesDir, { recursive: true })
+	writeFileSync(join(stylesDir, `${name}.css`), css)
+}
+
 describe('render command', () => {
 	let tempDir: string
 
@@ -60,6 +92,11 @@ describe('render command', () => {
 		mkdirSync(tempDir, { recursive: true })
 		// Copy fixture to temp dir
 		copyFileSync(FIXTURE_PATH, join(tempDir, 'sample.md'))
+
+		// Write mock styles so tests don't depend on bundled style names
+		writeMockStyle(tempDir, 'formal', MOCK_FORMAL_CSS)
+		writeMockStyle(tempDir, 'modern', MOCK_MODERN_CSS)
+		writeMockStyle(tempDir, 'classic', MOCK_CLASSIC_CSS)
 
 		// Set test config directory to avoid using global config
 		process.env.RESUM8_CONFIG_DIR = join(tempDir, '.config', 'resum8')

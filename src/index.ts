@@ -230,4 +230,8 @@ if (process.argv.length === 2) {
 	program.help()
 }
 
-program.parse()
+program.parseAsync().catch((err: unknown) => {
+	const message = err instanceof Error ? err.message : String(err)
+	console.error(chalk.red(`error: ${message}`))
+	process.exit(1)
+})
