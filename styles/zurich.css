@@ -1,5 +1,6 @@
 /*
- * Resumx - Formal Resume Stylesheet
+ * Resumx - Zurich Resume Stylesheet
+ * Traditional, authoritative look.
  * https://github.com/ocmrz/resumx
  */
 
@@ -11,17 +12,7 @@
 	--font-family:
 		'Palatino Linotype', 'Palatino', 'Georgia', 'Times New Roman', serif;
 	--accent-color: #c43218;
-	--name-size: 2.25rem;
 	--name-caps: small-caps;
-	--section-title-size: 1.35rem;
 	--section-header-color: var(--accent-color);
 	--section-border: 1.5px solid var(--section-header-color);
-}
-
-.two-column-layout dl {
-	display: block;
-}
-
-.two-column-layout dd {
-	margin-left: 0;
 }

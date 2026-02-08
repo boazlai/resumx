@@ -9,7 +9,7 @@ import {
 	getBundledStyles,
 	getLocalStylePath,
 	parseCssVariables,
-	FALLBACK_DEFAULT_STYLE,
+	DEFAULT_STYLE,
 } from './styles.js'
 
 describe('styles', () => {
@@ -42,7 +42,7 @@ describe('styles', () => {
 
 	describe('getLocalStylePath', () => {
 		it('returns undefined when no local styles exist', () => {
-			expect(getLocalStylePath('classic', tempDir)).toBeUndefined()
+			expect(getLocalStylePath('nonexistent', tempDir)).toBeUndefined()
 		})
 
 		it('returns path when local style exists', () => {
@@ -59,24 +59,29 @@ describe('styles', () => {
 	describe('resolveStyle', () => {
 		it('resolves bundled default style by name', () => {
 			// Callers are responsible for providing defaults; this verifies the fallback works
-			const path = resolveStyle(FALLBACK_DEFAULT_STYLE, tempDir)
-			expect(path).toContain(FALLBACK_DEFAULT_STYLE)
+			const path = resolveStyle(DEFAULT_STYLE, tempDir)
+			expect(path).toContain(DEFAULT_STYLE)
 			expect(existsSync(path)).toBe(true)
 		})
 
 		it('prefers local style over bundled', () => {
+			const bundled = getBundledStyles()[0]!
 			const stylesDir = join(tempDir, 'styles')
 			mkdirSync(stylesDir)
-			writeFileSync(join(stylesDir, 'classic.css'), '/* local classic */')
+			writeFileSync(join(stylesDir, `${bundled}.css`), `/* local ${bundled} */`)
 
-			const path = resolveStyle('classic', tempDir)
+			const path = resolveStyle(bundled, tempDir)
 			expect(path).toContain(tempDir)
 		})
 
 		it('resolves bundled style by name', () => {
-			const path = resolveStyle('formal', tempDir)
-			expect(path).toContain('formal.css')
-			expect(existsSync(path)).toBe(true)
+			const bundled = getBundledStyles()
+			expect(bundled.length).toBeGreaterThanOrEqual(1)
+			for (const style of bundled) {
+				const path = resolveStyle(style, tempDir)
+				expect(path).toContain(`${style}.css`)
+				expect(existsSync(path)).toBe(true)
+			}
 		})
 
 		it('resolves absolute path', () => {
@@ -129,19 +134,20 @@ describe('styles', () => {
 		})
 
 		it('marks shadowed bundled styles as local', () => {
+			const bundled = getBundledStyles()[0]!
 			const stylesDir = join(tempDir, 'styles')
 			mkdirSync(stylesDir)
-			writeFileSync(join(stylesDir, 'classic.css'), '/* local classic */')
+			writeFileSync(join(stylesDir, `${bundled}.css`), `/* local ${bundled} */`)
 
 			const styles = listStyles(tempDir)
-			const classic = styles.find(s => s.name === 'classic')
-			expect(classic).toBeDefined()
-			expect(classic!.isLocal).toBe(true)
-			expect(classic!.isBundled).toBe(true) // Still marked as bundled (shadowed)
+			const shadowed = styles.find(s => s.name === bundled)
+			expect(shadowed).toBeDefined()
+			expect(shadowed!.isLocal).toBe(true)
+			expect(shadowed!.isBundled).toBe(true) // Still marked as bundled (shadowed)
 
-			// Should not have duplicate classic
-			const classicCount = styles.filter(s => s.name === 'classic').length
-			expect(classicCount).toBe(1)
+			// Should not have duplicate
+			const count = styles.filter(s => s.name === bundled).length
+			expect(count).toBe(1)
 		})
 	})
 

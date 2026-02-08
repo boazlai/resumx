@@ -37,8 +37,8 @@
  */
 :root {
 	/* ---- Typography ---- */
-	--font-family: 'Times New Roman', serif; /* any font stack */
-	--font-size: 11pt; /* any font-size */
+	--font-family: 'Georgia', serif; /* any font stack */
+	--font-size: 11pt; /* any font-size, 10-12pt recommended */
 	--line-height: 1.35; /* any unitless ratio */
 
 	/* ---- Colors ---- */
@@ -49,22 +49,28 @@
 	--background-color: #fff; /* any color */
 
 	/* ---- Headings ---- */
-	--name-size: 2rem; /* any font-size */
+	--name-size: 1.85rem; /* any font-size */
 	--name-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
-	--section-title-size: 1.2rem; /* any font-size */
+	--name-weight: normal; /* any font-weight: bold | normal | 100–900 */
+	--name-style: normal; /* normal | italic | oblique */
+	--section-title-size: 1.22rem; /* any font-size */
 	--section-title-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
+	--section-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
+	--section-title-style: normal; /* normal | italic | oblique */
 	--section-header-color: var(--text-color); /* any color */
 	--header-text-align: center; /* left | center | right */
 	--section-header-align: left; /* left | center | right */
 	--section-border: 1px solid var(--section-header-color); /* any border shorthand | none */
 	--entry-title-size: 1.05rem; /* any font-size */
+	--entry-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
+	--entry-title-style: normal; /* normal | italic | oblique */
 
 	/* ---- Links ---- */
 	--link-underline: none; /* underline | none */
 
 	/* ---- Spacing ---- */
-	--page-margin-x: 0.4in; /* any length */
-	--page-margin-y: 0.3in; /* any length */
+	--page-margin-x: 0.5in; /* any length */
+	--page-margin-y: 0.5in; /* any length */
 	--section-gap: 10px; /* any length */
 	--entry-gap: 5px; /* any length */
 	--bullet-gap: 2px; /* any length */
@@ -286,6 +292,8 @@ header {
 h1 {
 	font-size: var(--name-size);
 	font-variant-caps: var(--name-caps);
+	font-weight: var(--name-weight);
+	font-style: var(--name-style);
 }
 
 h2 {
@@ -295,14 +303,16 @@ h2 {
 	text-align: var(--section-header-align);
 	border-bottom: var(--section-border);
 	margin-top: var(--section-gap);
-	font-weight: bold;
+	font-weight: var(--section-title-weight);
+	font-style: var(--section-title-style);
 	margin-bottom: 6px;
 }
 
 h3 {
 	margin-top: var(--entry-gap);
 	margin-bottom: 1.5px;
-	font-weight: bold;
+	font-weight: var(--entry-title-weight);
+	font-style: var(--entry-title-style);
 	font-size: var(--entry-title-size);
 }
 

@@ -3,7 +3,11 @@ import { existsSync, mkdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { createConfigStore } from './config.js'
-import { mergeVariables, generateVariablesCSS } from './styles.js'
+import {
+	mergeVariables,
+	generateVariablesCSS,
+	DEFAULT_STYLE,
+} from './styles.js'
 
 describe('config', () => {
 	let tempDir: string
@@ -218,7 +222,7 @@ describe('config', () => {
 		describe('defaultStyle', () => {
 			it('returns default when not set', () => {
 				const store = createConfigStore(configDir)
-				expect(store.defaultStyle).toBe('classic')
+				expect(store.defaultStyle).toBe(DEFAULT_STYLE)
 			})
 
 			it('can be set and retrieved', () => {
@@ -231,7 +235,7 @@ describe('config', () => {
 				const store = createConfigStore(configDir)
 				store.defaultStyle = 'modern'
 				store.resetDefaultStyle()
-				expect(store.defaultStyle).toBe('classic')
+				expect(store.defaultStyle).toBe(DEFAULT_STYLE)
 			})
 		})
 
@@ -252,7 +256,7 @@ describe('config', () => {
 				store.clear()
 
 				// clear() wipes file; conf returns defaults for missing keys
-				expect(store.defaultStyle).toBe('classic')
+				expect(store.defaultStyle).toBe(DEFAULT_STYLE)
 				expect(store.getStyleVariables('classic')).toEqual({})
 			})
 		})
