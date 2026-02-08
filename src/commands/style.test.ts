@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { existsSync, mkdirSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { styleCommand } from './style.js'
@@ -33,6 +33,31 @@ function withExitThrowing(): () => void {
 	}
 }
 
+/**
+ * Local CSS fixture with known variables.
+ * Written to tempDir/styles/classic.css so style resolution picks it up
+ * instead of the bundled classic.css — isolates tests from real style changes.
+ */
+const MOCK_CLASSIC_CSS = `
+:root {
+	--font-family: 'Times New Roman', serif;
+	--font-size: 11pt;
+	--section-header-color: #333;
+	--link-color: #0563bb;
+}
+`
+
+/** Write the mock CSS into tempDir so `resolveStyle('classic', tempDir)` finds it. */
+function writeMockStyle(
+	tempDir: string,
+	name = 'classic',
+	css = MOCK_CLASSIC_CSS,
+) {
+	const stylesDir = join(tempDir, 'styles')
+	mkdirSync(stylesDir, { recursive: true })
+	writeFileSync(join(stylesDir, `${name}.css`), css)
+}
+
 describe('style command', () => {
 	let tempDir: string
 
@@ -64,8 +89,8 @@ describe('style command', () => {
 			mkdirSync(globalConfigDir, { recursive: true })
 		})
 
-		it('shows configurable variables for a bundled style', async () => {
-			// Change cwd for the test
+		it('shows configurable variables for a style', async () => {
+			writeMockStyle(tempDir)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
@@ -217,6 +242,7 @@ describe('style command', () => {
 		})
 
 		it('shows saved overrides inline with default values', async () => {
+			writeMockStyle(tempDir)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
@@ -240,12 +266,13 @@ describe('style command', () => {
 		})
 
 		it('does not show arrow when override value equals default', async () => {
+			writeMockStyle(tempDir)
 			const originalCwd = process.cwd
 			process.cwd = () => tempDir
 
-			// Set a variable to the same value as its default
+			// Set a variable to the same value as its default in MOCK_CLASSIC_CSS
 			const store = createConfigStore(globalConfigDir)
-			store.setStyleVariables('classic', { 'font-size': '11pt' }) // Same as default in classic.css
+			store.setStyleVariables('classic', { 'font-size': '11pt' })
 
 			// Then view style info
 			await styleCommand('classic', {}, store)

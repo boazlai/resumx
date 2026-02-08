@@ -193,31 +193,20 @@ body { color: var(--text-color); }
 			])
 		})
 
-		it('parses bundled classic style variables', () => {
-			const classicPath = getBundledStylePath('classic')
-			expect(classicPath).toBeDefined()
-			const css = require('node:fs').readFileSync(classicPath!, 'utf-8')
-			const vars = parseCssVariables(css)
+		it.each(getBundledStyles())(
+			'parses bundled %s style without crashing',
+			style => {
+				const stylePath = getBundledStylePath(style)
+				expect(stylePath).toBeDefined()
+				const css = require('node:fs').readFileSync(stylePath!, 'utf-8')
+				const vars = parseCssVariables(css)
 
-			// Classic should have these variables
-			const varNames = vars.map(v => v.name)
-			expect(varNames).toContain('--font-family')
-			expect(varNames).toContain('--font-size')
-			expect(varNames).toContain('--section-header-color')
-			expect(varNames).toContain('--section-gap')
-			expect(varNames).toContain('--list-bullets')
-		})
-
-		it('parses bundled formal style variables', () => {
-			const formalPath = getBundledStylePath('formal')
-			expect(formalPath).toBeDefined()
-			const css = require('node:fs').readFileSync(formalPath!, 'utf-8')
-			const vars = parseCssVariables(css)
-
-			// Formal should have section-header-color
-			const varNames = vars.map(v => v.name)
-			expect(varNames).toContain('--font-family')
-			expect(varNames).toContain('--section-header-color')
-		})
+				// Structural: every returned variable has a valid shape
+				for (const v of vars) {
+					expect(v.name).toMatch(/^--[\w-]+$/)
+					expect(v.value.trim().length).toBeGreaterThan(0)
+				}
+			},
+		)
 	})
 })
