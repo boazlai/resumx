@@ -49,10 +49,10 @@
 	--vp-c-default-3: var(--vp-c-gray-3);
 	--vp-c-default-soft: var(--vp-c-gray-soft);
 
-	--vp-c-brand-1: var(--vp-c-indigo-1);
-	--vp-c-brand-2: var(--vp-c-indigo-2);
-	--vp-c-brand-3: var(--vp-c-indigo-3);
-	--vp-c-brand-soft: var(--vp-c-indigo-soft);
+	--vp-c-brand-1: #c43218;
+	--vp-c-brand-2: #a82b14;
+	--vp-c-brand-3: #8e2410;
+	--vp-c-brand-soft: rgba(196, 50, 24, 0.14);
 
 	--vp-c-tip-1: var(--vp-c-brand-1);
 	--vp-c-tip-2: var(--vp-c-brand-2);
@@ -135,4 +135,185 @@
 
 .DocSearch {
 	--docsearch-primary-color: var(--vp-c-brand-1) !important;
+}
+
+/**
+ * Component: Navbar
+ * -------------------------------------------------------------------------- */
+
+.VPNavBar .divider-line {
+	--vp-c-gutter: transparent;
+	position: relative;
+}
+
+.VPNavBar .divider-line::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: repeating-linear-gradient(
+		to right,
+		var(--vp-c-divider) 0,
+		var(--vp-c-divider) 3px,
+		transparent 3px,
+		transparent 6px
+	);
+}
+
+/**
+ * Component: Sidebar — book-style table of contents
+ * -------------------------------------------------------------------------- */
+
+@media (min-width: 960px) {
+	.VPSidebar {
+		border-right: 1px solid var(--vp-c-divider) !important;
+		border-right-style: dashed !important;
+		background-color: transparent !important;
+
+		& .curtain {
+			background-color: transparent !important;
+		}
+	}
+
+	.VPNavBarTitle .title {
+		border-bottom-style: dashed !important;
+	}
+
+	.group:not(:first-child):not(:nth-child(2)) {
+		border-top-style: dashed !important;
+	}
+
+	.VPLocalNav {
+		border-bottom: none !important;
+	}
+
+	.VPLocalNav .container {
+		border-bottom: 1px solid var(--vp-c-divider) !important;
+		border-bottom-style: dashed !important;
+	}
+
+	.aside .content {
+		border-left-style: dashed !important;
+	}
+}
+
+main h2 {
+	border-top-style: dashed !important;
+}
+
+footer nav {
+	border-top-style: dashed !important;
+}
+
+/* *
+ * Sidebar: book-style roman numeral prefixes
+ * -------------------------------------------------------------------------- */
+
+/* Reset group counter on the sidebar nav */
+.VPSidebar .nav {
+	counter-reset: toc-group;
+}
+
+/* Each group increments the group counter */
+.VPSidebar .nav > .group {
+	counter-increment: toc-group;
+}
+
+/* Reset item counter within each group */
+.VPSidebarItem.level-0 > .items {
+	counter-reset: toc-item;
+}
+
+/* Each level-1 item increments the item counter */
+.VPSidebarItem.level-1 {
+	counter-increment: toc-item;
+}
+
+/* Display roman numeral prefix before each link text */
+.VPSidebarItem.level-1 > .item .link .text::before {
+	content: counter(toc-item, lower-roman) '. ';
+	color: var(--vp-c-text-3);
+	font-size: 0.85em;
+	display: inline-block;
+	width: 1.5em;
+}
+
+main ul li {
+	list-style: circle;
+}
+
+main a {
+	text-decoration: none !important;
+	color: var(--vp-c-brand-1) !important;
+}
+
+/* Sidebar: active link uses brand color */
+.VPSidebarItem.is-active > .item > .link > .text {
+	color: var(--vp-c-brand-1) !important;
+}
+
+.DocSearch {
+	color: var(--vp-c-brand-3) !important;
+}
+
+/* Shiki word highlight */
+.highlighted-word {
+	background-color: var(--vp-c-brand-soft);
+	border-radius: 3px;
+	padding: 1px 3px;
+	margin: -1px -3px;
+}
+
+/* Resumx syntax highlighting in code blocks
+ * Override Shiki's --shiki-light / --shiki-dark CSS variables so the
+ * color cascades into the inner token <span>s without !important. */
+
+/* {.attrs} — muted like annotations/comments */
+.resumx-attr {
+	--shiki-light: #9ca0a4 !important;
+	--shiki-dark: #6a737d !important;
+	font-style: italic;
+}
+
+/* :: delimiters — dim punctuation
+ * Also target inner token spans so inline --shiki-* values are overridden */
+.resumx-delim,
+.resumx-delim span {
+	--shiki-light: #9ca0a4 !important;
+	--shiki-dark: #6a737d !important;
+}
+
+/* markdown link display text — reset to default foreground */
+.resumx-link-text,
+.resumx-link-text span {
+	--shiki-light: #24292f !important;
+	--shiki-dark: #e6edf3 !important;
+}
+
+/* icon names — inherit surrounding color, just dimmed */
+.resumx-icon {
+	opacity: 0.6;
+}
+
+/* Pronunciation tooltip */
+.pronounce {
+	position: relative;
+	cursor: help;
+	text-decoration: underline dotted;
+	text-underline-offset: 3px;
+}
+
+.pronounce:hover::after {
+	content: attr(data-pronounce);
+	position: absolute;
+	left: 0;
+	top: calc(100% + 6px);
+	background: var(--vp-c-bg-soft);
+	color: var(--vp-c-text-2);
+	border: 1px solid var(--vp-c-divider);
+	border-radius: 6px;
+	padding: 4px 10px;
+	font-size: 0.85em;
+	white-space: nowrap;
+	z-index: 10;
+	pointer-events: none;
 }
