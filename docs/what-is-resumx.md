@@ -1,26 +1,46 @@
 # What is Resumx?
 
-Resumx is a markdown resume builder that separates content from layout—so you write once, switch styles and formats anytime, and never fight formatting or maintain duplicate versions again.
+<!-- <span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**tension) is a resume-flavored Markdown for building resumes. -->
 
-## Why Resumx?
+<span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**tension) builds resumes from Markdown — one file, every style and format.
 
-- **Just Markdown:** No complex schemas or templating languages. Write in standard Markdown.
-- **Tailwind Powered:** Style with standard Tailwind CSS classes directly in your content.
-- **AI Ready:** Work with ChatGPT and other LLMs without breaking your layout.
-- **Pixel Perfect:** Professional PDF layouts that never jump around.
-- **Git Native:** Branch your resume for different job applications and diff changes like code.
+```markdown
+---
+roles: [backend, frontend, fullstack]
+style: [zurich, oxford]
+formats: [pdf, docx, html]
+variables:
+  font-size: 10pt
+  bullet-style: circle
+---
 
-## One Resume, Any Style
+# Jane Doe
 
-Resumx uses built-in styles (recipes) for default styling. You can use the default styles or eject any style and customize it. Write once, render anywhere. Switch styles instantly without touching your content.
+jane@example.com | github.com/jane | linkedin.com/in/jane
 
-|  **Classic** (Default)  |            **Formal**            |        **Minimal**        |
-| :---------------------: | :------------------------------: | :-----------------------: |
-| Clean, timeless design. | Traditional, authoritative look. | Modern, whitespace-heavy. |
+## Experience
 
-## What We've Built
+### ::logos:google-icon:: Google [2022 - Present]{.float-right}
 
-- **Markdown-native workflow:** Write in standard Markdown, render to professional PDF, HTML, and DOCX.
-- **Beautiful defaults:** Professional templates that look great out of the box, with zero configuration.
-- **Infinite customization:** Use Tailwind CSS v4 classes for styling, or eject the CSS to fully own your design.
-- **Seamless AI integration:** Generate content with LLMs and render it perfectly without formatting headaches.
+_Senior Software Engineer_
+
+- Built distributed systems serving 1M requests/day
+- Designed REST APIs with ::logos:openapi-icon:: OpenAPI specification{.role:backend .role:fullstack}
+- Built interactive dashboards with ::logos:react:: React {.role:frontend .role:fullstack}
+```
+
+Render with:
+
+```bash
+resumx resume.md
+```
+
+That one command produces a file for every combination of **role**, **style**, and **format** (3 roles × 2 styles × 3 formats = 18 files). The content stays the same, only the presentation changes.
+
+<!-- TODO: Side-by-side comparison of a sample resume rendered in the Zurich, Oxford, and Seattle styles -->
+
+[Version with git](/git-superpowers). [Edit with AI](/agent-skills).
+
+---
+
+Ready? [Get started in under a minute →](/quick-start)
