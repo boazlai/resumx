@@ -259,8 +259,7 @@ main a {
 .highlighted-word {
 	background-color: var(--vp-c-brand-soft);
 	border-radius: 3px;
-	padding: 1px 3px;
-	margin: -1px -3px;
+	padding: 1px 0;
 }
 
 /* Resumx syntax highlighting in code blocks
