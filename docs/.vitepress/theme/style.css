@@ -273,6 +273,13 @@ main a {
 	font-style: italic;
 }
 
+/* ::: fenced div colons — gray */
+.resumx-fence,
+.resumx-fence span {
+	--shiki-light: #9ca0a4 !important;
+	--shiki-dark: #6a737d !important;
+}
+
 /* :: delimiters — dim punctuation
  * Also target inner token spans so inline --shiki-* values are overridden */
 .resumx-delim,
@@ -286,6 +293,25 @@ main a {
 .resumx-link-text span {
 	--shiki-light: #24292f !important;
 	--shiki-dark: #e6edf3 !important;
+}
+
+/* ***bold italic*** and ___bold italic___ */
+.resumx-bold-italic,
+.resumx-bold-italic span {
+	font-weight: bold;
+	font-style: italic;
+}
+
+/* **bold** and __bold__ — bold inner text */
+.resumx-bold,
+.resumx-bold span {
+	font-weight: bold;
+}
+
+/* *italic* and _italic_ — italic inner text */
+.resumx-italic,
+.resumx-italic span {
+	font-style: italic;
 }
 
 /* icon names — inherit surrounding color, just dimmed */
