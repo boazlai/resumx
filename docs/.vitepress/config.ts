@@ -37,6 +37,7 @@ export default defineConfig({
 					{ text: 'Classes & IDs', link: '/classes-and-ids' },
 					{ text: 'Icons', link: '/icons' },
 					{ text: 'Per-Role Output', link: '/per-role-output' },
+					{ text: 'Multi-Language', link: '/multi-language' },
 					{ text: 'Interpolation', link: '/interpolation' },
 				],
 			},
