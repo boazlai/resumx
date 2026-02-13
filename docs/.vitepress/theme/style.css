@@ -241,11 +241,17 @@ main a {
 	font-style: italic;
 }
 
-/* ::: fenced div colons — gray */
+/* ::: fenced div colons — gray, dimmer at deeper nesting */
 .resumx-fence,
 .resumx-fence span {
 	--shiki-light: #9ca0a4 !important;
 	--shiki-dark: #6a737d !important;
+}
+.resumx-fence-d1 {
+	opacity: 0.55;
+}
+.resumx-fence-d2 {
+	opacity: 0.35;
 }
 
 /* :: delimiters — dim punctuation

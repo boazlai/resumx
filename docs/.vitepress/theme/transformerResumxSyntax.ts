@@ -10,15 +10,26 @@ export function transformerResumxSyntax(): ShikiTransformer {
 			const matched = new Set<string>()
 
 			// 0) ::: fenced divs — dim colons, highlight attrs
+			let fenceDepth = 0
 			for (const m of code.matchAll(/^(:{3,})(\s*(\{)([^}]*)(\}))?/gm)) {
 				const pos = m.index
 				const colonLen = m[1].length
-				// colons → gray
+				// Opener = any non-whitespace content after colons (not just {…})
+				const lineEnd = code.indexOf('\n', pos)
+				const restOfLine = code.slice(
+					pos + colonLen,
+					lineEnd === -1 ? undefined : lineEnd,
+				)
+				const isOpener = restOfLine.trim().length > 0
+				if (!isOpener) fenceDepth = Math.max(0, fenceDepth - 1)
+				const depthClass = `resumx-fence resumx-fence-d${Math.min(fenceDepth, 2)}`
+				// colons → gray with depth-based opacity
 				options.decorations.push({
 					start: pos,
 					end: pos + colonLen,
-					properties: { class: 'resumx-fence' },
+					properties: { class: depthClass },
 				})
+				if (isOpener) fenceDepth++
 				// Track full match so later patterns skip these positions
 				for (let i = pos; i < pos + m[0].length; i++) matched.add(String(i))
 
@@ -43,6 +54,18 @@ export function transformerResumxSyntax(): ShikiTransformer {
 						end: braceStart + 2 + m[4].length,
 						properties: { class: 'resumx-delim' },
 					})
+				} else if (isOpener) {
+					// Bare component name (no braces) — gray like attrs
+					const nameStart =
+						pos + colonLen + (restOfLine.length - restOfLine.trimStart().length)
+					const nameEnd = lineEnd === -1 ? code.length : lineEnd
+					options.decorations.push({
+						start: nameStart,
+						end: nameEnd,
+						properties: { class: 'resumx-attr' },
+					})
+					for (let i = pos + m[0].length; i < nameEnd; i++)
+						matched.add(String(i))
 				}
 			}
 
