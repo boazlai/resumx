@@ -397,6 +397,104 @@ style:
 			})
 		})
 
+		describe('pages field', () => {
+			it('parses pages: 1 from YAML', () => {
+				const input = `---
+pages: 1
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config?.pages).toBe(1)
+				expect(result.warnings).toEqual([])
+			})
+
+			it('parses pages: 2 from YAML', () => {
+				const input = `---
+pages: 2
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config?.pages).toBe(2)
+			})
+
+			it('parses pages from TOML', () => {
+				const input = `+++
+pages = 1
++++
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config?.pages).toBe(1)
+			})
+
+			it('parses pages alongside other fields', () => {
+				const input = `---
+themes: zurich
+pages: 1
+style:
+  font-size: "10pt"
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result.config).toEqual({
+					themes: ['zurich'],
+					pages: 1,
+					style: { 'font-size': '10pt' },
+				})
+			})
+
+			it('throws on pages: 0', () => {
+				const input = `---
+pages: 0
+---
+# Resume`
+
+				expect(() => parseFrontmatterFromString(input)).toThrow(
+					"'pages' must be a positive integer (>= 1)",
+				)
+			})
+
+			it('throws on negative pages', () => {
+				const input = `---
+pages: -1
+---
+# Resume`
+
+				expect(() => parseFrontmatterFromString(input)).toThrow(
+					"'pages' must be a positive integer (>= 1)",
+				)
+			})
+
+			it('throws on non-integer pages', () => {
+				const input = `---
+pages: 1.5
+---
+# Resume`
+
+				expect(() => parseFrontmatterFromString(input)).toThrow(
+					"'pages' must be a positive integer (>= 1)",
+				)
+			})
+
+			it('throws on non-number pages', () => {
+				const input = `---
+pages: "one"
+---
+# Resume`
+
+				expect(() => parseFrontmatterFromString(input)).toThrow(
+					"'pages' must be a positive integer (>= 1)",
+				)
+			})
+		})
+
 		describe('edge cases', () => {
 			it('handles frontmatter with empty values', () => {
 				const input = `---
