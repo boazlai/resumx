@@ -59,6 +59,7 @@ export interface RenderCommandOptions {
 	lang?: string[]
 	format?: string[]
 	watch?: boolean
+	pages?: number
 }
 
 const VALID_FORMATS: OutputFormat[] = ['pdf', 'html', 'docx', 'png']
@@ -305,6 +306,9 @@ async function runRender(
 		return false
 	}
 
+	// Resolve target pages (CLI > Frontmatter)
+	const targetPages = options.pages ?? fmConfig?.pages
+
 	console.log(`Building resume from: ${chalk.cyan(context.label)}\n`)
 
 	// Build expression context from frontmatter (all properties directly accessible)
@@ -431,6 +435,7 @@ async function runRender(
 					:	undefined,
 				activeRole: task.activeRole,
 				activeLang: task.activeLang,
+				targetPages,
 			})
 			return { label: task.label, results }
 		}),

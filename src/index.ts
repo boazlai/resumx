@@ -161,6 +161,17 @@ program
 		[],
 	)
 	.option('-w, --watch', 'Watch for changes and rebuild')
+	.option(
+		'--pages <number>',
+		'Target page count — shrink to fit (expands gaps for single page)',
+		(value: string) => {
+			const n = parseInt(value, 10)
+			if (isNaN(n) || n < 1 || !Number.isInteger(n)) {
+				throw new Error("'--pages' must be a positive integer (>= 1)")
+			}
+			return n
+		},
+	)
 	.action(async (file: string | undefined, options: RenderCommandOptions) => {
 		await renderCommand(file, options)
 	})

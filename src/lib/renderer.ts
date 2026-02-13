@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os'
 import { browserPool } from './browser-pool.js'
 import { generateHtml } from './html-generator.js'
 import { processExpressions } from './interpolation.js'
+import { fitToPages } from './page-fit/index.js'
 
 export type OutputFormat = 'pdf' | 'html' | 'docx' | 'png'
 
@@ -23,6 +24,7 @@ export interface RenderOptions {
 	expressionContext?: Record<string, unknown>
 	activeRole?: string
 	activeLang?: string
+	targetPages?: number
 }
 
 export interface RenderResult {
@@ -129,13 +131,19 @@ function renderDocxFromPdf(pdfPath: string, outputPath: string): void {
 export async function render(options: RenderOptions): Promise<RenderResult> {
 	try {
 		// Convert markdown to standalone HTML with Tailwind CSS compilation
-		const html = await generateHtml(options.content, {
+		let html = await generateHtml(options.content, {
 			cssPath: options.cssPath,
 			variables: options.variables,
 			expressionContext: options.expressionContext,
 			activeRole: options.activeRole,
 			activeLang: options.activeLang,
 		})
+
+		// Fit content to target page count
+		if (options.targetPages) {
+			const fitResult = await fitToPages(html, options.targetPages)
+			html = fitResult.html
+		}
 
 		// Ensure output directory exists
 		const outputDir = dirname(options.output)
@@ -195,6 +203,7 @@ export interface RenderMultipleOptions {
 	expressionContext?: Record<string, unknown>
 	activeRole?: string
 	activeLang?: string
+	targetPages?: number
 }
 
 /**
@@ -213,6 +222,7 @@ export async function renderMultiple(
 		expressionContext,
 		activeRole,
 		activeLang,
+		targetPages,
 	} = options
 
 	// Process expressions once before rendering to any format
@@ -234,6 +244,7 @@ export async function renderMultiple(
 			variables,
 			activeRole,
 			activeLang,
+			targetPages,
 		})
 
 		return [format, result] as const

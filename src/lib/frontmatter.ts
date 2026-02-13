@@ -6,6 +6,7 @@ export interface FrontmatterConfig {
 	themes?: string[]
 	output?: string
 	style?: Record<string, string>
+	pages?: number
 }
 
 export interface ParseResult {
@@ -15,7 +16,7 @@ export interface ParseResult {
 }
 
 // Known frontmatter fields
-const KNOWN_FIELDS = ['themes', 'output', 'style']
+const KNOWN_FIELDS = ['themes', 'output', 'style', 'pages']
 
 /**
  * Detect frontmatter type based on opening delimiter
@@ -76,6 +77,15 @@ function validateAndExtract(data: Record<string, unknown>): ValidationResult {
 			throw new Error("'output' must be a string")
 		}
 		config.output = data['output']
+	}
+
+	// Validate pages (positive integer >= 1)
+	if (data['pages'] !== undefined) {
+		const pages = data['pages']
+		if (typeof pages !== 'number' || !Number.isInteger(pages) || pages < 1) {
+			throw new Error("'pages' must be a positive integer (>= 1)")
+		}
+		config.pages = pages
 	}
 
 	// Validate style (null means declared but empty — treat as no styles)
