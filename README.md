@@ -1,13 +1,13 @@
-![Resumx Banner](assets/resumx-banner-dark.png)
-
-<h1 align="center">Resumx</h1>
-
 <p align="center">
-  <strong>/rɪˈzuːmɪx/</strong> — <strong>Resu</strong>me <strong>M</strong>arkdown e<strong>X</strong>pression
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ocmrz/resumx/HEAD/.github/resumx-logo-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/ocmrz/resumx/HEAD/.github/resumx-logo-light.png">
+    <img alt="Resumx" src="https://raw.githubusercontent.com/ocmrz/resumx/HEAD/.github/resumx-logo-light.png" width="431" height="70">
+  </picture>
 </p>
 
 <p align="center">
-  <span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix"><b>Resumx</b></span> renders resumes from Markdown.
+  <strong>/rɪˈzuːmɪx/</strong> — <strong>Resu</strong>me <strong>M</strong>arkdown e<strong>X</strong>pression
 </p>
 
 <p align="center">
