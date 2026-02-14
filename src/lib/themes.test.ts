@@ -7,7 +7,6 @@ import {
 	listThemes,
 	getBundledThemePath,
 	getBundledThemes,
-	getLocalThemePath,
 	parseCssVariables,
 	DEFAULT_THEME,
 } from './themes.js'
@@ -40,38 +39,12 @@ describe('themes', () => {
 		})
 	})
 
-	describe('getLocalThemePath', () => {
-		it('returns undefined when no local themes exist', () => {
-			expect(getLocalThemePath('nonexistent', tempDir)).toBeUndefined()
-		})
-
-		it('returns path when local theme exists', () => {
-			const themesDir = join(tempDir, 'themes')
-			mkdirSync(themesDir)
-			writeFileSync(join(themesDir, 'custom.css'), '/* custom */')
-
-			const path = getLocalThemePath('custom', tempDir)
-			expect(path).toBeDefined()
-			expect(existsSync(path!)).toBe(true)
-		})
-	})
-
 	describe('resolveTheme', () => {
 		it('resolves bundled default theme by name', () => {
 			// Callers are responsible for providing defaults; this verifies the fallback works
 			const path = resolveTheme(DEFAULT_THEME, tempDir)
 			expect(path).toContain(DEFAULT_THEME)
 			expect(existsSync(path)).toBe(true)
-		})
-
-		it('prefers local theme over bundled', () => {
-			const bundled = getBundledThemes()[0]!
-			const themesDir = join(tempDir, 'themes')
-			mkdirSync(themesDir)
-			writeFileSync(join(themesDir, `${bundled}.css`), `/* local ${bundled} */`)
-
-			const path = resolveTheme(bundled, tempDir)
-			expect(path).toContain(tempDir)
 		})
 
 		it('resolves bundled theme by name', () => {
@@ -114,40 +87,13 @@ describe('themes', () => {
 	})
 
 	describe('listThemes', () => {
-		it('lists bundled themes when no local', () => {
-			const themes = listThemes(tempDir)
+		it('lists all bundled themes', () => {
+			const themes = listThemes()
 			expect(themes.length).toBe(getBundledThemes().length)
-			expect(themes.every(s => s.isBundled)).toBe(true)
-			expect(themes.every(s => !s.isLocal)).toBe(true)
-		})
-
-		it('includes local themes', () => {
-			const themesDir = join(tempDir, 'themes')
-			mkdirSync(themesDir)
-			writeFileSync(join(themesDir, 'custom.css'), '/* custom */')
-
-			const themes = listThemes(tempDir)
-			const custom = themes.find(s => s.name === 'custom')
-			expect(custom).toBeDefined()
-			expect(custom!.isLocal).toBe(true)
-			expect(custom!.isBundled).toBe(false)
-		})
-
-		it('marks shadowed bundled themes as local', () => {
-			const bundled = getBundledThemes()[0]!
-			const themesDir = join(tempDir, 'themes')
-			mkdirSync(themesDir)
-			writeFileSync(join(themesDir, `${bundled}.css`), `/* local ${bundled} */`)
-
-			const themes = listThemes(tempDir)
-			const shadowed = themes.find(s => s.name === bundled)
-			expect(shadowed).toBeDefined()
-			expect(shadowed!.isLocal).toBe(true)
-			expect(shadowed!.isBundled).toBe(true) // Still marked as bundled (shadowed)
-
-			// Should not have duplicate
-			const count = themes.filter(s => s.name === bundled).length
-			expect(count).toBe(1)
+			for (const theme of themes) {
+				expect(theme.name).toBeTruthy()
+				expect(existsSync(theme.path)).toBe(true)
+			}
 		})
 	})
 

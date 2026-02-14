@@ -6,8 +6,9 @@ For styling beyond [Tailwind utility classes](/tailwind-css) and [theme variable
 
 Add a `<style>` tag in your Markdown for customizations without needing a separate file.
 
-```html
+```markdown
 # Jane Doe
+
 <!-- ... -->
 
 <style>
@@ -24,10 +25,10 @@ Inline styles are applied alongside your theme — they don't replace it.
 
 ## Creating a Theme
 
-Create a new CSS file in `./themes/` and import the common base:
+Create a CSS file and import the common base modules:
 
 ```css
-/* themes/my-theme.css */
+/* my-theme.css */
 @import 'common/base.css';
 @import 'common/icons.css';
 @import 'common/utilities.css';
@@ -41,13 +42,21 @@ Create a new CSS file in `./themes/` and import the common base:
 }
 ```
 
-Then use it:
+Then reference it by path:
 
-```bash
-resumx resume.md --theme my-theme
+```markdown
+---
+themes: my-theme.css
+---
+```
+
+```shell
+resumx resume.md --theme my-theme.css
 ```
 
 ### Common Base Modules
+
+Your theme can `@import` any of the bundled common modules. They resolve automatically regardless of where your CSS file lives.
 
 | Module                  | Purpose                                                |
 | ----------------------- | ------------------------------------------------------ |
@@ -55,9 +64,5 @@ resumx resume.md --theme my-theme
 | `common/icons.css`      | Icon sizing and alignment                              |
 | `common/utilities.css`  | Utility classes (`.small-caps`, `.sr-only`)            |
 | `common/two-column.css` | Two-column grid layout (omit to disable `---` columns) |
-
-### Import Resolution
-
-`@import` paths resolve first to your local `./themes/` directory, then fall back to the bundled themes. This means you can eject and override individual common files (e.g., just `common/base.css`) without ejecting the entire theme.
 
 To target specific sections, entries, and header fields, see [Semantic Selectors](/semantic-selectors).
