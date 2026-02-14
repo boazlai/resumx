@@ -1,13 +1,13 @@
 # What is Resumx?
 
-<span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**pression) builds resumes from Markdown — one file, every theme and format.
+<span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**pression) renders resumes from Markdown.
 
 ```markdown
 ---
 themes: [zurich, oxford]
 pages: 1
 style:
-  font-size: 10pt
+  section-title-caps: small-caps
   bullet-style: circle
 ---
 
@@ -26,16 +26,16 @@ _Senior Software Engineer_
 - Designed REST APIs with ::logos:openapi-icon:: OpenAPI specification
 ```
 
+[**Layout is automatic**](/fit-to-page). Resumx shrinks spacing, font size, and margins when content overflows, and expands them when it's short.
+
 Render with:
 
 ```bash
 resumx resume.md --format pdf,docx,html
 ```
 
-That one command produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). The content stays the same, only the presentation changes.
+That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files).
 
 <!-- TODO: Side-by-side comparison of a sample resume rendered in the Zurich, Oxford, and Seattle themes -->
 
-Set `pages: 1` and Resumx [shrinks layout to fit](/fit-to-page). Edit with [AI](/agent-skills). Render from [any commit](/git-superpowers).
-
-Ready? [Get started in under a minute →](/quick-start)
+Edit with [AI](/agent-skills). Render from [any commit](/git-superpowers). [Multi-language](/multi-language) from one source. [Get started in under a minute →](/quick-start)
