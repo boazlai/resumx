@@ -66,8 +66,6 @@ export function getBundledThemes(): string[] {
 export interface ThemeInfo {
 	name: string
 	path: string
-	isLocal: boolean
-	isBundled: boolean
 }
 
 export interface CssVariable {
@@ -91,68 +89,21 @@ export function getBundledThemePath(name: string): string | undefined {
 }
 
 /**
- * Get path to local themes directory
+ * List all available bundled themes
  */
-export function getLocalThemesDir(cwd: string = process.cwd()): string {
-	return join(cwd, 'themes')
-}
-
-/**
- * Get path to a local theme
- */
-export function getLocalThemePath(
-	name: string,
-	cwd: string = process.cwd(),
-): string | undefined {
-	const themePath = join(getLocalThemesDir(cwd), `${name}.css`)
-	return existsSync(themePath) ? themePath : undefined
-}
-
-/**
- * List all available themes (local + bundled)
- */
-export function listThemes(cwd: string = process.cwd()): ThemeInfo[] {
-	const themes: ThemeInfo[] = []
-	const seen = new Set<string>()
-
-	// Local themes first (higher priority)
-	const localDir = getLocalThemesDir(cwd)
-	if (existsSync(localDir)) {
-		const localFiles = readdirSync(localDir).filter(f => f.endsWith('.css'))
-		for (const file of localFiles) {
-			const name = basename(file, '.css')
-			themes.push({
-				name,
-				path: join(localDir, file),
-				isLocal: true,
-				isBundled: getBundledThemes().includes(name),
-			})
-			seen.add(name)
-		}
-	}
-
-	// Bundled themes (not already shadowed by local)
-	for (const name of getBundledThemes()) {
-		if (!seen.has(name)) {
-			themes.push({
-				name,
-				path: join(BUNDLED_THEMES_DIR, `${name}.css`),
-				isLocal: false,
-				isBundled: true,
-			})
-		}
-	}
-
-	return themes
+export function listThemes(): ThemeInfo[] {
+	return getBundledThemes().map(name => ({
+		name,
+		path: join(BUNDLED_THEMES_DIR, `${name}.css`),
+	}))
 }
 
 /**
  * Resolve a theme name or path to an absolute CSS file path
  *
- * Resolution order:
- * 1. If it's a path (contains / or ends with .css), use it directly
- * 2. Check ./themes/<name>.css (local override)
- * 3. Check bundled themes
+ * Resolution:
+ * - Path-like input (contains / or \ or ends with .css): resolve as file path
+ * - Name: resolve to bundled theme
  *
  * Callers are responsible for providing a theme name (handling defaults).
  */
@@ -170,12 +121,7 @@ export function resolveTheme(
 		return absolutePath
 	}
 
-	// Name-based resolution
-	// Check local first
-	const localPath = getLocalThemePath(theme, cwd)
-	if (localPath) return localPath
-
-	// Check bundled
+	// Name-based resolution: bundled themes only
 	const bundledPath = getBundledThemePath(theme)
 	if (bundledPath) return bundledPath
 

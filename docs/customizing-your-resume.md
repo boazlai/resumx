@@ -70,10 +70,10 @@ For broader changes, add a `<style>` block directly in your Markdown:
 
 ## 5. Create a Custom Theme
 
-When you need complete control, create a new theme in `./themes/` with your own imports and variables:
+When you need complete control, create a CSS file with your own imports and variables:
 
 ```css
-/* themes/my-theme.css */
+/* my-theme.css */
 @import 'common/base.css';
 @import 'common/icons.css';
 
@@ -82,5 +82,7 @@ When you need complete control, create a new theme in `./themes/` with your own 
 	--accent-color: #2563eb;
 }
 ```
+
+Then reference it by path in your frontmatter (`themes: my-theme.css`) or on the command line (`--theme my-theme.css`).
 
 See [Custom CSS](/custom-css) for the full guide.
