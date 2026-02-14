@@ -21,45 +21,10 @@ resumx resume.md       # Render to PDF
 
 ## 3. Edit
 
-Open `resume.md` in your editor. The template looks like this:
-
-```markdown
-# Your Name
-
-[your@email.com](mailto:your@email.com) | [in/yourprofile](https://linkedin.com/in/yourprofile) | [yourusername](https://github.com/yourusername)
-
-## Education
-
-### University Name [Month Year – Month Year]{.right}
-
-_Degree, Major_
-
-- GPA: X.XX
-- Relevant coursework: Course 1, Course 2, Course 3
-
-## Work Experience
-
-### Company Name [Month Year – Present]{.right}
-
-_Job Title_
-
-- Built feature X using `Technology` and `Framework`, resulting in Y% improvement
-- Led team of Z people to deliver project on time
-
-## Technical Skills
-
-Languages
-: JavaScript, TypeScript, Python, SQL
-
-Frameworks
-: React, Node.js, Express, FastAPI
-```
-
-Edit your content, then run `resumx resume.md` again.  
-Or use `resumx resume.md --watch` to auto-rebuild on every save.
+Open `resume.md` in your editor and customize it with your information. Run `resumx resume.md` again to re-render, or use `resumx resume.md --watch` to auto-rebuild on every save.
 
 ## Next Steps
 
-- Read [The Resumx Approach](/the-resumx-approach) to understand how themes, variables, and customization work together
+- Learn how to [Use AI](/using-ai) to tailor your resume to job postings
 - See the [Markdown Syntax](/markdown-syntax) reference for all supported elements
-- Check the [CLI Reference](/cli-reference) for all commands and options
+- Read [Customizing Your Resume](/the-resumx-approach) when you want to go beyond the defaults
