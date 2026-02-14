@@ -22,16 +22,6 @@ Add a `<style>` tag in your Markdown for customizations without needing a separa
 
 Inline styles are applied alongside your theme — they don't replace it.
 
-## Ejecting a Theme
-
-To fully customize a built-in theme, eject it to your local `./themes/` directory:
-
-```bash
-resumx eject zurich       # Copies zurich.css to ./themes/zurich.css
-```
-
-Once ejected, the local copy takes precedence.
-
 ## Creating a Theme
 
 Create a new CSS file in `./themes/` and import the common base:

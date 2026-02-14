@@ -94,8 +94,6 @@ This enables AI assistants like Cursor, Claude Code, and Copilot to understand a
 | `resumx [file] --format pdf,html,docx` | PDF + HTML + DOCX         |
 | `resumx [file] --pages 1`              | Fit to 1 page             |
 | `resumx init`                          | Create from template      |
-| `resumx eject [theme]`                 | Copy theme CSS locally    |
-| `resumx theme`                         | List / manage themes      |
 | `resumx validate`                      | Validate resume structure |
 
 See the full [CLI Reference](https://resumx.dev/guide/cli-reference).

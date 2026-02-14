@@ -68,14 +68,19 @@ For broader changes, add a `<style>` block directly in your Markdown:
 </style>
 ```
 
-## 5. Eject and Fully Customize
+## 5. Create a Custom Theme
 
-When you need complete control -- or want different styling per theme -- eject a built-in theme and edit the CSS directly:
+When you need complete control, create a new theme in `./themes/` with your own imports and variables:
 
-```bash
-resumx eject zurich    # Creates ./themes/zurich.css
+```css
+/* themes/my-theme.css */
+@import 'common/base.css';
+@import 'common/icons.css';
+
+:root {
+	--font-family: 'Inter', sans-serif;
+	--accent-color: #2563eb;
+}
 ```
-
-The ejected file is yours to modify. You can also create entirely new themes from scratch.
 
 See [Custom CSS](/custom-css) for the full guide.
