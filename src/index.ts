@@ -149,7 +149,7 @@ program
 		[],
 	)
 	.option(
-		'--lang <tag>',
+		'-l, --lang <tag>',
 		'Generate for specific language(s) only (repeatable, BCP 47 tags)',
 		collectWithCommas,
 		[],
@@ -162,7 +162,7 @@ program
 	)
 	.option('-w, --watch', 'Watch for changes and rebuild')
 	.option(
-		'--pages <number>',
+		'-p, --pages <number>',
 		'Target page count — shrink to fit (expands gaps for single page)',
 		(value: string) => {
 			const n = parseInt(value, 10)

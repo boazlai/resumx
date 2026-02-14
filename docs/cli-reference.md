@@ -35,15 +35,16 @@ When reading from stdin, the output filename is derived from:
 
 ### Options
 
-| Flag                       | Description                                                                       |
-| -------------------------- | --------------------------------------------------------------------------------- |
-| `-t, --theme <name>`       | Theme(s) to use (name or path). Repeatable, comma-separated.                      |
-| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{theme}`/`{role}`. |
-| `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.      |
-| `-s, --style <name=value>` | Override style property. Repeatable.                                              |
-| `-r, --role <name>`        | Generate for specific role(s) only. Repeatable, comma-separated.                  |
-| `--pages <number>`         | Target page count. Shrinks to fit; for `1`, also fills remaining space.           |
-| `-w, --watch`              | Watch for changes and auto-rebuild.                                               |
+| Flag                       | Description                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `-t, --theme <name>`       | Theme(s) to use (name or path). Repeatable, comma-separated.                       |
+| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{theme}`/`{role}`.  |
+| `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.       |
+| `-s, --style <name=value>` | Override style property. Repeatable.                                               |
+| `-r, --role <name>`        | Generate for specific role(s) only. Repeatable, comma-separated.                   |
+| `-l, --lang <tag>`         | Generate for specific language(s) only. Repeatable, comma-separated (BCP 47 tags). |
+| `-p, --pages <number>`     | Target page count. Shrinks to fit; for `1`, also fills remaining space.            |
+| `-w, --watch`              | Watch for changes and auto-rebuild.                                                |
 
 ### Examples
 
