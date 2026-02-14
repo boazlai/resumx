@@ -336,12 +336,6 @@ resumx resume.md --var primary-color=#2563eb --var font-size=11pt
 
 # Watch mode (auto-rebuild on changes)
 resumx resume.md --watch
-
-# List available themes
-resumx theme
-
-# Set default theme
-resumx theme --default formal
 ```
 
 ## Common Mistakes

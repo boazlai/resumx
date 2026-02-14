@@ -4,8 +4,6 @@ import { Command } from 'commander'
 import chalk from 'chalk'
 import { renderCommand, type RenderCommandOptions } from './commands/render.js'
 import { initCommand, type InitCommandOptions } from './commands/init.js'
-import { ejectCommand, type EjectCommandOptions } from './commands/eject.js'
-import { themeCommand, type ThemeCommandOptions } from './commands/theme.js'
 import {
 	validateCommand,
 	type ValidateCommandOptions,
@@ -183,36 +181,6 @@ program
 	.option('--force', 'Overwrite existing file without prompting')
 	.action(async (filename: string | undefined, options: InitCommandOptions) => {
 		await initCommand(filename, options)
-	})
-
-// eject command
-program
-	.command('eject [theme]')
-	.description('Copy a bundled theme to ./themes/ for customization')
-	.option('--force', 'Overwrite existing local theme')
-	.action(async (theme: string | undefined, options: EjectCommandOptions) => {
-		await ejectCommand(theme, options)
-	})
-
-// theme command
-program
-	.command('theme [name]')
-	.description('List themes, show theme info, or set defaults')
-	.option('-d, --default <name>', 'Set the default theme')
-	.option(
-		'--set <name=value>',
-		'Set default style override for theme (repeatable)',
-		collect,
-		[],
-	)
-	.option('-r, --reset <variable>', 'Reset specific theme style to default')
-	.option('--reset-all', 'Reset all theme style overrides to defaults')
-	.action(async (name: string | undefined, options: ThemeCommandOptions) => {
-		// Map 'set' to 'style' for the command handler
-		if (options.set && options.set.length > 0) {
-			options.style = options.set
-		}
-		await themeCommand(name, options)
 	})
 
 // validate command

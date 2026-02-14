@@ -33,7 +33,7 @@ function resolveBaseCSS(
 	cssPath: string,
 	variables?: Record<string, string>,
 ): string {
-	// Resolve @import statements (with bundled themes dir as fallback for ejected files)
+	// Resolve @import statements (with bundled themes dir as fallback for local theme files)
 	const resolvedCSS = resolveCssImports(cssPath, getBundledThemesDir())
 	const variablesCSS = variables ? generateVariablesCSS(variables) : ''
 

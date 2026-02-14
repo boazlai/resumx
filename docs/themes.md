@@ -26,15 +26,9 @@ You can render with multiple themes at once to produce separate PDFs:
 resumx resume.md --theme zurich,oxford,seattle
 ```
 
-## Setting a Default Theme
+## Choosing a Theme
 
-The default theme is `zurich`. To change it globally:
-
-```bash
-resumx theme --default zurich
-```
-
-Or set it per-resume in frontmatter:
+Set the theme per-resume in frontmatter:
 
 ```yaml
 ---
@@ -42,7 +36,13 @@ themes: zurich
 ---
 ```
 
-**Priority order:** CLI `--theme` > Frontmatter `themes` > Global default > `zurich`
+Or pass it on the CLI:
+
+```bash
+resumx resume.md --theme oxford
+```
+
+**Priority:** CLI `--theme` > Frontmatter `themes` > `zurich` (default)
 
 ## CSS Variables
 
@@ -58,9 +58,9 @@ style:
 ---
 ```
 
-You can also override via `--style` on the CLI or set persistent defaults with `resumx theme <name> --set`. See the [CLI Reference](/cli-reference) for details.
+You can also override via `--style` on the CLI. See the [CLI Reference](/cli-reference) for details.
 
-**Priority**: CLI `--style` > Frontmatter > Global defaults > Theme defaults
+**Priority:** CLI `--style` > Frontmatter > Theme defaults
 
 ## Variable Reference
 

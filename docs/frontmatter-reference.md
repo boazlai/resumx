@@ -41,15 +41,15 @@ These fields control how `resumx` renders your resume.
 
 Theme(s) to use for rendering. When multiple themes are specified, a separate output is produced for each.
 
-| Property     | Value                                     |
-| ------------ | ----------------------------------------- |
-| **Type**     | `string` or `string[]`                    |
-| **Default**  | Global default theme (initially `zurich`) |
-| **CLI flag** | `-t, --theme <name>`                      |
+| Property     | Value                  |
+| ------------ | ---------------------- |
+| **Type**     | `string` or `string[]` |
+| **Default**  | `zurich`               |
+| **CLI flag** | `-t, --theme <name>`   |
 
 A single string is automatically normalized to a one-element array.
 
-**Priority:** CLI > frontmatter > global default (set via `resumx theme --default`).
+**Priority:** CLI > frontmatter > `zurich` (default).
 
 ```yaml
 # Single theme
@@ -150,7 +150,7 @@ CSS variable overrides applied on top of the theme's defaults. Keys map to `--ke
 | **Default**  | No overrides               |
 | **CLI flag** | `-s, --style <name=value>` |
 
-**Priority:** CLI > frontmatter > global theme styles (set via `resumx theme --set`) > theme defaults.
+**Priority:** CLI > frontmatter > theme defaults.
 
 ```yaml
 style:
@@ -159,7 +159,7 @@ style:
   font-size: '10pt'
 ```
 
-Available variables depend on the theme. Use `resumx theme <name>` to see a theme's CSS variables and their current values.
+Available variables depend on the theme. See the [Theme Variable Reference](/themes#variable-reference) for the full list.
 
 ## Validate Fields
 
@@ -239,12 +239,11 @@ validate:
 
 For fields that can be set in multiple places, the resolution order is:
 
-| Priority    | Source                               |
-| ----------- | ------------------------------------ |
-| 1 (highest) | CLI flags                            |
-| 2           | Frontmatter                          |
-| 3           | Global config (`resumx theme --set`) |
-| 4 (lowest)  | Theme defaults                       |
+| Priority    | Source         |
+| ----------- | -------------- |
+| 1 (highest) | CLI flags      |
+| 2           | Frontmatter    |
+| 3 (lowest)  | Theme defaults |
 
 ## Unknown Fields
 

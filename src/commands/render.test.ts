@@ -11,7 +11,6 @@ import { join, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
-import { createConfigStore } from '../lib/config.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const CLI_PATH = join(__dirname, '../../dist/index.js')
@@ -97,17 +96,12 @@ describe('render command', () => {
 		writeMockTheme(tempDir, 'formal', MOCK_FORMAL_CSS)
 		writeMockTheme(tempDir, 'modern', MOCK_MODERN_CSS)
 		writeMockTheme(tempDir, 'classic', MOCK_CLASSIC_CSS)
-
-		// Set test config directory to avoid using global config
-		process.env.RESUMX_CONFIG_DIR = join(tempDir, '.config', 'resumx')
 	})
 
 	afterEach(() => {
 		if (existsSync(tempDir)) {
 			rmSync(tempDir, { recursive: true, force: true })
 		}
-		// Clean up test env var
-		delete process.env.RESUMX_CONFIG_DIR
 	})
 
 	it('renders HTML output', async () => {
@@ -510,84 +504,6 @@ describe('render command', () => {
 
 			expect(result.exitCode).not.toBe(0)
 			expect(result.stderr).toContain('error')
-		})
-	})
-
-	describe('global theme variable overrides', () => {
-		let globalConfigDir: string
-
-		beforeEach(() => {
-			globalConfigDir = join(tempDir, '.config', 'resumx')
-			mkdirSync(globalConfigDir, { recursive: true })
-		})
-
-		it('applies global theme variables to HTML output', async () => {
-			// Set up global theme variables for classic theme
-			const store = createConfigStore(globalConfigDir)
-			store.setThemeStyles('classic', {
-				'font-family': 'TestFont, sans-serif',
-			})
-
-			// Render using classic theme with the test config directory
-			const { renderCommand } = await import('./render.js')
-
-			const originalCwd = process.cwd
-			const originalExit = process.exit
-			process.cwd = () => tempDir
-			process.exit = (() => {}) as typeof process.exit
-
-			await renderCommand(
-				'sample.md',
-				{
-					format: ['html'],
-					theme: ['classic'], // Explicitly use classic to match the themeStyles
-				},
-				store,
-			)
-
-			process.cwd = originalCwd
-			process.exit = originalExit
-
-			// Read the HTML output and verify it contains the override
-			const htmlPath = join(tempDir, 'sample.html')
-			expect(existsSync(htmlPath)).toBe(true)
-
-			const htmlContent = readFileSync(htmlPath, 'utf-8')
-			expect(htmlContent).toContain('--font-family: TestFont, sans-serif')
-		})
-
-		it('CLI --style overrides global theme variables', async () => {
-			// Set up global theme variables for classic theme
-			const store = createConfigStore(globalConfigDir)
-			store.setThemeStyles('classic', { 'font-family': 'GlobalFont, serif' })
-
-			const { renderCommand } = await import('./render.js')
-
-			const originalCwd = process.cwd
-			const originalExit = process.exit
-			process.cwd = () => tempDir
-			process.exit = (() => {}) as typeof process.exit
-
-			// CLI --style should override global theme variables
-			await renderCommand(
-				'sample.md',
-				{
-					format: ['html'],
-					theme: ['classic'], // Explicitly use classic to match the themeStyles
-					style: ['font-family=CLIFont, monospace'],
-				},
-				store,
-			)
-
-			process.cwd = originalCwd
-			process.exit = originalExit
-
-			const htmlPath = join(tempDir, 'sample.html')
-			const htmlContent = readFileSync(htmlPath, 'utf-8')
-
-			// Should contain CLI override, not global
-			expect(htmlContent).toContain('--font-family: CLIFont, monospace')
-			expect(htmlContent).not.toContain('GlobalFont')
 		})
 	})
 

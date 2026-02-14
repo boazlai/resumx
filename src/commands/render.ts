@@ -4,10 +4,8 @@ import { performance } from 'node:perf_hooks'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import { requireDependencies } from '../lib/check.js'
-import { resolveTheme } from '../lib/themes.js'
-import { config, type ConfigStore } from '../lib/config.js'
+import { resolveTheme, mergeVariables, DEFAULT_THEME } from '../lib/themes.js'
 import { parseStyleFlags } from './utils/style-flags.js'
-import { mergeVariables } from '../lib/themes.js'
 import {
 	renderMultiple,
 	getOutputName,
@@ -28,13 +26,12 @@ import {
 } from '../lib/template.js'
 
 /**
- * Resolve which themes to use (CLI > Frontmatter > Global default)
+ * Resolve which themes to use (CLI > Frontmatter > default)
  * Returns array of theme names
  */
 function resolveThemes(
 	cliThemes: string[] | undefined,
 	frontmatterThemes: string[] | undefined,
-	defaultTheme: string,
 ): string[] {
 	// CLI takes precedence
 	if (cliThemes && cliThemes.length > 0) {
@@ -46,8 +43,8 @@ function resolveThemes(
 		return frontmatterThemes
 	}
 
-	// Global default
-	return [defaultTheme]
+	// Default
+	return [DEFAULT_THEME]
 }
 
 export interface RenderCommandOptions {
@@ -208,7 +205,6 @@ async function runRender(
 	options: RenderCommandOptions,
 	cwd: string,
 	context: RenderContext,
-	store: ConfigStore = config,
 ): Promise<boolean> {
 	const renderStart = performance.now()
 
@@ -224,12 +220,8 @@ async function runRender(
 		console.warn(chalk.yellow(`Warning: ${warning}`))
 	}
 
-	// Resolve themes (CLI > Frontmatter > Global default)
-	const themeNames = resolveThemes(
-		options.theme,
-		fmConfig?.themes,
-		store.defaultTheme,
-	)
+	// Resolve themes (CLI > Frontmatter > default)
+	const themeNames = resolveThemes(options.theme, fmConfig?.themes)
 
 	// Resolve each theme to CSS path and variables
 	const themes: Array<{
@@ -246,14 +238,9 @@ async function runRender(
 			return false
 		}
 
-		// Merge style overrides (CLI > Frontmatter > Global theme defaults)
-		const globalThemeStyles = store.getThemeStyles(themeName)
+		// Merge style overrides (CLI > Frontmatter > Theme defaults)
 		const cliStyles = options.style ? parseStyleFlags(options.style) : undefined
-		const variables = mergeVariables(
-			globalThemeStyles,
-			fmConfig?.style,
-			cliStyles,
-		)
+		const variables = mergeVariables(fmConfig?.style, cliStyles)
 
 		themes.push({ name: themeName, cssPath, variables })
 	}
@@ -469,7 +456,6 @@ function isStdinInput(file: string | undefined): boolean {
 export async function renderCommand(
 	inputFile: string | undefined,
 	options: RenderCommandOptions,
-	store: ConfigStore = config,
 ): Promise<void> {
 	const cwd = process.cwd()
 
@@ -497,7 +483,7 @@ export async function renderCommand(
 			label: 'stdin',
 			defaultOutputName: nameFromContent ?? '',
 		}
-		const success = await runRender(rawContent, options, cwd, context, store)
+		const success = await runRender(rawContent, options, cwd, context)
 		process.exit(success ? 0 : 1)
 	}
 
@@ -518,11 +504,7 @@ export async function renderCommand(
 	// Read file content and resolve watch paths
 	const rawContent = readFileSync(inputPath, 'utf-8')
 	const { config: fmConfig } = parseFrontmatterFromString(rawContent)
-	const themeNamesForWatch = resolveThemes(
-		options.theme,
-		fmConfig?.themes,
-		store.defaultTheme,
-	)
+	const themeNamesForWatch = resolveThemes(options.theme, fmConfig?.themes)
 
 	// Collect CSS paths for all themes
 	const cssPaths: string[] = []
@@ -550,7 +532,7 @@ export async function renderCommand(
 	}
 
 	// Run initial render
-	const success = await runRender(rawContent, options, cwd, context, store)
+	const success = await runRender(rawContent, options, cwd, context)
 
 	if (!options.watch) {
 		process.exit(success ? 0 : 1)
@@ -575,7 +557,7 @@ export async function renderCommand(
 		debounceTimer = setTimeout(async () => {
 			console.log(chalk.blue('\nChange detected, rebuilding...'))
 			const freshContent = readFileSync(inputPath, 'utf-8')
-			await runRender(freshContent, options, cwd, context, store)
+			await runRender(freshContent, options, cwd, context)
 		}, 150)
 	})
 

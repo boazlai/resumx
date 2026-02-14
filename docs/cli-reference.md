@@ -107,88 +107,6 @@ resumx init my-resume.md       # Creates my-resume.md
 resumx init resume.md --force  # Overwrite if exists
 ```
 
-## eject
-
-Copy a bundled theme to `./themes/` for local customization.
-
-```bash
-resumx eject [theme]
-```
-
-| Argument | Default         | Description                         |
-| -------- | --------------- | ----------------------------------- |
-| `theme`  | _(interactive)_ | Name of the bundled theme to eject. |
-
-| Flag      | Description                     |
-| --------- | ------------------------------- |
-| `--force` | Overwrite existing local theme. |
-
-Once ejected, the local copy in `./themes/` takes precedence over the bundled version. Edit it freely.
-
-### Examples
-
-```bash
-resumx eject zurich         # Copy zurich.css to ./themes/
-resumx eject zurich         # Copy zurich.css to ./themes/
-resumx eject zurich --force # Overwrite existing local copy
-```
-
-## theme
-
-List available themes, view theme details, or manage theme defaults.
-
-```bash
-resumx theme [name]
-```
-
-### Subcommands
-
-**List all themes:**
-
-```bash
-resumx theme
-```
-
-Shows all available themes (bundled and local), indicating which are local overrides.
-
-**View theme info:**
-
-```bash
-resumx theme zurich
-```
-
-Shows the theme's CSS variables and their current values.
-
-**Set default theme:**
-
-```bash
-resumx theme --default zurich
-```
-
-| Flag                     | Description                                           |
-| ------------------------ | ----------------------------------------------------- |
-| `-d, --default <name>`   | Set the global default theme.                         |
-| `--set <name=value>`     | Set a default style override for a theme. Repeatable. |
-| `-r, --reset <variable>` | Reset a specific theme style to its default.          |
-| `--reset-all`            | Reset all theme style overrides to defaults.          |
-
-### Examples
-
-```bash
-# Set global default
-resumx theme --default zurich
-
-# Set persistent style overrides
-resumx theme zurich --set font-family="Inter, sans-serif"
-resumx theme zurich --set accent-color="#2563eb"
-
-# Reset a style
-resumx theme zurich --reset font-family
-
-# Reset all overrides
-resumx theme zurich --reset-all
-```
-
 ## validate
 
 Validate resume structure and content.
@@ -242,25 +160,6 @@ style:
 ```
 
 See the [Frontmatter Reference](/frontmatter) for the full list of fields, types, defaults, and validation options.
-
-## Global Configuration
-
-Global settings are stored in `~/.config/resumx/config.json`:
-
-```json
-{
-	"defaultTheme": "zurich",
-	"themeStyles": {
-		"zurich": {
-			"font-family": "Inter, sans-serif"
-		}
-	}
-}
-```
-
-Manage via the `theme` command rather than editing directly.
-
-The config directory can be overridden with the `RESUMX_CONFIG_DIR` environment variable.
 
 ## Output Naming
 
