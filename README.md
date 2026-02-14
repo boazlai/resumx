@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  One Markdown file. Every role, theme, and format.
+  <span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix"><b>Resumx</b></span> renders resumes from Markdown.
 </p>
 
 <p align="center">
@@ -21,8 +21,6 @@
 </p>
 
 ---
-
-<span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**pression) renders resumes from Markdown.
 
 ```markdown
 ---
@@ -56,7 +54,7 @@ Render with:
 resumx resume.md --format pdf,docx,html
 ```
 
-That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files).
+That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats).
 
 <!-- TODO: image for side-by-side of the same resume in Zurich, Oxford, and Seattle themes -->
 
