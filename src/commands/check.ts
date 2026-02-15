@@ -1,13 +1,13 @@
 import chalk from 'chalk'
 import matter from 'gray-matter'
-import { validate } from '../lib/validator/index.js'
+import { validate } from '../core/validator/index.js'
 import type {
 	Severity,
 	PresetName,
 	RuleOverrides,
 	ValidationIssue,
 	ValidationResult,
-} from '../lib/validator/types.js'
+} from '../core/validator/types.js'
 
 export interface CheckOptions {
 	strict?: boolean
