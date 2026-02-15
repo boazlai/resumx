@@ -4,7 +4,7 @@ import { performance } from 'node:perf_hooks'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import { requireDependencies } from '../lib/check.js'
-import { resolveTheme, mergeVariables, DEFAULT_THEME } from '../lib/themes.js'
+import { resolveTheme, mergeVariables, DEFAULT_THEME } from '../core/themes.js'
 import { parseStyleFlags } from './utils/style-flags.js'
 import {
 	renderMultiple,
@@ -13,18 +13,21 @@ import {
 	stripDocExtension,
 	cleanupPath,
 	type OutputFormat,
-} from '../lib/renderer.js'
-import { parseFrontmatterFromString } from '../lib/frontmatter.js'
-import { renderMarkdown } from '../lib/markdown.js'
-import { extractBySelector, resolveValues } from '../lib/content-filter.js'
-import { cartesian } from '../lib/cartesian.js'
+} from '../core/renderer.js'
+import { parseFrontmatterFromString } from '../core/frontmatter.js'
+import { renderMarkdown } from '../core/markdown.js'
+import {
+	extractBySelector,
+	resolveValues,
+} from '../lib/dom-kit/content-filter.js'
+import { cartesian } from '../lib/solver/cartesian.js'
 import {
 	validateTemplateVars,
 	expandTemplate,
 	validateTemplateUniqueness,
-} from '../lib/template.js'
+} from '../lib/string-template/index.js'
 import { runCheck, printCheckResults } from './check.js'
-import type { Severity } from '../lib/validator/types.js'
+import type { Severity } from '../core/validator/types.js'
 
 /**
  * Resolve which themes to use (CLI > Frontmatter > default)

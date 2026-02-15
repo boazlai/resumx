@@ -4,8 +4,8 @@
  */
 
 import { escapeHtml } from '@mdit/helper'
-import { deviconMap } from './mappings/devicon.js'
-import { logosMap } from './mappings/logos.js'
+import { deviconMap } from '../../../core/icon-mappings/devicon.js'
+import { logosMap } from '../../../core/icon-mappings/logos.js'
 import { iconifyHtml } from './utils.js'
 
 /** Function that resolves an icon name to HTML, or returns null if it cannot. */
