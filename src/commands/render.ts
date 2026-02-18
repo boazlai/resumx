@@ -380,6 +380,7 @@ async function runRender(
 				activeRole: task.activeRole,
 				activeLang: task.activeLang,
 				targetPages,
+				icons: fmConfig?.icons,
 			})
 			return { label: task.label, results }
 		}),

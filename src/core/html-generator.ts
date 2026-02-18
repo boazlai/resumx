@@ -25,6 +25,8 @@ export interface HtmlGeneratorOptions {
 	activeRole?: string
 	/** Active language for filtering content (if set, only matching language content is included) */
 	activeLang?: string
+	/** Custom icon overrides from frontmatter (slug -> SVG/URL/base64) */
+	icons?: Record<string, string>
 }
 
 /**
@@ -81,8 +83,9 @@ export async function generateHtml(
 	content: string,
 	options: HtmlGeneratorOptions,
 ): Promise<string> {
-	// Render markdown to HTML body (icons are prepared inside icon plugin async path)
-	const rawBody = await markdownRenderer.renderAsync(content)
+	const rawBody = await markdownRenderer.renderAsync(content, {
+		iconOverrides: options.icons,
+	})
 
 	// Resolve base CSS with variable overrides
 	const baseCSS = resolveBaseCSS(options.cssPath, options.variables)

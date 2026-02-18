@@ -23,6 +23,7 @@ export interface RenderOptions {
 	activeRole?: string
 	activeLang?: string
 	targetPages?: number
+	icons?: Record<string, string>
 }
 
 export interface RenderResult {
@@ -134,6 +135,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 			variables: options.variables,
 			activeRole: options.activeRole,
 			activeLang: options.activeLang,
+			icons: options.icons,
 		})
 
 		// Fit content to target page count
@@ -200,6 +202,7 @@ export interface RenderMultipleOptions {
 	activeRole?: string
 	activeLang?: string
 	targetPages?: number
+	icons?: Record<string, string>
 }
 
 /**
@@ -218,6 +221,7 @@ export async function renderMultiple(
 		activeRole,
 		activeLang,
 		targetPages,
+		icons,
 	} = options
 
 	// Render all formats in parallel
@@ -234,6 +238,7 @@ export async function renderMultiple(
 			activeRole,
 			activeLang,
 			targetPages,
+			icons,
 		})
 
 		return [format, result] as const

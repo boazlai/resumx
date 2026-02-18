@@ -29,6 +29,12 @@ const FrontmatterSchema = z.object({
 			)
 			.optional(),
 	),
+	icons: z
+		.record(z.string(), z.string({ error: "'icons' values must be strings" }), {
+			error:
+				"'icons' must be an object mapping slugs to SVG, URL, or base64 strings",
+		})
+		.optional(),
 	validate: z
 		.object({
 			extends: z.enum(['recommended', 'minimal', 'strict', 'none']).optional(),
