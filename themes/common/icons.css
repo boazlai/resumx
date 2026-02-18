@@ -1,10 +1,24 @@
-/* Iconify icons - align with text */
+/* Inline icons - align with text */
 .iconify,
 .icon {
 	vertical-align: text-top;
 	display: var(--icons);
 	height: 1em;
 	object-fit: contain;
+	overflow: visible;
+}
+
+/* Bundled/frontmatter SVG icons are wrapped in <span class="icon">.
+   Make the span transparent (no box) and size the inner SVG directly. */
+span.icon {
+	display: contents;
+}
+
+span.icon > svg {
+	display: var(--icons);
+	height: 1em;
+	width: auto;
+	vertical-align: text-top;
 	overflow: visible;
 }
 

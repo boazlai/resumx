@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { fetchIconifySvgs, fetchImageAsDataUri } from './fetch.js'
+import { fetchIconifySvgs } from './fetch.js'
 
 // ── Mock global fetch ───────────────────────────────────────────────────────
 
@@ -107,68 +107,5 @@ describe('fetchIconifySvgs', () => {
 		const result = await fetchIconifySvgs([])
 		expect(result.size).toBe(0)
 		expect(mockFetch).not.toHaveBeenCalled()
-	})
-})
-
-// ── fetchImageAsDataUri ─────────────────────────────────────────────────────
-
-describe('fetchImageAsDataUri', () => {
-	it('fetches SVG and returns data URI img tag', async () => {
-		const svgContent = '<svg xmlns="http://www.w3.org/2000/svg"><circle/></svg>'
-		mockFetch.mockResolvedValueOnce({
-			ok: true,
-			headers: { get: () => 'image/svg+xml' },
-			arrayBuffer: () =>
-				Promise.resolve(new TextEncoder().encode(svgContent).buffer),
-		})
-
-		const result = await fetchImageAsDataUri(
-			'https://example.com/logo.svg',
-			'icon wiki-icon',
-		)
-
-		expect(result).toContain('<img')
-		expect(result).toContain('src="data:image/svg+xml;base64,')
-		expect(result).toContain('class="icon wiki-icon"')
-	})
-
-	it('fetches PNG and returns base64 data URI img tag', async () => {
-		const pngBytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]) // PNG magic
-		mockFetch.mockResolvedValueOnce({
-			ok: true,
-			headers: { get: () => 'image/png' },
-			arrayBuffer: () => Promise.resolve(pngBytes.buffer),
-		})
-
-		const result = await fetchImageAsDataUri(
-			'https://github.com/facebook.png',
-			'icon gh-icon',
-		)
-
-		expect(result).toContain('<img')
-		expect(result).toContain('src="data:image/png;base64,')
-		expect(result).toContain('class="icon gh-icon"')
-	})
-
-	it('returns null when fetch fails', async () => {
-		mockFetch.mockResolvedValueOnce({ ok: false, status: 404 })
-
-		const result = await fetchImageAsDataUri(
-			'https://example.com/missing.svg',
-			'icon',
-		)
-
-		expect(result).toBeNull()
-	})
-
-	it('returns null on network error', async () => {
-		mockFetch.mockRejectedValueOnce(new Error('Network error'))
-
-		const result = await fetchImageAsDataUri(
-			'https://example.com/logo.svg',
-			'icon',
-		)
-
-		expect(result).toBeNull()
 	})
 })

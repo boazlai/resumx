@@ -12,5 +12,5 @@ export {
 } from './plugin.js'
 
 export { iconifyResolver } from './renderer.js'
-export { wikiCommonsResolver } from './renderer.js'
-export { githubResolver } from './renderer.js'
+export { createAssetsResolver } from './renderer.js'
+export { type IconEnv } from './renderer.js'

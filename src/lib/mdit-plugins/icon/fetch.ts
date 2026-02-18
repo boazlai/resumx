@@ -1,6 +1,6 @@
 /**
  * Async fetch functions for icon resolution.
- * Produces self-contained HTML: inline SVGs for Iconify, data URIs for images.
+ * Produces self-contained HTML: inline SVGs for Iconify.
  */
 
 import { getIconData, iconToSVG, iconToHTML } from '@iconify/utils'
@@ -62,29 +62,4 @@ export async function fetchIconifySvgs(
 
 	await Promise.all(fetches)
 	return result
-}
-
-/**
- * Fetch an image from a URL and return it as a self-contained <img> tag
- * with a data URI src. Returns null on failure.
- *
- * Works for SVG, PNG, JPEG, GIF, WebP, etc.
- */
-export async function fetchImageAsDataUri(
-	url: string,
-	className: string,
-): Promise<string | null> {
-	try {
-		const response = await fetch(url)
-		if (!response.ok) return null
-
-		const contentType = response.headers.get('content-type') ?? 'image/png'
-		const mime = contentType.split(';')[0]?.trim() ?? 'image/png'
-		const buffer = await response.arrayBuffer()
-		const base64 = Buffer.from(buffer).toString('base64')
-
-		return `<img src="data:${mime};base64,${base64}" alt="" class="${className}" style="display: inline-block;">`
-	} catch {
-		return null
-	}
 }

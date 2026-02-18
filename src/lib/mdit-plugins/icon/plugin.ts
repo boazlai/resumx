@@ -9,10 +9,12 @@ import {
 	type IconResolver,
 	type IconResolverInput,
 	type IconResolverSpec,
+	type IconEnv,
 	type MarkdownItIconOptions,
 	buildRender,
 	createIconRenderRule,
 	normalizeResolverInputs,
+	processFrontmatterIcons,
 } from './renderer.js'
 import { iconParserRule } from './parser.js'
 import type { AsyncIconResolver } from './prepare.js'
@@ -53,12 +55,32 @@ export const icon: PluginWithOptions<MarkdownItIconOptions> = (
 
 	const mdWithAsync = md as MarkdownItWithAsyncIcon
 	mdWithAsync.renderAsync = async (src: string, env?: unknown) => {
+		const renderEnv = await prepareEnv(env)
 		await prepareIconsIfNeeded(src, prepareResolvers)
-		return md.render(src, env as object)
+		return md.render(src, renderEnv)
 	}
 	mdWithAsync.renderInlineAsync = async (src: string, env?: unknown) => {
+		const renderEnv = await prepareEnv(env)
 		await prepareIconsIfNeeded(src, prepareResolvers)
-		return md.renderInline(src, env as object)
+		return md.renderInline(src, renderEnv)
+	}
+}
+
+/**
+ * Process raw `env.iconOverrides` into `env.frontmatterIcons` so the render rule can read them.
+ * Returns a new env object (never mutates the caller's).
+ */
+async function prepareEnv(env: unknown): Promise<IconEnv> {
+	const typedEnv = (env ?? {}) as IconEnv
+	if (
+		!typedEnv.iconOverrides
+		|| Object.keys(typedEnv.iconOverrides).length === 0
+	) {
+		return typedEnv
+	}
+	return {
+		...typedEnv,
+		frontmatterIcons: await processFrontmatterIcons(typedEnv.iconOverrides),
 	}
 }
 

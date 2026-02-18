@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import MarkdownIt from 'markdown-it'
-import { icon, iconifyResolver, createCustomResolver } from './index.js'
+import {
+	icon,
+	iconifyResolver,
+	createCustomResolver,
+	type MarkdownItWithAsyncIcon,
+} from './index.js'
 import { iconCache } from './utils.js'
 
 describe('icon plugin', () => {
@@ -145,6 +150,47 @@ describe('icon plugin', () => {
 			}
 		).renderInlineAsync('::retry-icon::')
 		expect(second).toBe('<svg class="iconify">retry</svg>')
+	})
+
+	it('renderAsync processes env.icons into frontmatter overrides', async () => {
+		const md = new MarkdownIt().use(icon) as MarkdownItWithAsyncIcon
+
+		const html = await md.renderAsync('::myicon::', {
+			iconOverrides: {
+				myicon: '<svg xmlns="http://www.w3.org/2000/svg"><circle/></svg>',
+			},
+		})
+
+		expect(html).toContain('<span class="icon">')
+		expect(html).toContain('<svg')
+	})
+
+	it('env.icons override resolvers (highest priority)', async () => {
+		const md = new MarkdownIt().use(icon, {
+			resolvers: [createCustomResolver({ star: '<span>resolver</span>' })],
+		}) as MarkdownItWithAsyncIcon
+
+		const html = await md.renderAsync('::star::', {
+			iconOverrides: {
+				star: '<svg xmlns="http://www.w3.org/2000/svg"><rect class="fm"/></svg>',
+			},
+		})
+
+		expect(html).toContain('fm')
+		expect(html).not.toContain('resolver')
+	})
+
+	it('env.icons are scoped to single render (no leaking)', async () => {
+		const md = new MarkdownIt().use(icon) as MarkdownItWithAsyncIcon
+
+		await md.renderAsync('::myicon::', {
+			iconOverrides: {
+				myicon: '<svg xmlns="http://www.w3.org/2000/svg"><circle/></svg>',
+			},
+		})
+
+		const html = await md.renderAsync('::myicon::')
+		expect(html).toBe('<p>::myicon::</p>\n')
 	})
 
 	it('built-in function resolvers auto-prepare during renderInlineAsync', async () => {
