@@ -69,7 +69,20 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				}
 			}
 
-			// 1) [text]{.attrs} — dim [ ] { } brackets, italic inner attr text
+			// 1) Headings — color per level
+			for (const m of code.matchAll(/^(#{1,6})\s/gm)) {
+				const level = m[1].length
+				const lineEnd = code.indexOf('\n', m.index)
+				const end = lineEnd === -1 ? code.length : lineEnd
+				options.decorations.push({
+					start: m.index,
+					end,
+					properties: { class: `resumx-h${level}` },
+				})
+				for (let i = m.index; i < end; i++) matched.add(String(i))
+			}
+
+			// 2) [text]{.attrs} — dim [ ] { } brackets, italic inner attr text
 			for (const m of code.matchAll(/(\[)([^\]]*)(\])\{([^}]*)\}/g)) {
 				let pos = m.index
 				// [
@@ -113,7 +126,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 					matched.add(String(i))
 			}
 
-			// 2) Standalone {attrs} — dim { }, italic inner text
+			// 3) Standalone {attrs} — dim { }, italic inner text
 			// Matches {.class}, {#id}, {lang=en}, and combinations thereof
 			for (const m of code.matchAll(
 				/(?<!\])\{((?:[.#][\w:.@\-]+|[\w-]+=[\w-]+)(?:\s+(?:[.#][\w:.@\-]+|[\w-]+=[\w-]+))*)\}/g,
@@ -143,7 +156,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				}
 			}
 
-			// 3) :icon: or :prefix/name: — dim delimiters, color the name
+			// 4) :icon: or :prefix/name: — dim delimiters, color the name
 			for (const m of code.matchAll(
 				/:([a-zA-Z0-9][a-zA-Z0-9_-]*(?:\/[a-zA-Z0-9][a-zA-Z0-9_-]*)?):(?!:)/g,
 			)) {
@@ -166,7 +179,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				})
 			}
 
-			// 4) [text](url) — dim brackets and URL, reset display text to default
+			// 5) [text](url) — dim brackets and URL, reset display text to default
 			for (const m of code.matchAll(/\[([^\]]*)\]\(([^)]*)\)/g)) {
 				if (matched.has(String(m.index))) continue
 
@@ -200,7 +213,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				})
 			}
 
-			// 5) | delimiters between markdown links — dim
+			// 6) | delimiters between markdown links — dim
 			for (const m of code.matchAll(/(?<=\)) \| (?=\[)/g)) {
 				options.decorations.push({
 					start: m.index,
@@ -209,7 +222,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				})
 			}
 
-			// 6) ***bold italic*** and ___bold italic___ — dim delimiters, bold+italic inner text
+			// 7) ***bold italic*** and ___bold italic___ — dim delimiters, bold+italic inner text
 			for (const m of code.matchAll(/\*\*\*(.+?)\*\*\*/g)) {
 				if (matched.has(String(m.index))) continue
 				let pos = m.index
@@ -264,7 +277,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 					matched.add(String(i))
 			}
 
-			// 7) **bold** and __bold__ — dim delimiters, bold inner text
+			// 8) **bold** and __bold__ — dim delimiters, bold inner text
 			for (const m of code.matchAll(/\*\*(.+?)\*\*/g)) {
 				if (matched.has(String(m.index))) continue
 				let pos = m.index
@@ -319,7 +332,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 					matched.add(String(i))
 			}
 
-			// 8) *italic* and _italic_ — dim delimiters, italic inner text
+			// 9) *italic* and _italic_ — dim delimiters, italic inner text
 			for (const m of code.matchAll(/\*([^*]+)\*/g)) {
 				if (matched.has(String(m.index))) continue
 				let pos = m.index
