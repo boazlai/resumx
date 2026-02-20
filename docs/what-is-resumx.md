@@ -34,7 +34,9 @@ _Senior Software Engineer_
 :::
 ```
 
-[**Layout is automatic**](/fit-to-page). Resumx shrinks spacing, font size, and margins when content overflows, and expands them when it's short.
+<!-- TODO: Rendered sample of the above snippet (Zurich theme, frontend role) -->
+
+Resumx [**fits content to the page**](/fit-to-page), shrinking spacing, font size, and margins when content overflows, and expanding them when it's short.
 
 Render with:
 
@@ -43,8 +45,8 @@ resumx resume.md --format pdf,docx,html
 ```
 <!-- prettier-ignore-end -->
 
-That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files).
+That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). Each [theme](/themes) gives the same content a different look:
 
-<!-- TODO: Side-by-side comparison of a sample resume rendered in the Zurich, Oxford, and Seattle themes -->
+<!-- TODO: Side-by-side comparison of full resumes rendered in the Zurich, Oxford, and Seattle themes -->
 
 Edit with [AI](/using-ai). Render from [any commit](/git-superpowers). [Multi-language](/multi-language) from one source. [Get started in under a minute →](/quick-start)
