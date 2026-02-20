@@ -26,9 +26,9 @@ _Senior Software Engineer_ [San Francisco, CA]{.right}
 When `{...}` appears at the end of a block element without `[...]`, it applies to the whole element instead of wrapping text in a span:
 
 ```markdown
-### Google {.small-caps}
-
 ## Experience
+
+### Google {.small-caps}
 
 - Designed REST APIs with OpenAPI documentation {.role:backend}
 - Built interactive dashboards with React and D3.js {.role:frontend}
