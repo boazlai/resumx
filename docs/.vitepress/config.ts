@@ -50,27 +50,29 @@ export default defineConfig({
 					{ text: 'Markdown Syntax', link: '/markdown-syntax' },
 					{ text: 'Classes & IDs', link: '/classes-and-ids' },
 					{ text: 'Icons', link: '/icons' },
-					{ text: 'Per-Role Output', link: '/per-role-output' },
-					{ text: 'Multi-Language', link: '/multi-language' },
-					{
-						text: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" style="display:inline-block;vertical-align:-0.1em;margin-right:0.25em"><path fill="currentColor" d="M15.698 7.287L8.712.302a1.03 1.03 0 0 0-1.457 0l-1.45 1.45l1.84 1.84a1.223 1.223 0 0 1 1.55 1.56l1.773 1.774a1.224 1.224 0 0 1 1.267 2.025a1.226 1.226 0 0 1-2.001-1.334L8.579 5.963v4.353q.177.085.324.231a1.226 1.226 0 1 1-1.332-.267V5.887a1.226 1.226 0 0 1-.666-1.608L5.093 2.465l-4.79 4.79a1.03 1.03 0 0 0 0 1.457l6.986 6.986a1.03 1.03 0 0 0 1.457 0l6.953-6.953a1.03 1.03 0 0 0 0-1.458"/></svg>Git Superpowers',
-						link: '/git-superpowers',
-					},
+					{ text: 'Fit to Page', link: '/fit-to-page' },
 				],
 			},
 			{
 				text: 'Styling',
 				items: [
 					{ text: 'Customizing Your Resume', link: '/customizing-your-resume' },
-					{ text: 'Fit to Page', link: '/fit-to-page' },
 					{ text: 'Themes', link: '/themes' },
 					{ text: 'Tailwind CSS', link: '/tailwind-css' },
 					{ text: 'Custom CSS', link: '/custom-css' },
-					{ text: 'Semantic Selectors', link: '/semantic-selectors' },
+				],
+			},
+			{
+				text: 'Going Further',
+				items: [
+					{ text: 'Per-Role Output', link: '/per-role-output' },
+					{ text: 'Multi-Language', link: '/multi-language' },
+					{ text: 'Git Integration', link: '/git-integration' },
 				],
 			},
 			{
 				items: [
+					{ text: 'Semantic Selectors', link: '/semantic-selectors' },
 					{ text: 'CLI Reference', link: '/cli-reference' },
 					{ text: 'Frontmatter Reference', link: '/frontmatter-reference' },
 				],
