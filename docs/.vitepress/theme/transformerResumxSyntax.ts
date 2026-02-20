@@ -69,7 +69,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				}
 			}
 
-			// 1) Headings — color per level
+			// 1) Headings — color per level (not added to matched so icons/bold/italic still apply)
 			for (const m of code.matchAll(/^(#{1,6})\s/gm)) {
 				const level = m[1].length
 				const lineEnd = code.indexOf('\n', m.index)
@@ -79,7 +79,6 @@ export function transformerResumxSyntax(): ShikiTransformer {
 					end,
 					properties: { class: `resumx-h${level}` },
 				})
-				for (let i = m.index; i < end; i++) matched.add(String(i))
 			}
 
 			// 2) [text]{.attrs} — dim [ ] { } brackets, italic inner attr text
