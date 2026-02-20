@@ -10,22 +10,18 @@ pages: 1
 style:
   section-title-caps: small-caps
 ---
-
 # Jane Doe
-
 jane@example.com | github.com/jane | linkedin.com/in/jane
 
 ## Experience
 
-### :google: Google        2022 - Present
-
+### :google: Google        June 2022 - Present
 _Senior Software Engineer_
 
 - Built distributed systems serving 1M requests/day {.role:backend}
-- Built interactive dashboards with :react: React {.role:frontend .role:fullstack}
+- Built interactive dashboards using :ts: TypeScript {.role:frontend .role:fullstack}
 
 ## Technical Skills
-
 ::: {.grid .grid-cols-2}
 - TypeScript
 - React
@@ -33,8 +29,15 @@ _Senior Software Engineer_
 - PostgreSQL
 :::
 ```
+<!-- prettier-ignore-end -->
 
-<!-- TODO: Rendered sample of the above snippet (Zurich theme, frontend role) -->
+<figure>
+  <img
+    src="/resumx-snippet-zurich-frontend.png"
+    alt="Rendered sample of the snippet above, Zurich theme, frontend role"
+  />
+  <figcaption>Rendered sample of the snippet above, Zurich theme, frontend role.</figcaption>
+</figure>
 
 Resumx [**fits content to the page**](/fit-to-page), shrinking spacing, font size, and margins when content overflows, and expanding them when it's short.
 
@@ -43,7 +46,6 @@ Render with:
 ```bash
 resumx resume.md --format pdf,docx,html
 ```
-<!-- prettier-ignore-end -->
 
 That produces a file for every combination of **role**, **theme**, and **format** (3 roles × 2 themes × 3 formats = 18 files). Each [theme](/themes) gives the same content a different look:
 

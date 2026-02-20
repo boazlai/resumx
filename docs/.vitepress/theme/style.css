@@ -307,6 +307,12 @@ main a {
 	opacity: 0.6;
 }
 
+.resumx-h3,
+.resumx-h3 span {
+	--shiki-light: #4d83c4 !important;
+	--shiki-dark: #4a90d9 !important;
+}
+
 /* Pronunciation tooltip */
 .pronounce {
 	position: relative;
@@ -329,4 +335,11 @@ main a {
 	white-space: nowrap;
 	z-index: 10;
 	pointer-events: none;
+}
+
+figcaption {
+	text-align: center;
+	font-size: 0.85em;
+	color: var(--vp-c-text-3);
+	padding-top: 4px;
 }
