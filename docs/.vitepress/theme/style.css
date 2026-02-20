@@ -307,10 +307,8 @@ main a {
 	opacity: 0.6;
 }
 
-.resumx-h3,
-.resumx-h3 span {
-	--shiki-light: #4d83c4 !important;
-	--shiki-dark: #4a90d9 !important;
+.resumx-h3 {
+	filter: brightness(0.92);
 }
 
 /* Pronunciation tooltip */
