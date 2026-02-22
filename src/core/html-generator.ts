@@ -109,7 +109,8 @@ export async function generateHtml(
 	// Compile Tailwind CSS for classes used in the HTML body
 	const tailwindCSS = await compileTailwindCSS(body)
 
-	// Combine CSS: Tailwind first (resets/utilities), then base styles (can override)
+	// Tailwind first (declares layer order), then base styles (@layer base merges in,
+	// @layer utilities from Tailwind properly overrides base styles)
 	const combinedCSS = tailwindCSS + '\n' + baseCSS
 
 	return assembleHtml(body, combinedCSS)
