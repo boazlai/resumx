@@ -66,11 +66,13 @@ You can also override via `--style` on the CLI. See the [CLI Reference](/cli-ref
 
 ### Typography
 
-| Variable      | Default            | Description                          |
-| ------------- | ------------------ | ------------------------------------ |
-| `font-family` | `'Georgia', serif` | Font stack                           |
-| `font-size`   | `11pt`             | Base font size (10–12pt recommended) |
-| `line-height` | `1.35`             | Line height ratio                    |
+| Variable              | Default              | Description                                              |
+| --------------------- | -------------------- | -------------------------------------------------------- |
+| `font-family`         | `'Georgia', serif`   | Base font stack (used by title and content when not set) |
+| `title-font-family`   | `var(--font-family)` | Font for name (h1) and section headings (h2)             |
+| `content-font-family` | `var(--font-family)` | Font for body text, entry titles (h3), bullets, etc.     |
+| `font-size`           | `11pt`               | Base font size (10–12pt recommended)                     |
+| `line-height`         | `1.35`               | Line height ratio                                        |
 
 ### Colors
 
