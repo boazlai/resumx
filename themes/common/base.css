@@ -4,327 +4,328 @@
  * ============================================================
  */
 
-/*
+@layer base {
+	/*
  * Use border-box by default - padding and border included in element's total width/height.
  * This makes layout calculations predictable.
  */
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
-}
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
 
-/*
+	/*
  * Remove default margins from all elements except dialogs.
  * Dialogs need their default centering margin.
  */
-*:not(dialog) {
-	margin: 0;
-}
+	*:not(dialog) {
+		margin: 0;
+	}
 
-/*
+	/*
  * Design tokens that can be overridden by theme stylesheets or --var flags.
  * Themes only need to override what differs from these defaults.
  * Using pt for font-size ensures consistent sizing in PDF output.
  */
-:root {
-	/* ---- Typography ---- */
-	--font-family: 'Georgia', serif; /* any font stack */
-	--font-size: 11pt; /* any font-size, 10-12pt recommended */
-	--line-height: 1.35; /* any unitless ratio */
+	:root {
+		/* ---- Typography ---- */
+		--font-family: 'Georgia', serif; /* any font stack */
+		--font-size: 11pt; /* any font-size, 10-12pt recommended */
+		--line-height: 1.35; /* any unitless ratio */
 
-	/* ---- Colors ---- */
-	--text-color: #333; /* any color */
-	--muted-color: #555; /* any color */
-	--accent-color: inherit; /* any color | inherit */
-	--link-color: #0563bb; /* any color | inherit */
-	--background-color: #fff; /* any color */
+		/* ---- Colors ---- */
+		--text-color: #333; /* any color */
+		--muted-color: #555; /* any color */
+		--accent-color: inherit; /* any color | inherit */
+		--link-color: #0563bb; /* any color | inherit */
+		--background-color: #fff; /* any color */
 
-	/* ---- Headings ---- */
-	--name-size: 1.85rem; /* any font-size */
-	--name-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
-	--name-weight: normal; /* any font-weight: bold | normal | 100–900 */
-	--name-style: normal; /* normal | italic | oblique */
-	--section-title-size: 1.22rem; /* any font-size */
-	--section-title-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
-	--section-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
-	--section-title-style: normal; /* normal | italic | oblique */
-	--section-header-color: var(--text-color); /* any color */
-	--header-text-align: center; /* left | center | right */
-	--section-header-align: left; /* left | center | right */
-	--section-border: 1px solid var(--section-header-color); /* any border shorthand | none */
-	--entry-title-size: 1.05rem; /* any font-size */
-	--entry-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
-	--entry-title-style: normal; /* normal | italic | oblique */
+		/* ---- Headings ---- */
+		--name-size: 1.85rem; /* any font-size */
+		--name-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
+		--name-weight: normal; /* any font-weight: bold | normal | 100–900 */
+		--name-style: normal; /* normal | italic | oblique */
+		--section-title-size: 1.22rem; /* any font-size */
+		--section-title-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
+		--section-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
+		--section-title-style: normal; /* normal | italic | oblique */
+		--section-header-color: var(--text-color); /* any color */
+		--header-text-align: center; /* left | center | right */
+		--section-header-align: left; /* left | center | right */
+		--section-border: 1px solid var(--section-header-color); /* any border shorthand | none */
+		--entry-title-size: 1.05rem; /* any font-size */
+		--entry-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
+		--entry-title-style: normal; /* normal | italic | oblique */
 
-	/* ---- Links ---- */
-	--link-underline: none; /* underline | none */
+		/* ---- Links ---- */
+		--link-underline: none; /* underline | none */
 
-	/* ---- Spacing ---- */
-	--page-margin-x: 0.5in; /* any length */
-	--page-margin-y: 0.5in; /* any length */
-	--section-gap: 10px; /* any length */
-	--entry-gap: 5px; /* any length */
-	--bullet-gap: 2px; /* any length */
-	--data-row-gap: 3px; /* any length — vertical gap for dl grids and tables */
-	--data-col-gap: 12px; /* any length — horizontal gap for dl grids and tables */
-	--list-indent: 1.2em; /* any length */
-	--two-col-widths: 2fr 1fr; /* any grid-template-columns value */
-	--two-col-gap: 1.5rem; /* any length */
-	--two-col-template: 'header header' 'primary secondary'; /* any grid-template-areas value */
+		/* ---- Spacing ---- */
+		--page-margin-x: 0.5in; /* any length */
+		--page-margin-y: 0.5in; /* any length */
+		--section-gap: 10px; /* any length */
+		--entry-gap: 5px; /* any length */
+		--bullet-gap: 2px; /* any length */
+		--data-row-gap: 3px; /* any length — vertical gap for dl grids and tables */
+		--data-col-gap: 12px; /* any length — horizontal gap for dl grids and tables */
+		--list-indent: 1.2em; /* any length */
+		--two-col-widths: 2fr 1fr; /* any grid-template-columns value */
+		--two-col-gap: 1.5rem; /* any length */
+		--two-col-template: 'header header' 'primary secondary'; /* any grid-template-areas value */
 
-	/* ---- Lists ---- */
-	--bullet-style: disc; /* disc | circle | square | none */
+		/* ---- Lists ---- */
+		--bullet-style: disc; /* disc | circle | square | none */
 
-	/* ---- Features ---- */
-	--auto-icons: inline; /* inline | none */
-	--icon-size: 0.8em; /* any length */
-}
+		/* ---- Features ---- */
+		--auto-icons: inline; /* inline | none */
+		--icon-size: 0.8em; /* any length */
+	}
 
-/*
+	/*
  * Configure PDF page size with consistent margins on every page.
  * Uses CSS variables for easy customization across themes.
  */
-@page {
-	size: A4;
-	margin: var(--page-margin-y) var(--page-margin-x);
-}
+	@page {
+		size: A4;
+		margin: var(--page-margin-y) var(--page-margin-x);
+	}
 
-html {
-	font-size: var(--font-size);
-}
+	html {
+		font-size: var(--font-size);
+	}
 
-/*
+	/*
  * Core document styling.
  * - font-feature-settings: Enable kerning and ligatures for professional typography
  * - text-rendering: Prioritize legibility over rendering speed
  * - -webkit-font-smoothing: Crisper fonts on macOS/WebKit (antialiased = thinner glyphs)
  * - padding: Provides margins for browser preview; @page handles PDF margins
  */
-body {
-	font-family: var(--font-family);
-	font-size: var(--font-size);
-	line-height: var(--line-height);
-	color: var(--text-color);
-	background: var(--background-color);
-	margin: 0 auto;
-	padding: var(--page-margin-y) var(--page-margin-x);
-	font-feature-settings:
-		'kern' 1,
-		'liga' 1;
-	text-rendering: optimizeLegibility;
-	-webkit-font-smoothing: antialiased;
-}
+	body {
+		font-family: var(--font-family);
+		font-size: var(--font-size);
+		line-height: var(--line-height);
+		color: var(--text-color);
+		background: var(--background-color);
+		margin: 0 auto;
+		padding: var(--page-margin-y) var(--page-margin-x);
+		font-feature-settings:
+			'kern' 1,
+			'liga' 1;
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
+	}
 
-/*
+	/*
  * Remove body padding in print/PDF since @page margins handle it.
  * Prevents double margins in PDF output.
  */
-@media print {
-	body {
-		padding: 0;
+	@media print {
+		body {
+			padding: 0;
+		}
 	}
-}
 
-/*
+	/*
  * Prevent long words/URLs from overflowing their containers.
  * break-word allows mid-word breaks only when necessary.
  */
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	overflow-wrap: break-word;
-}
+	p,
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		overflow-wrap: break-word;
+	}
 
-/*
+	/*
  * Smart line-breaking algorithm that avoids orphaned words
  * at the end of paragraphs and balances line lengths.
  */
-* {
-	text-wrap: pretty;
-}
+	* {
+		text-wrap: pretty;
+	}
 
-/*
+	/*
  * Auto-hyphenation improves text justification and reduces ragged edges.
  * Only applied to paragraphs to avoid breaking headings/labels.
  */
-p {
-	hyphens: auto;
-}
+	p {
+		hyphens: auto;
+	}
 
-/*
+	/*
  * Ensure bold text uses a consistent weight.
  * Some fonts have multiple bold weights; this normalizes them.
  */
-strong,
-b {
-	font-weight: 700;
-}
+	strong,
+	b {
+		font-weight: 700;
+	}
 
-/*
+	/*
  * Prevent headings from appearing at the bottom of a page
  * with their content on the next page.
  */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	page-break-after: avoid;
-	break-after: avoid;
-}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		page-break-after: avoid;
+		break-after: avoid;
+	}
 
-/*
+	/*
  * Keep resume entries (job, education, project blocks) together on one page.
  * Prevents an entry from splitting across a page break.
  */
-.entry {
-	break-inside: avoid;
-}
+	.entry {
+		break-inside: avoid;
+	}
 
-/*
+	/*
  * Orphans: minimum lines at bottom of page when a paragraph splits.
  * Widows: minimum lines at top of next page when a paragraph splits.
  * Value of 3 prevents single/double line fragments.
  */
-p,
-li,
-dd {
-	orphans: 3;
-	widows: 3;
-}
+	p,
+	li,
+	dd {
+		orphans: 3;
+		widows: 3;
+	}
 
-/*
+	/*
  * Prevent these elements from splitting across pages.
  * If content is too long to fit, browser will ignore this (graceful fallback).
  */
-li,
-figure,
-blockquote {
-	page-break-inside: avoid;
-	break-inside: avoid;
-}
+	li,
+	figure,
+	blockquote {
+		page-break-inside: avoid;
+		break-inside: avoid;
+	}
 
-/*
+	/*
  * Force exact color reproduction in print output.
  * Without this, browsers may adjust colors for "printing economy".
  */
-* {
-	-webkit-print-color-adjust: exact;
-	print-color-adjust: exact;
-}
+	* {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
 
-/*
+	/*
  * Reset browser blockquote defaults (left border, padding).
  * In Resumx, blockquote represents a summary statement.
  */
-blockquote {
-	padding: 0;
-	border: none;
-	font-style: italic;
-	font-weight: bold;
-}
+	blockquote {
+		padding: 0;
+		border: none;
+		font-style: italic;
+		font-weight: bold;
+	}
 
-/*
+	/*
  * Reset browser dd left margin (~40px default).
  */
-dd {
-	margin: 0;
-}
+	dd {
+		margin: 0;
+	}
 
-/*
+	/*
  * Definition lists mirror the table layout for structured data pairs.
  * dt (bold label) sits on the left, dd (value) on the right.
  * Row/column gaps are shared with table via --data-row-gap / --data-col-gap.
  */
-dl {
-	display: grid;
-	grid-template-columns: max-content 1fr;
-	gap: var(--data-row-gap) var(--data-col-gap);
-}
+	dl {
+		display: grid;
+		grid-template-columns: max-content 1fr;
+		gap: var(--data-row-gap) var(--data-col-gap);
+	}
 
-dt {
-	font-weight: bold;
-	white-space: nowrap;
-}
+	dt {
+		font-weight: bold;
+		white-space: nowrap;
+	}
 
-/*
+	/*
  * Connect :root variables to their target elements.
  * Theme authors only need to set values in :root — wiring is automatic.
  * Themes add personality (font-weight, letter-spacing, etc.) on top via cascade.
  */
 
-header {
-	text-align: var(--header-text-align);
-}
+	header {
+		text-align: var(--header-text-align);
+	}
 
-h1 {
-	font-size: var(--name-size);
-	font-variant-caps: var(--name-caps);
-	font-weight: var(--name-weight);
-	font-style: var(--name-style);
-}
+	h1 {
+		font-size: var(--name-size);
+		font-variant-caps: var(--name-caps);
+		font-weight: var(--name-weight);
+		font-style: var(--name-style);
+	}
 
-h2 {
-	font-size: var(--section-title-size);
-	font-variant-caps: var(--section-title-caps);
-	color: var(--section-header-color);
-	text-align: var(--section-header-align);
-	border-bottom: var(--section-border);
-	font-weight: var(--section-title-weight);
-	font-style: var(--section-title-style);
-	margin-bottom: 6px;
-}
+	h2 {
+		font-size: var(--section-title-size);
+		font-variant-caps: var(--section-title-caps);
+		color: var(--section-header-color);
+		text-align: var(--section-header-align);
+		border-bottom: var(--section-border);
+		font-weight: var(--section-title-weight);
+		font-style: var(--section-title-style);
+		margin-bottom: 6px;
+	}
 
-section + section {
-	margin-top: var(--section-gap);
-}
+	section + section {
+		margin-top: var(--section-gap);
+	}
 
-h3 {
-	margin-bottom: 1.5px;
-	font-weight: var(--entry-title-weight);
-	font-style: var(--entry-title-style);
-	font-size: var(--entry-title-size);
-}
+	h3 {
+		margin-bottom: 1.5px;
+		font-weight: var(--entry-title-weight);
+		font-style: var(--entry-title-style);
+		font-size: var(--entry-title-size);
+	}
 
-.entry + .entry {
-	margin-top: var(--entry-gap);
-}
+	.entry + .entry {
+		margin-top: var(--entry-gap);
+	}
 
-ul li {
-	list-style-type: var(--bullet-style);
-	margin-top: 2px;
-}
+	ul li {
+		list-style-type: var(--bullet-style);
+		margin-top: 2px;
+	}
 
-li {
-	margin-bottom: var(--bullet-gap);
-}
+	li {
+		margin-bottom: var(--bullet-gap);
+	}
 
-/*
+	/*
  * Reduce default list indentation for tighter resume layouts.
  * Default browser value is usually ~40px; 1.25em is more compact.
  */
-ul,
-ol {
-	padding-left: var(--list-indent);
-}
+	ul,
+	ol {
+		padding-left: var(--list-indent);
+	}
 
-/*
+	/*
  * Lists with role="list" are semantic markers, not visual lists.
  * Remove styling for navigation, tag lists, etc.
  */
-ul[role='list'],
-ol[role='list'] {
-	list-style: none;
-	padding-left: 0;
-}
+	ul[role='list'],
+	ol[role='list'] {
+		list-style: none;
+		padding-left: 0;
+	}
 
-/*
+	/*
  * Tables mirror the visual style of definition lists (dl).
  * Key difference: dl has bold labels on the LEFT (dt), whereas
  * tables have bold headers on TOP (th in thead).
@@ -332,129 +333,130 @@ ol[role='list'] {
  * border-collapse merges adjacent borders into single lines.
  * Borderless by default — resume tables are never gridded.
  */
-table {
-	border-collapse: separate;
-	border-spacing: var(--data-col-gap) var(--data-row-gap);
-	margin-left: calc(-1 * var(--data-col-gap));
-}
+	table {
+		border-collapse: separate;
+		border-spacing: var(--data-col-gap) var(--data-row-gap);
+		margin-left: calc(-1 * var(--data-col-gap));
+	}
 
-table,
-th,
-td {
-	border: none;
-}
+	table,
+	th,
+	td {
+		border: none;
+	}
 
-th,
-td {
-	text-align: left;
-	vertical-align: top;
-	padding: 0;
-}
+	th,
+	td {
+		text-align: left;
+		vertical-align: top;
+		padding: 0;
+	}
 
-/*
+	/*
  * Table headers (top row) — styled like dt in a definition list.
  * Bold and non-wrapping for compact, scannable labels.
  */
-th {
-	font-weight: bold;
-	white-space: nowrap;
-}
+	th {
+		font-weight: bold;
+		white-space: nowrap;
+	}
 
-/*
+	/*
  * Table data cells — normal weight, like dd in a definition list.
  */
-td {
-	font-weight: normal;
-}
+	td {
+		font-weight: normal;
+	}
 
-/* Collapse empty table header cells */
-th:empty {
-	padding: 0;
-}
+	/* Collapse empty table header cells */
+	th:empty {
+		padding: 0;
+	}
 
-/*
+	/*
  * Links inherit text color for cleaner resume appearance.
  * Underlines removed since clickable affordance isn't needed in PDF.
  */
-a {
-	color: var(--link-color);
-	text-decoration: var(--link-underline);
-	font-style: normal;
-}
+	a {
+		color: var(--link-color);
+		text-decoration: var(--link-underline);
+		font-style: normal;
+	}
 
-a:hover {
-	text-decoration: underline;
-}
+	a:hover {
+		text-decoration: underline;
+	}
 
-/*
+	/*
  * Visible focus state for keyboard navigation (browser preview only).
  * offset provides spacing between element and outline.
  */
-a:focus-visible {
-	outline: 2px solid currentColor;
-	outline-offset: 2px;
-}
+	a:focus-visible {
+		outline: 2px solid currentColor;
+		outline-offset: 2px;
+	}
 
-/*
+	/*
  * Images and media are block-level and responsive by default.
  * Prevents unexpected inline spacing and overflow issues.
  */
-img,
-picture,
-video,
-canvas,
-svg {
-	display: block;
-	max-width: 100%;
-}
+	img,
+	picture,
+	video,
+	canvas,
+	svg {
+		display: block;
+		max-width: 100%;
+	}
 
-/*
+	/*
  * Form elements don't inherit font by default in most browsers.
  * This ensures consistent typography if forms are ever used.
  */
-input,
-button,
-textarea,
-select {
-	font: inherit;
-}
+	input,
+	button,
+	textarea,
+	select {
+		font: inherit;
+	}
 
-/*
+	/*
  * Prevent code blocks from overflowing.
  * Horizontal scroll allows viewing long lines without breaking layout.
  */
-pre {
-	overflow-x: auto;
-	white-space: pre-wrap;
-	word-wrap: break-word;
-}
+	pre {
+		overflow-x: auto;
+		white-space: pre-wrap;
+		word-wrap: break-word;
+	}
 
-/*
+	/*
  * Inline code — monospace by default, no code-block styling.
  * Themes can override font-family (e.g. inherit for seamless tech tags).
  */
-code {
-	font-family: monospace;
-	font-size: inherit;
-	background: none;
-	padding: 0;
-}
+	code {
+		font-family: monospace;
+		font-size: inherit;
+		background: none;
+		padding: 0;
+	}
 
-/*
+	/*
  * Custom text selection color for browser preview.
  * Subtle highlight that doesn't clash with resume colors.
  */
-::selection {
-	background-color: rgba(0, 100, 200, 0.2);
-}
+	::selection {
+		background-color: rgba(0, 100, 200, 0.2);
+	}
 
-/*
+	/*
  * Enable smooth transitions between auto/min-content/max-content sizes.
  * Only applies when user hasn't requested reduced motion.
  * New CSS feature (2024+) for animating intrinsic sizes.
  */
-@media (prefers-reduced-motion: no-preference) {
-	html {
-		interpolate-size: allow-keywords;
+	@media (prefers-reduced-motion: no-preference) {
+		html {
+			interpolate-size: allow-keywords;
+		}
 	}
-}
+} /* @layer base */

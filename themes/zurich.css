@@ -9,11 +9,13 @@
 @import 'common/utilities.css';
 @import 'common/two-column.css';
 
-:root {
-	--font-family:
-		'Palatino Linotype', 'Palatino', 'Georgia', 'Times New Roman', serif;
-	--accent-color: #c43218;
-	--name-caps: small-caps;
-	--section-header-color: var(--accent-color);
-	--section-border: 1.5px solid var(--section-header-color);
+@layer base {
+	:root {
+		--font-family:
+			'Palatino Linotype', 'Palatino', 'Georgia', 'Times New Roman', serif;
+		--accent-color: #c43218;
+		--name-caps: small-caps;
+		--section-header-color: var(--accent-color);
+		--section-border: 1.5px solid var(--section-header-color);
+	}
 }
