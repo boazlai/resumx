@@ -31,6 +31,12 @@
 	:root {
 		/* ---- Typography ---- */
 		--font-family: 'Georgia', serif; /* any font stack */
+		--title-font-family: var(
+			--font-family
+		); /* any font stack — overrides --font-family for h1, h2 */
+		--content-font-family: var(
+			--font-family
+		); /* any font stack — overrides --font-family for body text */
 		--font-size: 11pt; /* any font-size, 10-12pt recommended */
 		--line-height: 1.35; /* any unitless ratio */
 
@@ -103,7 +109,7 @@
  * - padding: Provides margins for browser preview; @page handles PDF margins
  */
 	body {
-		font-family: var(--font-family);
+		font-family: var(--content-font-family);
 		font-size: var(--font-size);
 		line-height: var(--line-height);
 		color: var(--text-color);
@@ -265,6 +271,7 @@
 	}
 
 	h1 {
+		font-family: var(--title-font-family);
 		font-size: var(--name-size);
 		font-variant-caps: var(--name-caps);
 		font-weight: var(--name-weight);
@@ -272,6 +279,7 @@
 	}
 
 	h2 {
+		font-family: var(--title-font-family);
 		font-size: var(--section-title-size);
 		font-variant-caps: var(--section-title-caps);
 		color: var(--section-header-color);
