@@ -157,9 +157,9 @@ function buildRenderTasks(
 		].filter(Boolean) as string[]
 
 		const labelParts = [
-			hasMultipleRoles && role && `role: ${role}`,
-			hasMultipleLangs && lang && `lang: ${lang}`,
-			hasMultipleThemes && `theme: ${theme.name}`,
+			hasMultipleRoles && role,
+			hasMultipleLangs && lang,
+			hasMultipleThemes && theme.name,
 		].filter(Boolean) as string[]
 
 		const outputName =
@@ -341,9 +341,9 @@ async function runRender(
 			)
 			const resolved = resolve(cwd, expanded)
 			const labelParts: string[] = []
-			if (themes.length > 1) labelParts.push(`theme: ${theme.name}`)
-			if (role) labelParts.push(`role: ${role}`)
-			if (lang) labelParts.push(`lang: ${lang}`)
+			if (role) labelParts.push(role)
+			if (lang) labelParts.push(lang)
+			if (themes.length > 1) labelParts.push(theme.name)
 
 			renderTasks.push({
 				themeName: theme.name,
@@ -386,36 +386,58 @@ async function runRender(
 		}),
 	)
 
-	// Print results in order
+	// Print results — one compact line per task
 	let allSuccess = true
+	let totalFiles = 0
+	const outputDirs = new Set<string>()
+
+	const maxLabelWidth = Math.max(
+		0,
+		...taskResults.map(({ label }) => label.length),
+	)
+
 	for (const { label, results } of taskResults) {
-		if (label) {
-			console.log(chalk.dim(`  ${label}`))
-		}
+		const formatParts: string[] = []
+		const errors: string[] = []
+
 		for (const [format, result] of results) {
-			const formatLabel = format.toUpperCase().padEnd(4)
+			const tag = format.toUpperCase()
 			if (result.success) {
-				const relativePath = relative(cwd, result.outputPath)
-				console.log(`  ${formatLabel}... ${chalk.green('✓')} ${relativePath}`)
+				totalFiles++
+				const relDir = relative(cwd, dirname(result.outputPath)) || '.'
+				outputDirs.add(relDir)
+				formatParts.push(`${tag} ${chalk.green('✓')}`)
 			} else {
-				console.log(
-					`  ${formatLabel}... ${chalk.red('✗')} ${chalk.red(result.error)}`,
-				)
+				formatParts.push(`${tag} ${chalk.red('✗')}`)
+				errors.push(`${tag}: ${result.error}`)
 				allSuccess = false
 			}
+		}
+
+		const prefix = label ? `  ${label.padEnd(maxLabelWidth)} ` : '  '
+		console.log(`${prefix}${formatParts.join('  ')}`)
+
+		for (const err of errors) {
+			console.log(chalk.red(`${''.padEnd(maxLabelWidth + 4)}${err}`))
 		}
 	}
 
 	console.log('')
 
 	const renderDuration = formatDuration(performance.now() - renderStart)
+	const fileCount = `${totalFiles} file${totalFiles !== 1 ? 's' : ''}`
+	const outputDir =
+		outputDirs.size === 1 ?
+			` \u2192 ${chalk.cyan([...outputDirs][0]!)}${[...outputDirs][0] === '.' ? '' : '/'}`
+		:	''
+
 	if (allSuccess) {
 		console.log(
-			`${chalk.green('Done!')} ${chalk.gray(`(Time: ${renderDuration})`)}`,
+			`${chalk.green('Done!')} ${fileCount}${outputDir} ${chalk.gray(`(Time: ${renderDuration})`)}`,
 		)
 	} else {
 		console.log(
-			`${chalk.red('Some formats failed to render. ')} ${chalk.gray(`(Time: ${renderDuration})`)}`,
+			`${chalk.red('Some formats failed.')} ${chalk.gray(`(Time: ${renderDuration})`)}`,
 		)
 		throw new Error('Some formats failed to render')
 	}
