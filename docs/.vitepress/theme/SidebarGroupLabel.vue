@@ -6,16 +6,29 @@ import type { DefaultTheme } from 'vitepress/theme'
 const { theme } = useData()
 const route = useRoute()
 
+function resolveSidebar(
+	sidebar: DefaultTheme.Sidebar | undefined,
+	path: string,
+): DefaultTheme.SidebarItem[] | undefined {
+	if (!sidebar) return undefined
+	if (Array.isArray(sidebar)) return sidebar
+	const prefix = Object.keys(sidebar)
+		.filter(k => path.startsWith(k))
+		.sort((a, b) => b.length - a.length)[0]
+	if (!prefix) return undefined
+	const entry = sidebar[prefix]
+	return Array.isArray(entry) ? entry : entry.items
+}
+
 const groupText = computed(() => {
-	const sidebar = theme.value.sidebar as DefaultTheme.SidebarItem[] | undefined
-	if (!sidebar) return null
+	const items = resolveSidebar(theme.value.sidebar, route.path)
+	if (!items) return null
 
 	const path = route.path
-	for (const group of sidebar) {
+	for (const group of items) {
 		if (!group.items) continue
 		const match = group.items.some(item => {
 			if (!item.link) return false
-			// Normalize: add base and strip .html so "/what-is-resumx" matches route paths like "/guide/what-is-resumx.html"
 			const normalized = withBase(item.link.replace(/\.html$/, ''))
 			return (
 				path === normalized
