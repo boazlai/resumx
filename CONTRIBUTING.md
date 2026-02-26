@@ -41,7 +41,7 @@ We may close unsolicited feature PRs if they don't align with the project direct
 ### Getting Started
 
 ```bash
-git clone https://github.com/ocmrz/resumx.git
+git clone https://github.com/resumx/resumx.git
 cd resumx
 npm install
 ```
@@ -122,7 +122,7 @@ Open an issue with:
 
 ## Security Issues
 
-If you discover a security vulnerability, please report it privately via [GitHub's security advisory feature](https://github.com/ocmrz/resumx/security/advisories/new) rather than opening a public issue.
+If you discover a security vulnerability, please report it privately via [GitHub's security advisory feature](https://github.com/resumx/resumx/security/advisories/new) rather than opening a public issue.
 
 ## License
 
