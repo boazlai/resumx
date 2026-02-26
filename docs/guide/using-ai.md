@@ -7,7 +7,7 @@ Resumx is designed to work with AI. Give your agent a job posting URL and your `
 Install [Agent Skills](https://agentskills.io/home) so your AI editor understands Resumx syntax, layout options, and conventions before it starts editing:
 
 ```bash
-npx skills add ocmrz/resumx
+npx skills add resumx/resumx
 ```
 
 ### What's Included

@@ -377,7 +377,7 @@ Post-commit hook: auto-render on every commit.
 
 ## Using AI
 
-Install agent skills: `npx skills add ocmrz/resumx`.
+Install agent skills: `npx skills add resumx/resumx`.
 
 ### Tailoring to Job Postings
 

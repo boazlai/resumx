@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ocmrz/resumx/HEAD/.github/resumx-wordmark-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/ocmrz/resumx/HEAD/.github/resumx-wordmark-light.svg">
-    <img alt="Resumx" src="https://raw.githubusercontent.com/ocmrz/resumx/HEAD/.github/resumx-wordmark-light.svg" width="431" height="70">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/resumx/resumx/HEAD/.github/resumx-wordmark-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/resumx/resumx/HEAD/.github/resumx-wordmark-light.svg">
+    <img alt="Resumx" src="https://raw.githubusercontent.com/resumx/resumx/HEAD/.github/resumx-wordmark-light.svg" width="431" height="70">
   </picture>
 </p>
 
@@ -60,7 +60,7 @@ resumx resume.md --format pdf,docx,html
 ```
 
 <img
-  src="https://raw.githubusercontent.com/ocmrz/resumx/HEAD/.github/resumx-snippet-zurich-frontend.png"
+  src="https://raw.githubusercontent.com/resumx/resumx/HEAD/.github/resumx-snippet-zurich-frontend.png"
   alt="Rendered sample of the snippet above, frontend targetted"
 />
 
@@ -100,7 +100,7 @@ resumx resume.md --watch  # Live preview
 ## Install Agent Skills
 
 ```bash
-npx skills add ocmrz/resumx
+npx skills add resumx/resumx
 ```
 
 This enables AI assistants like Cursor, Claude Code, and Copilot to understand and work with your Resumx files.

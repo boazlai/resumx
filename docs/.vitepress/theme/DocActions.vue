@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useData } from 'vitepress'
 
-const GITHUB_REPO = 'ocmrz/resumx'
+const GITHUB_REPO = 'resumx/resumx'
 const GITHUB_BRANCH = 'main'
 const DOCS_DIR = 'docs'
 
