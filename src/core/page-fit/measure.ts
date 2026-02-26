@@ -26,8 +26,7 @@ export async function readComputedValues(
 		return {
 			'section-gap': parseFloat(cs.getPropertyValue('--section-gap')) || 0,
 			'entry-gap': parseFloat(cs.getPropertyValue('--entry-gap')) || 0,
-			'bullet-gap': parseFloat(cs.getPropertyValue('--bullet-gap')) || 0,
-			'data-row-gap': parseFloat(cs.getPropertyValue('--data-row-gap')) || 0,
+			'row-gap': parseFloat(cs.getPropertyValue('--row-gap')) || 0,
 			'line-height': parseFloat(cs.getPropertyValue('--line-height')) || 0,
 			'font-size': parseFloat(cs.getPropertyValue('--font-size')) || 0,
 			'page-margin-y': parseFloat(cs.getPropertyValue('--page-margin-y')) || 0,
@@ -39,8 +38,9 @@ export async function readComputedValues(
 /** Count elements in the DOM for analytical gap calculation. */
 export async function countElements(page: Page): Promise<ElementCounts> {
 	return page.evaluate(() => ({
-		bullets: document.querySelectorAll('li').length,
-		dataRows: document.querySelectorAll('dl, table').length,
+		rows:
+			document.querySelectorAll('li').length
+			+ document.querySelectorAll('dl, table').length,
 		entries: document.querySelectorAll('.entry + .entry').length,
 		sections: document.querySelectorAll('section + section').length,
 	}))

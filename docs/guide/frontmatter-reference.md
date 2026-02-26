@@ -117,7 +117,7 @@ Target page count. When set, Resumx automatically adjusts style options (gaps, l
 
 The shrinking phases apply in order of visual impact (least noticeable first):
 
-1. **Gaps** — bullet-gap, data-row-gap, entry-gap, section-gap
+1. **Gaps** — row-gap, entry-gap, section-gap
 2. **Line height** — unitless line-height ratio
 3. **Font size** — in points
 4. **Margins** — page-margin-x and page-margin-y (last resort)

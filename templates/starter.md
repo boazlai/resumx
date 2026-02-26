@@ -5,7 +5,7 @@ pages: 1 # Adjusts layout to fit within target page count
 style:
   font-size: 11pt
   # font-family: 'Georgia', serif
-  # header-text-align: center
+  # header-align: center
   # name-caps: normal
   # More options: https://resumx.dev/guide/themes#variable-reference
 ---

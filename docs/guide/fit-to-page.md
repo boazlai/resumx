@@ -24,11 +24,11 @@ It works for multi-page targets too: `pages: 2` fits a 2.2-page resume into two.
 
 When content overflows, these variables shrink to fit:
 
-| Variable                                                 | Type       | Shrink priority |
-| -------------------------------------------------------- | ---------- | --------------- |
-| `bullet-gap`, `data-row-gap`, `entry-gap`, `section-gap` | Spacing    | First           |
-| `page-margin-x`, `page-margin-y`                         | Margins    | Second          |
-| `font-size`, `line-height`                               | Typography | Last            |
+| Variable                              | Type       | Shrink priority |
+| ------------------------------------- | ---------- | --------------- |
+| `row-gap`, `entry-gap`, `section-gap` | Spacing    | First           |
+| `page-margin-x`, `page-margin-y`      | Margins    | Second          |
+| `font-size`, `line-height`            | Typography | Last            |
 
 Spacing shrinks fastest, margins next, and font size resists change until the overflow is large. A small overflow (say, 1.05 pages) tightens gaps without touching your font size at all. A larger overflow starts reducing margins, and only a severe overflow shrinks the font.
 

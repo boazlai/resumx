@@ -15,8 +15,7 @@ export const IN_TO_PX = 96
 
 /** Universal readability minimums (theme-independent). */
 export const MINIMUMS: {
-	readonly 'bullet-gap': number
-	readonly 'data-row-gap': number
+	readonly 'row-gap': number
 	readonly 'entry-gap': number
 	readonly 'section-gap': number
 	readonly 'line-height': number
@@ -25,26 +24,24 @@ export const MINIMUMS: {
 	readonly 'page-margin-x': number
 	readonly [key: string]: number
 } = {
-	'bullet-gap': 2, // px
-	'data-row-gap': 2, // px
+	'row-gap': 2, // px
 	'entry-gap': 3, // px
 	'section-gap': 2, // px
-	'line-height': 1.1, // unitless
+	'line-height': 1, // unitless
 	'font-size': 9, // pt
 	'page-margin-y': 0.3, // in
 	'page-margin-x': 0.35, // in
 }
 
 /** CSS variable names that represent gaps between elements. */
-export type GapKey = 'bullet-gap' | 'data-row-gap' | 'entry-gap' | 'section-gap'
+export type GapKey = 'row-gap' | 'entry-gap' | 'section-gap'
 
 /** Gap variable keys paired with their element count keys. */
 export const GAP_ENTRIES: ReadonlyArray<{
 	key: GapKey
 	countKey: keyof ElementCounts
 }> = [
-	{ key: 'bullet-gap', countKey: 'bullets' },
-	{ key: 'data-row-gap', countKey: 'dataRows' },
+	{ key: 'row-gap', countKey: 'rows' },
 	{ key: 'entry-gap', countKey: 'entries' },
 	{ key: 'section-gap', countKey: 'sections' },
 ]
@@ -55,8 +52,7 @@ export const MAX_FILL_FACTOR = 3
 // ── Domain types ───────────────────────────────────────────────────────────
 
 export interface ElementCounts {
-	bullets: number
-	dataRows: number
+	rows: number
 	entries: number
 	sections: number
 }
@@ -100,8 +96,7 @@ export interface TextMetricsSnapshot {
 export interface CSSVariableValues {
 	'section-gap': number
 	'entry-gap': number
-	'bullet-gap': number
-	'data-row-gap': number
+	'row-gap': number
 	'line-height': number
 	'font-size': number
 	'page-margin-y': number
