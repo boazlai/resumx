@@ -1,10 +1,6 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/resumx/resumx/HEAD/.github/resumx-wordmark-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/resumx/resumx/HEAD/.github/resumx-wordmark-light.svg">
-    <img alt="Resumx" src="https://raw.githubusercontent.com/resumx/resumx/HEAD/.github/resumx-wordmark-light.svg" width="431" height="70">
-  </picture>
-</p>
+![Resumx OG Image](./.github/resumx-og-image.png)
+
+---
 
 <p align="center">
   <a href="https://www.npmjs.com/package/resumx"><img src="https://img.shields.io/npm/v/resumx?color=blue" alt="npm version"></a>
@@ -14,8 +10,6 @@
   <a href="https://resumx.dev/guide/"><strong>Documentation</strong></a> | 
   <a href="https://resumx.dev/playbook/resume-length"><strong>The Resume Playbook</strong></a>
 </p>
-
----
 
 Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic), but most people skip it because it means managing multiple files and fixing layout every time. Resumx lets you tailor for every role in a **single file**, with **layout and page fitting handled automatically**.
 
