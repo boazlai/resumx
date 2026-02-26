@@ -1,4 +1,6 @@
-# What is Resumx?
+![Resumx OG Image](/og-image.png)
+
+---
 
 Tailored resumes get [10x more interviews](/playbook/tailored-vs-generic), but most people skip it because it means managing multiple files and fixing layout every time. Resumx lets you tailor for every role in a **single file**, with **layout and page fitting handled automatically**.
 
@@ -42,8 +44,4 @@ Render with:
 resumx resume.md --format pdf,docx,html
 ```
 
-That produces a file for every combination of **target** and **format** (3 targets × 3 formats = 9 files).
-
 [Get started in under a minute →](/guide/quick-start) Edit with [AI](/guide/using-ai). Render from [any commit](/guide/git-integration). [Multi-language](/guide/multi-language) from one source.
-
-<span class="pronounce" data-pronounce="/rɪˈzuːmɪx/ — like resu-mix">**Resumx**</span> (**Resu**me **M**arkdown e**X**pression) renders resumes from Markdown.

@@ -58,8 +58,6 @@ resumx resume.md --format pdf,docx,html
   alt="Rendered sample of the snippet above, frontend targetted"
 />
 
-That produces a file for every combination of **target** and **format** (3 targets × 3 formats = 9 files).
-
 ## Quick Start
 
 **Install:**
