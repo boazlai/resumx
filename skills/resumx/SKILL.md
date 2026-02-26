@@ -229,11 +229,11 @@ Override via frontmatter `style:` or CLI `--style`.
 
 **Colors:** `text-color`, `muted-color`, `accent-color`, `link-color`, `background-color`.
 
-**Headings:** `name-size`, `name-caps` (`normal`, `small-caps`, `all-small-caps`), `name-weight`, `name-style`, `section-title-size`, `section-title-caps`, `section-title-weight`, `section-header-color`, `section-border`, `header-text-align`, `section-header-align`, `entry-title-size`, `entry-title-weight`.
+**Headings:** `name-size`, `name-caps` (`normal`, `small-caps`, `all-small-caps`), `name-weight`, `name-italic`, `section-title-size`, `section-title-caps`, `section-title-weight`, `section-title-italic`, `section-title-color`, `section-title-border`, `header-align`, `section-title-align`, `entry-title-size`, `entry-title-weight`, `entry-title-italic`.
 
 **Links:** `link-underline` (`underline`, `none`).
 
-**Spacing:** `page-margin-x`, `page-margin-y`, `section-gap`, `entry-gap`, `bullet-gap`, `data-row-gap`, `data-col-gap`, `list-indent`, `two-col-widths`, `two-col-gap`, `two-col-template`.
+**Spacing:** `gap` (unitless scale factor for all vertical gaps), `page-margin-x`, `page-margin-y`, `section-gap`, `entry-gap`, `row-gap`, `col-gap`, `list-indent`, `two-col-widths`, `two-col-gap`, `two-col-template`.
 
 **Lists:** `bullet-style` (`disc`, `circle`, `square`, `none`).
 
@@ -263,7 +263,7 @@ Common modules: `common/base.css` (reset, typography, layout), `common/icons.css
 
 Set `pages: N` to auto-fit. Shrinks in order of visual impact:
 
-1. **Gaps** (bullet-gap, data-row-gap, entry-gap, section-gap)
+1. **Gaps** (row-gap, entry-gap, section-gap)
 2. **Margins** (page-margin-x, page-margin-y)
 3. **Typography** (font-size, line-height)
 

@@ -21,8 +21,7 @@ describe('fitToPages (integration)', () => {
 	--page-margin-y: 0.5in;
 	--section-gap: 10px;
 	--entry-gap: 5px;
-	--bullet-gap: 2px;
-	--data-row-gap: 3px;
+	--row-gap: 2px;
 }
 
 @page {
@@ -40,11 +39,11 @@ body {
 }
 
 h2 { margin-bottom: 4px; }
-h3 { margin-bottom: 2px; }
 section + section { margin-top: var(--section-gap); }
+.entry > * + * { margin-top: var(--row-gap); }
 .entry + .entry { margin-top: var(--entry-gap); }
 ul { margin: 0; padding-left: 20px; }
-li { margin-bottom: var(--bullet-gap); }
+li { margin-bottom: var(--row-gap); }
 </style>
 </head>
 <body>${body}</body>
@@ -89,7 +88,7 @@ li { margin-bottom: var(--bullet-gap); }
 		const body = `
 			<h1>John Doe</h1>
 			${makeSection('Experience', 3, 4)}
-			${makeSection('Projects', 3, 3)}
+			${makeSection('Projects', 2, 3)}
 			${makeSection('Education', 2, 3)}
 			${makeSection('Skills', 2, 2)}
 		`

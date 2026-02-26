@@ -11,7 +11,7 @@ Set `style:` in frontmatter to override any option:
 style:
   font-family: 'Inter, sans-serif'
   accent-color: '#2563eb'
-  section-border: none
+  section-title-border: none
 ---
 ```
 
@@ -43,21 +43,21 @@ You can also override via `--style` on the CLI. See the [CLI Reference](/guide/c
 
 ### Headings
 
-| Variable               | Default                                 | Description                                                    |
-| ---------------------- | --------------------------------------- | -------------------------------------------------------------- |
-| `name-size`            | `1.85rem`                               | Name (h1) font size                                            |
-| `name-caps`            | `normal`                                | Name capitalization (`small-caps`, `all-small-caps`, `normal`) |
-| `name-weight`          | `normal`                                | Name font weight                                               |
-| `name-style`           | `normal`                                | Name font style (`normal`, `italic`)                           |
-| `section-title-size`   | `1.22rem`                               | Section (h2) font size                                         |
-| `section-title-caps`   | `normal`                                | Section title capitalization                                   |
-| `section-title-weight` | `bold`                                  | Section title font weight                                      |
-| `section-header-color` | `var(--text-color)`                     | Section header color                                           |
-| `section-border`       | `1px solid var(--section-header-color)` | Section underline border                                       |
-| `header-text-align`    | `center`                                | Header alignment (`left`, `center`, `right`)                   |
-| `section-header-align` | `left`                                  | Section title alignment                                        |
-| `entry-title-size`     | `1.05rem`                               | Entry (h3) font size                                           |
-| `entry-title-weight`   | `bold`                                  | Entry title font weight                                        |
+| Variable               | Default                                | Description                                                    |
+| ---------------------- | -------------------------------------- | -------------------------------------------------------------- |
+| `name-size`            | `1.85rem`                              | Name (h1) font size                                            |
+| `name-caps`            | `normal`                               | Name capitalization (`small-caps`, `all-small-caps`, `normal`) |
+| `name-weight`          | `normal`                               | Name font weight                                               |
+| `name-italic`          | `normal`                               | Name italic (`normal`, `italic`)                               |
+| `section-title-size`   | `1.22rem`                              | Section (h2) font size                                         |
+| `section-title-caps`   | `normal`                               | Section title capitalization                                   |
+| `section-title-weight` | `bold`                                 | Section title font weight                                      |
+| `section-title-color`  | `var(--text-color)`                    | Section title color                                            |
+| `section-title-border` | `1px solid var(--section-title-color)` | Section title underline border                                 |
+| `header-align`         | `center`                               | Header alignment (`left`, `center`, `right`)                   |
+| `section-title-align`  | `left`                                 | Section title alignment                                        |
+| `entry-title-size`     | `1.05rem`                              | Entry (h3) font size                                           |
+| `entry-title-weight`   | `bold`                                 | Entry title font weight                                        |
 
 ### Links
 
@@ -67,19 +67,19 @@ You can also override via `--style` on the CLI. See the [CLI Reference](/guide/c
 
 ### Spacing
 
-| Variable           | Default                               | Description                                |
-| ------------------ | ------------------------------------- | ------------------------------------------ |
-| `page-margin-x`    | `0.5in`                               | Horizontal page margin                     |
-| `page-margin-y`    | `0.5in`                               | Vertical page margin                       |
-| `section-gap`      | `10px`                                | Gap between sections                       |
-| `entry-gap`        | `5px`                                 | Gap between entries                        |
-| `bullet-gap`       | `2px`                                 | Gap between bullet points                  |
-| `data-row-gap`     | `3px`                                 | Row gap for definition lists and tables    |
-| `data-col-gap`     | `12px`                                | Column gap for definition lists and tables |
-| `list-indent`      | `1.2em`                               | List indentation                           |
-| `two-col-widths`   | `2fr 1fr`                             | Column widths for two-column layout        |
-| `two-col-gap`      | `1.5rem`                              | Gap between columns in two-column layout   |
-| `two-col-template` | `'header header' 'primary secondary'` | Grid area template for two-column layout   |
+| Variable           | Default                               | Description                                                                             |
+| ------------------ | ------------------------------------- | --------------------------------------------------------------------------------------- |
+| `page-margin-x`    | `0.5in`                               | Horizontal page margin                                                                  |
+| `page-margin-y`    | `0.5in`                               | Vertical page margin                                                                    |
+| `gap`              | `1`                                   | Unitless scale factor for all vertical gaps                                             |
+| `section-gap`      | `10px`                                | Gap between sections (scaled by `gap`)                                                  |
+| `entry-gap`        | `5px`                                 | Gap between entries (scaled by `gap`)                                                   |
+| `row-gap`          | `2px`                                 | Vertical gap between list items, definition list rows, and table rows (scaled by `gap`) |
+| `col-gap`          | `12px`                                | Column gap for definition lists and tables                                              |
+| `list-indent`      | `1.2em`                               | List indentation                                                                        |
+| `two-col-widths`   | `2fr 1fr`                             | Column widths for two-column layout                                                     |
+| `two-col-gap`      | `1.5rem`                              | Gap between columns in two-column layout                                                |
+| `two-col-template` | `'header header' 'primary secondary'` | Grid area template for two-column layout                                                |
 
 ### Lists
 
@@ -102,7 +102,7 @@ A few `style:` snippets that create distinct looks using only variable overrides
 ```yaml
 style:
   font-family: "'Georgia', serif"
-  header-text-align: center
+  header-align: center
   name-caps: normal
 ```
 
@@ -117,8 +117,8 @@ style:
   font-family: "'Palatino Linotype', Palatino, Georgia, serif"
   accent-color: '#c43218'
   name-caps: small-caps
-  section-header-color: var(--accent-color)
-  section-border: 1.5px solid var(--section-header-color)
+  section-title-color: var(--accent-color)
+  section-title-border: 1.5px solid var(--section-title-color)
 ```
 
 ### Seattle
@@ -129,8 +129,8 @@ Clean sans-serif with left-aligned header and muted section borders.
 style:
   font-family: "'Arial', 'Helvetica Neue', sans-serif"
   text-color: '#2d3748'
-  section-border: 2px solid #b0b5be
-  header-text-align: left
+  section-title-border: 2px solid #b0b5be
+  header-align: left
   bullet-style: circle
 ```
 
@@ -140,7 +140,7 @@ No section borders, tight spacing, all-caps section titles.
 
 ```yaml
 style:
-  section-border: none
+  section-title-border: none
   section-title-caps: uppercase
   section-gap: 6px
   entry-gap: 3px
@@ -155,6 +155,6 @@ style:
   font-family: "'Inter', 'Segoe UI', sans-serif"
   accent-color: '#2563eb'
   name-weight: bold
-  section-header-color: var(--accent-color)
+  section-title-color: var(--accent-color)
   link-color: var(--accent-color)
 ```

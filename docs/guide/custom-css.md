@@ -32,8 +32,8 @@ Your CSS cascades on top of the default stylesheet, so you only write overrides:
 :root {
 	--font-family: 'Inter', sans-serif;
 	--accent-color: #2563eb;
-	--section-border: 2px solid var(--accent-color);
-	--header-text-align: left;
+	--section-title-border: 2px solid var(--accent-color);
+	--header-align: left;
 }
 
 h2 {

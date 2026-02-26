@@ -27,7 +27,7 @@ css: formal
 output: ./dist/john-doe-resume
 style:
   font-family: "Inter, sans-serif"
-  section-header-color: "#2563eb"
+  section-title-color: "#2563eb"
 ---
 # John Doe
 
@@ -41,7 +41,7 @@ Some content here.`
 					output: './dist/john-doe-resume',
 					style: {
 						'font-family': 'Inter, sans-serif',
-						'section-header-color': '#2563eb',
+						'section-title-color': '#2563eb',
 					},
 				})
 				expect(result.content.trim()).toBe('# John Doe\n\nSome content here.')
@@ -136,7 +136,7 @@ output = "./dist/john-doe-resume"
 
 [style]
 font-family = "Inter, sans-serif"
-section-header-color = "#2563eb"
+section-title-color = "#2563eb"
 +++
 # John Doe
 
@@ -150,7 +150,7 @@ Some content here.`
 					output: './dist/john-doe-resume',
 					style: {
 						'font-family': 'Inter, sans-serif',
-						'section-header-color': '#2563eb',
+						'section-title-color': '#2563eb',
 					},
 				})
 				expect(result.content.trim()).toBe('# John Doe\n\nSome content here.')

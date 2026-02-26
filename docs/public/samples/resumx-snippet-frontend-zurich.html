@@ -233,18 +233,18 @@
 		--name-size: 1.85rem; /* any font-size */
 		--name-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
 		--name-weight: normal; /* any font-weight: bold | normal | 100–900 */
-		--name-style: normal; /* normal | italic | oblique */
+		--name-italic: normal; /* normal | italic */
 		--section-title-size: 1.25rem; /* any font-size */
 		--section-title-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
 		--section-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
-		--section-title-style: normal; /* normal | italic | oblique */
-		--section-header-color: var(--text-color); /* any color */
-		--header-text-align: center; /* left | center | right */
-		--section-header-align: left; /* left | center | right */
-		--section-border: 1px solid var(--section-header-color); /* any border shorthand | none */
+		--section-title-italic: normal; /* normal | italic */
+		--section-title-color: var(--text-color); /* any color */
+		--header-align: center; /* left | center | right */
+		--section-title-align: left; /* left | center | right */
+		--section-title-border: 1px solid var(--section-title-color); /* any border shorthand | none */
 		--entry-title-size: 1.05rem; /* any font-size */
 		--entry-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
-		--entry-title-style: normal; /* normal | italic | oblique */
+		--entry-title-italic: normal; /* normal | italic */
 
 		/* ---- Links ---- */
 		--link-underline: none; /* underline | none */
@@ -252,11 +252,11 @@
 		/* ---- Spacing ---- */
 		--page-margin-x: 0.5in; /* any length */
 		--page-margin-y: 0.5in; /* any length */
+		--gap: 1; /* unitless scale factor for all vertical gaps */
 		--section-gap: 10px; /* any length */
 		--entry-gap: 5px; /* any length */
-		--bullet-gap: 2px; /* any length */
-		--data-row-gap: 3px; /* any length — vertical gap for dl grids and tables */
-		--data-col-gap: 12px; /* any length — horizontal gap for dl grids and tables */
+		--row-gap: 2px; /* any length */
+		--col-gap: 12px; /* any length — horizontal gap for dl grids and tables */
 		--list-indent: 1.2em; /* any length */
 		--two-col-widths: 2fr 1fr; /* any grid-template-columns value */
 		--two-col-gap: 1.5rem; /* any length */
@@ -429,12 +429,12 @@
 	/*
  * Definition lists mirror the table layout for structured data pairs.
  * dt (bold label) sits on the left, dd (value) on the right.
- * Row/column gaps are shared with table via --data-row-gap / --data-col-gap.
+ * Row/column gaps are shared with table via --row-gap / --col-gap.
  */
 	dl {
 		display: grid;
 		grid-template-columns: max-content 1fr;
-		gap: var(--data-row-gap) var(--data-col-gap);
+		gap: calc(var(--row-gap) * var(--gap)) var(--col-gap);
 	}
 
 	dt {
@@ -449,7 +449,7 @@
  */
 
 	header {
-		text-align: var(--header-text-align);
+		text-align: var(--header-align);
 	}
 
 	h1 {
@@ -457,34 +457,39 @@
 		font-size: var(--name-size);
 		font-variant-caps: var(--name-caps);
 		font-weight: var(--name-weight);
-		font-style: var(--name-style);
+		font-style: var(--name-italic);
+		line-height: 1.2;
 	}
 
 	h2 {
 		font-family: var(--title-font-family);
 		font-size: var(--section-title-size);
 		font-variant-caps: var(--section-title-caps);
-		color: var(--section-header-color);
-		text-align: var(--section-header-align);
-		border-bottom: var(--section-border);
+		color: var(--section-title-color);
+		text-align: var(--section-title-align);
+		border-bottom: var(--section-title-border);
 		font-weight: var(--section-title-weight);
-		font-style: var(--section-title-style);
+		font-style: var(--section-title-italic);
+		line-height: 1.2;
 		margin-bottom: 6px;
 	}
 
 	section + section {
-		margin-top: var(--section-gap);
+		margin-top: calc(var(--section-gap) * var(--gap));
 	}
 
 	h3 {
-		margin-bottom: 1.5px;
 		font-weight: var(--entry-title-weight);
-		font-style: var(--entry-title-style);
+		font-style: var(--entry-title-italic);
 		font-size: var(--entry-title-size);
 	}
 
+	.entry > * + * {
+		margin-top: calc(var(--row-gap) * var(--gap));
+	}
+
 	.entry + .entry {
-		margin-top: var(--entry-gap);
+		margin-top: calc(var(--entry-gap) * var(--gap));
 	}
 
 	ul li {
@@ -493,7 +498,7 @@
 	}
 
 	li {
-		margin-bottom: var(--bullet-gap);
+		margin-bottom: calc(var(--row-gap) * var(--gap));
 	}
 
 	/*
@@ -525,8 +530,8 @@
  */
 	table {
 		border-collapse: separate;
-		border-spacing: var(--data-col-gap) var(--data-row-gap);
-		margin-left: calc(-1 * var(--data-col-gap));
+		border-spacing: var(--col-gap) calc(var(--row-gap) * var(--gap));
+		margin-left: calc(-1 * var(--col-gap));
 	}
 
 	table,
@@ -856,8 +861,8 @@ span.icon > svg {
 		/* --content-font-family: 'Times New Roman', serif; */
 		--accent-color: #c43218;
 		--name-caps: small-caps;
-		--section-header-color: var(--accent-color);
-		--section-border: 1.5px solid var(--section-header-color);
+		--section-title-color: var(--accent-color);
+		--section-title-border: 1.5px solid var(--section-title-color);
 	}
 }
 

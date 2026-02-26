@@ -107,15 +107,9 @@ export async function fitToPages(
 					power: 0.5,
 				},
 				{
-					key: 'bullet-gap',
-					original: snapshot.current['bullet-gap'],
-					minimum: MINIMUMS['bullet-gap'],
-					power: 0.5,
-				},
-				{
-					key: 'data-row-gap',
-					original: snapshot.current['data-row-gap'],
-					minimum: MINIMUMS['data-row-gap'],
+					key: 'row-gap',
+					original: snapshot.current['row-gap'],
+					minimum: MINIMUMS['row-gap'],
 					power: 0.5,
 				},
 			]

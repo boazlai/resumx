@@ -4,11 +4,11 @@
 
 The shrink knob `t` goes from 0 (no shrinking) to 1 (everything at minimums). Each variable category has a power exponent that controls how fast it responds to `t`:
 
-| Category   | Variables                                                | Power |
-| ---------- | -------------------------------------------------------- | ----- |
-| Spacing    | `bullet-gap`, `data-row-gap`, `entry-gap`, `section-gap` | 0.5   |
-| Margins    | `page-margin-x`, `page-margin-y`                         | 1.0   |
-| Typography | `font-size`, `line-height`                               | 2.0   |
+| Category   | Variables                             | Power |
+| ---------- | ------------------------------------- | ----- |
+| Spacing    | `row-gap`, `entry-gap`, `section-gap` | 0.5   |
+| Margins    | `page-margin-x`, `page-margin-y`      | 1.0   |
+| Typography | `font-size`, `line-height`            | 2.0   |
 
 ### Interpolation
 
