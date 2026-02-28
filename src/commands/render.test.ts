@@ -609,7 +609,7 @@ Test content`
 	})
 
 	describe('target filtering', () => {
-		it('filters content with --target flag', async () => {
+		it('filters content with --for flag', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -621,7 +621,7 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], target: ['frontend'] },
+				{ format: ['html'], for: ['frontend'] },
 				tempDir,
 			)
 
@@ -663,7 +663,7 @@ Test content`
 			expect(backendHtml).not.toContain('React')
 		})
 
-		it('generates single file with explicit target flag', async () => {
+		it('generates single file with explicit --for flag', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -674,7 +674,7 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], target: ['frontend'] },
+				{ format: ['html'], for: ['frontend'] },
 				tempDir,
 			)
 
@@ -725,7 +725,7 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], target: ['backend'] },
+				{ format: ['html'], for: ['backend'] },
 				tempDir,
 			)
 
@@ -918,7 +918,7 @@ Test content`
 	})
 
 	describe('comma-separated CLI options', () => {
-		it('accepts comma-separated targets', async () => {
+		it('accepts comma-separated tags', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -930,7 +930,7 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], target: ['frontend', 'backend'] },
+				{ format: ['html'], for: ['frontend', 'backend'] },
 				tempDir,
 			)
 
@@ -941,7 +941,7 @@ Test content`
 			expect(existsSync(join(tempDir, 'resume-devops.html'))).toBe(false)
 		})
 
-		it('accepts comma-separated targets with spaces', async () => {
+		it('accepts comma-separated tags with spaces', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -952,7 +952,7 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], target: ['frontend', 'backend'] },
+				{ format: ['html'], for: ['frontend', 'backend'] },
 				tempDir,
 			)
 
@@ -972,7 +972,7 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], target: ['frontend', 'backend', 'devops'] },
+				{ format: ['html'], for: ['frontend', 'backend', 'devops'] },
 				tempDir,
 			)
 
@@ -993,7 +993,7 @@ Test content`
 
 			await renderCommand(
 				'resume.md',
-				{ format: ['html'], target: ['frontend'] },
+				{ format: ['html'], for: ['frontend'] },
 				tempDir,
 			)
 

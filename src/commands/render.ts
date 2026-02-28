@@ -61,7 +61,7 @@ export interface RenderCommandOptions {
 	css?: string[]
 	output?: string
 	style?: string[]
-	target?: string[]
+	for?: string[]
 	lang?: string[]
 	format?: string[]
 	watch?: boolean
@@ -256,14 +256,14 @@ async function runRender(
 		return v ? [v] : []
 	})
 
-	const targetMap = fmConfig?.targets
+	const tagMap = fmConfig?.tags
 	const allKnownTargets =
-		targetMap ?
-			[...new Set([...discoveredTargets, ...Object.keys(targetMap)])]
+		tagMap ?
+			[...new Set([...discoveredTargets, ...Object.keys(tagMap)])]
 		:	discoveredTargets
 
-	const targetsToGenerate = resolveValues(
-		options.target ?? [],
+	const tagsToGenerate = resolveValues(
+		options.for ?? [],
 		allKnownTargets,
 		'target',
 	)
@@ -278,13 +278,13 @@ async function runRender(
 
 	if (outputTemplate) {
 		validateTemplateUniqueness(outputTemplate, {
-			target: targetsToGenerate,
+			target: tagsToGenerate,
 			lang: langsToGenerate,
 		})
 
 		renderTasks = []
 		const effectiveTargets: Array<string | undefined> =
-			targetsToGenerate.length > 0 ? targetsToGenerate : [undefined]
+			tagsToGenerate.length > 0 ? tagsToGenerate : [undefined]
 		const effectiveLangs: Array<string | undefined> =
 			langsToGenerate.length > 0 ? langsToGenerate : [undefined]
 
@@ -314,7 +314,7 @@ async function runRender(
 		renderTasks = buildRenderTasks(
 			cssPaths,
 			variables,
-			targetsToGenerate,
+			tagsToGenerate,
 			langsToGenerate,
 			baseOutputDir,
 			baseOutputName,
@@ -335,7 +335,7 @@ async function runRender(
 				activeLang: task.activeLang,
 				targetPages,
 				icons: fmConfig?.icons,
-				targetMap,
+				tagMap,
 			})
 			return { label: task.label, results }
 		}),

@@ -18,8 +18,8 @@ export interface PipelineConfig {
 	variables?: Record<string, string>
 	/** Active target for content filtering */
 	activeTarget?: string
-	/** Target composition map from frontmatter (composed target name -> constituent targets) */
-	targetMap?: Record<string, string[]>
+	/** Tag composition map from frontmatter (composed tag name -> constituent tags) */
+	tagMap?: Record<string, string[]>
 	/** Active language for content filtering */
 	activeLang?: string
 	/** Available targets from content */

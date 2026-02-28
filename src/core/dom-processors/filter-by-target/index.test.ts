@@ -225,13 +225,13 @@ describe('filterByTarget', () => {
 		})
 	})
 
-	describe('composed targets via targetMap', () => {
+	describe('composed targets via tagMap', () => {
 		function createContextWithMap(
 			activeTarget: string,
-			targetMap: Record<string, string[]>,
+			tagMap: Record<string, string[]>,
 		): PipelineContext {
 			return {
-				config: { activeTarget, targetMap },
+				config: { activeTarget, tagMap },
 				env: { css: '' },
 			}
 		}
@@ -289,7 +289,7 @@ describe('filterByTarget', () => {
 			expect(texts).toEqual(['FE', 'BE', 'Lead'])
 		})
 
-		it('falls back to simple filtering when targetMap has no entry for active target', () => {
+		it('falls back to simple filtering when tagMap has no entry for active target', () => {
 			const html =
 				'<p class="@frontend">Frontend</p><p class="@backend">Backend</p>'
 			const ctx = createContextWithMap('frontend', {
@@ -302,7 +302,7 @@ describe('filterByTarget', () => {
 			expect(doc.body.children[0].textContent).toBe('Frontend')
 		})
 
-		it('handles empty targetMap same as no targetMap', () => {
+		it('handles empty tagMap same as no tagMap', () => {
 			const html =
 				'<p class="@frontend">Frontend</p><p class="@backend">Backend</p>'
 			const ctx = createContextWithMap('frontend', {})

@@ -46,19 +46,19 @@ const FrontmatterSchema = z.object({
 				.optional(),
 		})
 		.optional(),
-	targets: z
+	tags: z
 		.record(
 			z.string(),
 			z.preprocess(
 				val => (typeof val === 'string' ? [val] : val),
 				z.array(
-					z.string({ error: "'targets' values must be arrays of strings" }),
-					{ error: "'targets' values must be strings or arrays of strings" },
+					z.string({ error: "'tags' values must be arrays of strings" }),
+					{ error: "'tags' values must be strings or arrays of strings" },
 				),
 			),
 			{
 				error:
-					"'targets' must be an object mapping target names to constituent arrays",
+					"'tags' must be an object mapping tag names to constituent arrays",
 			},
 		)
 		.optional(),

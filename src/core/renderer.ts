@@ -24,7 +24,7 @@ export interface RenderOptions {
 	activeLang?: string
 	targetPages?: number
 	icons?: Record<string, string>
-	targetMap?: Record<string, string[]>
+	tagMap?: Record<string, string[]>
 }
 
 export interface RenderResult {
@@ -136,7 +136,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 			activeTarget: options.activeTarget,
 			activeLang: options.activeLang,
 			icons: options.icons,
-			targetMap: options.targetMap,
+			tagMap: options.tagMap,
 		})
 
 		if (options.targetPages) {
@@ -203,7 +203,7 @@ export interface RenderMultipleOptions {
 	activeLang?: string
 	targetPages?: number
 	icons?: Record<string, string>
-	targetMap?: Record<string, string[]>
+	tagMap?: Record<string, string[]>
 }
 
 /**
@@ -223,7 +223,7 @@ export async function renderMultiple(
 		activeLang,
 		targetPages,
 		icons,
-		targetMap,
+		tagMap,
 	} = options
 
 	// Render all formats in parallel
@@ -241,7 +241,7 @@ export async function renderMultiple(
 			activeLang,
 			targetPages,
 			icons,
-			targetMap,
+			tagMap,
 		})
 
 		return [format, result] as const

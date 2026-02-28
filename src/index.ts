@@ -137,8 +137,8 @@ program
 		[],
 	)
 	.option(
-		'-t, --target <name>',
-		'Generate for specific target(s) only (repeatable)',
+		'--for <name>',
+		'Generate for specific tag(s) only (repeatable)',
 		collectWithCommas,
 		[],
 	)

@@ -25,8 +25,8 @@ export interface HtmlGeneratorOptions {
 	activeTarget?: string
 	/** Active language for filtering content (if set, only matching language content is included) */
 	activeLang?: string
-	/** Target composition map from frontmatter (composed target name -> constituent targets) */
-	targetMap?: Record<string, string[]>
+	/** Tag composition map from frontmatter (composed tag name -> constituent tags) */
+	tagMap?: Record<string, string[]>
 	/** Custom icon overrides from frontmatter (slug -> SVG/URL/base64) */
 	icons?: Record<string, string>
 }
@@ -98,7 +98,7 @@ export async function generateHtml(
 			activeTarget: options.activeTarget,
 			activeLang: options.activeLang,
 			variables: options.variables,
-			targetMap: options.targetMap,
+			tagMap: options.tagMap,
 		},
 		env: {
 			css: baseCSS,
