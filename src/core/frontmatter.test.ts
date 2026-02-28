@@ -381,9 +381,9 @@ variables: some-value
 				})
 			})
 
-			it('rejects targets with non-object value', () => {
+			it('rejects tags with non-object value', () => {
 				const input = `---
-targets: frontend
+tags: frontend
 ---
 # Resume`
 
@@ -614,10 +614,10 @@ pages: "one"
 			})
 		})
 
-		describe('targets field', () => {
-			it('parses targets as a map of string arrays', () => {
+		describe('tags field', () => {
+			it('parses tags as a map of string arrays', () => {
 				const input = `---
-targets:
+tags:
   fullstack:
     - frontend
     - backend
@@ -627,14 +627,14 @@ targets:
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config?.targets).toEqual({
+				expect(result.config?.tags).toEqual({
 					fullstack: ['frontend', 'backend'],
 				})
 			})
 
 			it('coerces a single string value to a one-element array', () => {
 				const input = `---
-targets:
+tags:
   senior: backend
 ---
 # Resume`
@@ -642,14 +642,14 @@ targets:
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config?.targets).toEqual({
+				expect(result.config?.tags).toEqual({
 					senior: ['backend'],
 				})
 			})
 
-			it('parses multiple composed targets', () => {
+			it('parses multiple composed tags', () => {
 				const input = `---
-targets:
+tags:
   fullstack: [frontend, backend]
   tech-lead: [backend, leadership]
   startup-cto: [fullstack, leadership, architecture]
@@ -659,7 +659,7 @@ targets:
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config?.targets).toEqual({
+				expect(result.config?.tags).toEqual({
 					fullstack: ['frontend', 'backend'],
 					'tech-lead': ['backend', 'leadership'],
 					'startup-cto': ['fullstack', 'leadership', 'architecture'],
@@ -675,12 +675,12 @@ css: zurich
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config?.targets).toBeUndefined()
+				expect(result.config?.tags).toBeUndefined()
 			})
 
 			it('rejects non-string array values', () => {
 				const input = `---
-targets:
+tags:
   fullstack:
     - 123
 ---
@@ -691,9 +691,9 @@ targets:
 				expect(result.ok).toBe(false)
 			})
 
-			it('parses targets from TOML', () => {
+			it('parses tags from TOML', () => {
 				const input = `+++
-[targets]
+[tags]
 fullstack = ["frontend", "backend"]
 +++
 # Resume`
@@ -701,7 +701,7 @@ fullstack = ["frontend", "backend"]
 				const result = parseFrontmatterFromString(input)
 				assert(result.ok)
 
-				expect(result.config?.targets).toEqual({
+				expect(result.config?.tags).toEqual({
 					fullstack: ['frontend', 'backend'],
 				})
 			})
@@ -710,7 +710,7 @@ fullstack = ["frontend", "backend"]
 				const input = `---
 css: zurich
 pages: 1
-targets:
+tags:
   fullstack: [frontend, backend]
 ---
 # Resume`
@@ -721,7 +721,7 @@ targets:
 				expect(result.config).toEqual({
 					css: ['zurich'],
 					pages: 1,
-					targets: { fullstack: ['frontend', 'backend'] },
+					tags: { fullstack: ['frontend', 'backend'] },
 				})
 			})
 		})

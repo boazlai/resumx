@@ -6,7 +6,7 @@
  */
 
 import { filterBySelector } from '../../../lib/dom-kit/content-filter.js'
-import { resolveTargetSet } from '../../target-composition.js'
+import { resolveTagSet } from '../../target-composition.js'
 import type { PipelineContext } from '../types.js'
 
 /**
@@ -16,17 +16,17 @@ import type { PipelineContext } from '../types.js'
  * - Elements with .@X where X does NOT match are REMOVED
  * - Elements without any .@* class are KEPT (common content)
  *
- * When a targetMap is provided, the active target is expanded into its full
+ * When a tagMap is provided, the active target is expanded into its full
  * constituent set (e.g., fullstack -> {fullstack, frontend, backend}).
  */
 export function filterByTarget(html: string, ctx: PipelineContext): string {
-	const { activeTarget, targetMap } = ctx.config
+	const { activeTarget, tagMap } = ctx.config
 
 	if (!activeTarget) {
 		return html
 	}
 
-	const targetSet = resolveTargetSet(activeTarget, targetMap ?? {})
+	const targetSet = resolveTagSet(activeTarget, tagMap ?? {})
 	const notClauses = [...targetSet]
 		.map(target => `:not([class*="@${target}"])`)
 		.join('')

@@ -1,33 +1,29 @@
 /**
- * Resolve a target name into its full set of constituent targets.
+ * Resolve a tag name into its full set of constituent tags.
  *
- * Given a targetMap like `{ fullstack: ['frontend', 'backend'] }`,
+ * Given a tagMap like `{ fullstack: ['frontend', 'backend'] }`,
  * resolving 'fullstack' returns `Set {'fullstack', 'frontend', 'backend'}`.
  * Expansion is recursive and cycle-safe.
  */
-export function resolveTargetSet(
-	targetName: string,
-	targetMap: Record<string, string[]>,
+export function resolveTagSet(
+	tagName: string,
+	tagMap: Record<string, string[]>,
 	visited: Set<string> = new Set(),
 ): Set<string> {
-	if (visited.has(targetName)) {
-		const path = [...visited, targetName].join(' -> ')
-		throw new Error(`Circular target composition detected: ${path}`)
+	if (visited.has(tagName)) {
+		const path = [...visited, tagName].join(' -> ')
+		throw new Error(`Circular tag composition detected: ${path}`)
 	}
 
-	const result = new Set<string>([targetName])
-	const constituents = targetMap[targetName]
+	const result = new Set<string>([tagName])
+	const constituents = tagMap[tagName]
 	if (!constituents) return result
 
-	visited.add(targetName)
+	visited.add(tagName)
 
 	for (const constituent of constituents) {
-		for (const target of resolveTargetSet(
-			constituent,
-			targetMap,
-			new Set(visited),
-		)) {
-			result.add(target)
+		for (const tag of resolveTagSet(constituent, tagMap, new Set(visited))) {
+			result.add(tag)
 		}
 	}
 
