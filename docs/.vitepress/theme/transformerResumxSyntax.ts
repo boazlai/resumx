@@ -69,7 +69,35 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				}
 			}
 
-			// 1) Headings — color per level (not added to matched so icons/bold/italic still apply)
+			// 1) {{ variable }} — muted teal for variable, dimmed brackets
+			for (const m of code.matchAll(/\{\{(\s*\w+\s*)\}\}/g)) {
+				if (matched.has(String(m.index))) continue
+				let pos = m.index
+				// {{
+				options.decorations.push({
+					start: pos,
+					end: pos + 2,
+					properties: { class: 'resumx-var-delim' },
+				})
+				pos += 2
+				// variable name
+				options.decorations.push({
+					start: pos,
+					end: pos + m[1].length,
+					properties: { class: 'resumx-var' },
+				})
+				pos += m[1].length
+				// }}
+				options.decorations.push({
+					start: pos,
+					end: pos + 2,
+					properties: { class: 'resumx-var-delim' },
+				})
+				for (let i = m.index; i < m.index + m[0].length; i++)
+					matched.add(String(i))
+			}
+
+			// 2) Headings — color per level (not added to matched so icons/bold/italic still apply)
 			for (const m of code.matchAll(/^(#{1,6})\s/gm)) {
 				const level = m[1].length
 				const lineEnd = code.indexOf('\n', m.index)
@@ -81,7 +109,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				})
 			}
 
-			// 2) [text]{.attrs} — dim [ ] { } brackets, italic inner attr text
+			// 3) [text]{.attrs} — dim [ ] { } brackets, italic inner attr text
 			for (const m of code.matchAll(/(\[)([^\]]*)(\])\{([^}]*)\}/g)) {
 				let pos = m.index
 				// [
@@ -125,7 +153,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 					matched.add(String(i))
 			}
 
-			// 3) Standalone {attrs} — dim { }, italic inner text
+			// 4) Standalone {attrs} — dim { }, italic inner text
 			// Matches {.class}, {#id}, {lang=en}, and combinations thereof
 			for (const m of code.matchAll(
 				/(?<!\])\{((?:[.#][\w:.@\-]+|[\w-]+=[\w-]+)(?:\s+(?:[.#][\w:.@\-]+|[\w-]+=[\w-]+))*)\}/g,
@@ -155,7 +183,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				}
 			}
 
-			// 4) :icon: or :prefix/name: — dim delimiters, color the name
+			// 5) :icon: or :prefix/name: — dim delimiters, color the name
 			for (const m of code.matchAll(
 				/:([a-zA-Z0-9][a-zA-Z0-9_-]*(?:\/[a-zA-Z0-9][a-zA-Z0-9_-]*)?):(?!:)/g,
 			)) {
@@ -178,7 +206,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				})
 			}
 
-			// 5) [text](url) — dim brackets and URL, reset display text to default
+			// 6) [text](url) — dim brackets and URL, reset display text to default
 			for (const m of code.matchAll(/\[([^\]]*)\]\(([^)]*)\)/g)) {
 				if (matched.has(String(m.index))) continue
 
@@ -214,7 +242,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 					matched.add(String(i))
 			}
 
-			// 5b) Plain-text emails and bare URLs — underline
+			// 6b) Plain-text emails and bare URLs — underline
 			for (const m of code.matchAll(
 				/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}|(?<![[(\/])(?:(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})\/[^\s|)\]"]*/g,
 			)) {
@@ -226,7 +254,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				})
 			}
 
-			// 6) | delimiters between links (both markdown and plain-text) — dim
+			// 7) | delimiters between links (both markdown and plain-text) — dim
 			for (const m of code.matchAll(/(?<=\)) \| (?=\[)/g)) {
 				options.decorations.push({
 					start: m.index,
@@ -234,7 +262,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 					properties: { class: 'resumx-delim' },
 				})
 			}
-			// 6a) | between plain-text contact items — dim
+			// 7a) | between plain-text contact items — dim
 			for (const m of code.matchAll(/(?<=[a-zA-Z0-9/]) \| (?=[a-zA-Z0-9])/g)) {
 				if (matched.has(String(m.index))) continue
 				options.decorations.push({
@@ -244,7 +272,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				})
 			}
 
-			// 6b) || column separator — dim
+			// 7b) || column separator — dim
 			for (const m of code.matchAll(/(?<!\|)\|\|(?!\|)/g)) {
 				if (matched.has(String(m.index))) continue
 				options.decorations.push({
@@ -254,7 +282,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 				})
 			}
 
-			// 7) ***bold italic*** and ___bold italic___ — dim delimiters, bold+italic inner text
+			// 8) ***bold italic*** and ___bold italic___ — dim delimiters, bold+italic inner text
 			for (const m of code.matchAll(/\*\*\*(.+?)\*\*\*/g)) {
 				if (matched.has(String(m.index))) continue
 				let pos = m.index
@@ -309,7 +337,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 					matched.add(String(i))
 			}
 
-			// 8) **bold** and __bold__ — dim delimiters, bold inner text
+			// 9) **bold** and __bold__ — dim delimiters, bold inner text
 			for (const m of code.matchAll(/\*\*(.+?)\*\*/g)) {
 				if (matched.has(String(m.index))) continue
 				let pos = m.index
@@ -364,7 +392,7 @@ export function transformerResumxSyntax(): ShikiTransformer {
 					matched.add(String(i))
 			}
 
-			// 9) *italic* and _italic_ — dim delimiters, italic inner text
+			// 10) *italic* and _italic_ — dim delimiters, italic inner text
 			for (const m of code.matchAll(/\*([^*]+)\*/g)) {
 				if (matched.has(String(m.index))) continue
 				let pos = m.index
