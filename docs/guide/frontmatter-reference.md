@@ -232,7 +232,7 @@ tags:
 
 The shorthand `fullstack: [frontend, backend]` is sugar for `fullstack: { extends: [frontend, backend] }`.
 
-Compositions can reference other composed tags (recursive expansion). Circular references produce an error.
+Compositions can reference other composed tags (recursive expansion). Circular references produce an error. Every constituent must exist as a content tag (`{.@name}` in your resume) or as another composed tag. Typos produce an error with a Levenshtein suggestion.
 
 See [Tags](/guide/tags) for tagging syntax, composition, and tag views. See [Views](/guide/views) for custom views and ephemeral views.
 

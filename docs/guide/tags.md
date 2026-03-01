@@ -73,6 +73,8 @@ tags:
 
 `startup-cto` expands transitively: `fullstack` resolves to `frontend` + `backend`, so the final set is `{startup-cto, fullstack, frontend, backend, leadership, architecture}`.
 
+Every constituent must exist as a content tag (`{.@name}` in your resume) or as another composed tag. If a constituent doesn't exist, Resumx raises an error with a suggestion for likely typos.
+
 Constituent order is preserved and controls bullet ordering when configured. Circular references (e.g., `a: [b]` and `b: [a]`) are detected and produce an error.
 
 ::: info Union only, no intersection

@@ -12,39 +12,40 @@ export interface RenderPlan {
 	label: string
 }
 
+export interface NamedView {
+	name: string | undefined
+	view: ResolvedView
+}
+
 export type OutputStrategy =
 	| { dir: string; name: string }
 	| { template: string; cwd: string }
 
 /**
- * Expand a base view across views × langs × formats into a flat list of
- * render plans. Each plan carries a concrete view (with selects/lang set),
- * an output path, and a format.
+ * Expand pre-resolved named views across langs × formats into a flat list of
+ * render plans. Each named view carries a fully resolved view (selects, sections,
+ * pages, etc. already merged via the cascade).
  *
  * Output path is determined by the strategy:
  * - `{ dir, name }`: suffix-based naming, e.g. `dir/name-frontend-en.pdf`
  * - `{ template, cwd }`: template expansion, e.g. `output/{view}-{lang}.pdf`
  */
 export function planRenders(
-	baseView: ResolvedView,
-	cssPaths: string[],
-	variables: Record<string, string>,
-	views: string[],
+	namedViews: NamedView[],
 	langs: string[],
 	formats: OutputFormat[],
 	output: OutputStrategy,
 ): RenderPlan[] {
 	const plans: RenderPlan[] = []
 	const isTemplate = 'template' in output
-	const hasMultipleViews = views.length > 1
+	const hasMultipleViews = namedViews.length > 1
 	const hasMultipleLangs = langs.length > 1
 
-	const effectiveViews: Array<string | undefined> =
-		views.length > 0 ? views : [undefined]
 	const effectiveLangs: Array<string | undefined> =
 		langs.length > 0 ? langs : [undefined]
 
-	for (const [viewName, lang] of cartesian(effectiveViews, effectiveLangs)) {
+	for (const [namedView, lang] of cartesian(namedViews, effectiveLangs)) {
+		const viewName = namedView.name
 		const showView = isTemplate ? !!viewName : hasMultipleViews && !!viewName
 		const showLang = isTemplate ? !!lang : hasMultipleLangs && !!lang
 
@@ -54,11 +55,8 @@ export function planRenders(
 		const label = labelParts.length > 0 ? `[${labelParts.join(', ')}]` : ''
 
 		const resolved: ResolvedView = {
-			...baseView,
-			selects: viewName ? [viewName] : baseView.selects,
-			style: variables,
-			css: cssPaths,
-			lang: lang ?? baseView.lang,
+			...namedView.view,
+			lang: lang ?? namedView.view.lang,
 		}
 
 		let outputDir: string

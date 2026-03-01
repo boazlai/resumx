@@ -285,6 +285,39 @@ describe('filterByTag', () => {
 		})
 	})
 
+	describe('multi-select via composition', () => {
+		it('selects: [backend] keeps untagged + @backend content', () => {
+			const html =
+				'<p>Common</p><p class="@backend">Backend</p><p class="@frontend">Frontend</p>'
+			const result = filterByTag(['backend'])(html)
+			const doc = parseHtml(result)
+
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toEqual(['Common', 'Backend'])
+		})
+
+		it('selects: [fullstack, frontend, backend] via tagMap keeps both tags', () => {
+			const html =
+				'<p>Common</p><p class="@frontend">FE</p><p class="@backend">BE</p><p class="@devops">Ops</p>'
+			const tagMap = { fullstack: ['frontend', 'backend'] }
+			const result = filterByTag(
+				['fullstack', 'frontend', 'backend'],
+				tagMap,
+			)(html)
+			const doc = parseHtml(result)
+
+			const texts = Array.from(doc.body.children).map(el => el.textContent)
+			expect(texts).toEqual(['Common', 'FE', 'BE'])
+		})
+
+		it('selects: null passes all content through (no filtering)', () => {
+			const html =
+				'<p>Common</p><p class="@frontend">FE</p><p class="@backend">BE</p>'
+			const result = filterByTag(null)(html)
+			expect(result).toBe(html)
+		})
+	})
+
 	describe('edge cases', () => {
 		it('handles empty input', () => {
 			const result = filterByTag(['frontend'])('')
