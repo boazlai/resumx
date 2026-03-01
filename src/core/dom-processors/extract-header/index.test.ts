@@ -1,15 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { parseHTML } from 'linkedom'
 import { extractHeader } from './index.js'
-import type { PipelineContext } from '../types.js'
 
 // =============================================================================
 // Test Utilities
 // =============================================================================
 
-/**
- * Parse HTML string into a DOM for structural assertions
- */
 function parseHtml(html: string) {
 	const { document } = parseHTML(`<div id="root">${html}</div>`)
 	const root = document.getElementById('root')!
@@ -17,16 +13,6 @@ function parseHtml(html: string) {
 		body: root,
 		querySelector: (selector: string) => root.querySelector(selector),
 		querySelectorAll: (selector: string) => root.querySelectorAll(selector),
-	}
-}
-
-/**
- * Create a minimal pipeline context for testing
- */
-function createContext(): PipelineContext {
-	return {
-		config: {},
-		env: { css: '' },
 	}
 }
 
@@ -39,7 +25,7 @@ describe('extractHeader', () => {
 		it('extracts content before first h2 into header element', () => {
 			const html =
 				'<h1>John Doe</h1><p>Contact info</p><h2>Experience</h2><p>Job</p>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 			const doc = parseHtml(result)
 
 			const header = doc.querySelector('header')
@@ -51,7 +37,7 @@ describe('extractHeader', () => {
 		it('extracts multiple elements before h2 into header', () => {
 			const html =
 				'<h1>Name</h1><p>Email</p><p>Phone</p><blockquote>Links</blockquote><h2>Section</h2>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 			const doc = parseHtml(result)
 
 			const header = doc.querySelector('header')
@@ -61,7 +47,7 @@ describe('extractHeader', () => {
 
 		it('preserves h2 and content after header', () => {
 			const html = '<h1>Name</h1><h2>Experience</h2><p>Job details</p>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 			const doc = parseHtml(result)
 
 			const h2 = doc.querySelector('h2')
@@ -73,7 +59,7 @@ describe('extractHeader', () => {
 	describe('structural relationships', () => {
 		it('header and h2 are siblings, not nested', () => {
 			const html = '<h1>Name</h1><h2>Section</h2>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 			const doc = parseHtml(result)
 
 			const header = doc.querySelector('header')
@@ -89,7 +75,7 @@ describe('extractHeader', () => {
 
 		it('header appears before h2 in DOM order', () => {
 			const html = '<h1>Name</h1><p>Info</p><h2>Section</h2>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 			const doc = parseHtml(result)
 
 			const children = Array.from(doc.body.children)
@@ -105,7 +91,7 @@ describe('extractHeader', () => {
 		it('preserves all content after h2 including multiple sections', () => {
 			const html =
 				'<h1>Name</h1><h2>Section1</h2><p>Content1</p><h2>Section2</h2><p>Content2</p>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelectorAll('h2').length).toBe(2)
@@ -116,20 +102,20 @@ describe('extractHeader', () => {
 	describe('edge cases - no extraction', () => {
 		it('returns unchanged when h2 is first element', () => {
 			const html = '<h2>Experience</h2><p>Job</p>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 
 			expect(result).toBe(html)
 		})
 
 		it('returns unchanged when no h2 exists', () => {
 			const html = '<h1>Name</h1><p>Content without sections</p>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 
 			expect(result).toBe(html)
 		})
 
 		it('returns unchanged for empty input', () => {
-			const result = extractHeader('', createContext())
+			const result = extractHeader('')
 			expect(result).toBe('')
 		})
 	})
@@ -137,7 +123,7 @@ describe('extractHeader', () => {
 	describe('element attribute preservation', () => {
 		it('preserves classes on header content elements', () => {
 			const html = '<h1 class="text-3xl font-bold">Name</h1><h2>Section</h2>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 			const doc = parseHtml(result)
 
 			const h1 = doc.querySelector('header h1')
@@ -146,7 +132,7 @@ describe('extractHeader', () => {
 
 		it('preserves IDs on header content elements', () => {
 			const html = '<h1 id="name">Name</h1><h2>Section</h2>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 			const doc = parseHtml(result)
 
 			const h1 = doc.querySelector('header h1')
@@ -156,7 +142,7 @@ describe('extractHeader', () => {
 		it('preserves nested structure within header elements', () => {
 			const html =
 				'<p><strong>Name:</strong> <a href="#">Link</a></p><h2>Section</h2>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 			const doc = parseHtml(result)
 
 			const header = doc.querySelector('header')
@@ -169,7 +155,7 @@ describe('extractHeader', () => {
 		it('handles header content with icons/images', () => {
 			const html =
 				'<h1>Name</h1><p><img src="icon.png" alt="icon">john@email.com</p><h2>Section</h2>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 			const doc = parseHtml(result)
 
 			const img = doc.querySelector('header img')
@@ -179,7 +165,7 @@ describe('extractHeader', () => {
 		it('handles blockquote in header content', () => {
 			const html =
 				'<h1>Name</h1><blockquote>Contact info here</blockquote><h2>Section</h2>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 			const doc = parseHtml(result)
 
 			const blockquote = doc.querySelector('header blockquote')
@@ -190,7 +176,7 @@ describe('extractHeader', () => {
 		it('handles list in header content', () => {
 			const html =
 				'<h1>Name</h1><ul><li>Email</li><li>Phone</li></ul><h2>Section</h2>'
-			const result = extractHeader(html, createContext())
+			const result = extractHeader(html)
 			const doc = parseHtml(result)
 
 			const list = doc.querySelector('header ul')

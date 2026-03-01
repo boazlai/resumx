@@ -18,11 +18,7 @@ vi.mock('../lib/browser-pool/index.js', () => ({
 	},
 }))
 
-vi.mock('./html-generator.js', () => ({
-	generateHtml: vi.fn().mockResolvedValue('<html><body>Test</body></html>'),
-}))
-
-import { render } from './renderer.js'
+import { writeOutput } from './renderer.js'
 
 describe('renderDocxFromPdf', () => {
 	beforeEach(() => {
@@ -32,12 +28,11 @@ describe('renderDocxFromPdf', () => {
 	it('calls execFileSync with argument array instead of string interpolation', async () => {
 		const execFileSyncMock = vi.mocked(childProcess.execFileSync)
 
-		await render({
-			content: '# Test\n\nContent',
-			output: '/tmp/output.docx',
-			format: 'docx',
-			cssPaths: ['/fake/style.css'],
-		})
+		await writeOutput(
+			'<html><body>Test</body></html>',
+			'docx',
+			'/tmp/output.docx',
+		)
 
 		expect(execFileSyncMock).toHaveBeenCalledWith(
 			'pdf2docx',
@@ -53,12 +48,11 @@ describe('renderDocxFromPdf', () => {
 	it('passes pdf path and output path as separate array elements', async () => {
 		const execFileSyncMock = vi.mocked(childProcess.execFileSync)
 
-		await render({
-			content: '# Test\n\nContent',
-			output: '/tmp/output.docx',
-			format: 'docx',
-			cssPaths: ['/fake/style.css'],
-		})
+		await writeOutput(
+			'<html><body>Test</body></html>',
+			'docx',
+			'/tmp/output.docx',
+		)
 
 		const call = execFileSyncMock.mock.calls[0]
 		const args = call?.[1] as string[]

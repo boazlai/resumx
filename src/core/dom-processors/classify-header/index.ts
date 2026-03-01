@@ -10,7 +10,6 @@
  * - JSON Resume export by extracting marked elements
  */
 
-import type { PipelineContext } from '../types.js'
 import { withDOM } from '../../../lib/dom-kit/dom.js'
 import { isLocation } from '../shared/location.js'
 
@@ -197,11 +196,8 @@ function classifyLocationInAddress(address: Element, document: Document): void {
  * 1. Wraps contact blocks in <address> elements
  * 2. Adds data-field attributes for name, email, phone, location, profiles, url
  *
- * @param html - Input HTML string
- * @param _ctx - Pipeline context (unused by this processor)
- * @returns HTML with header elements classified
  */
-export function classifyHeader(html: string, _ctx: PipelineContext): string {
+export function classifyHeader(html: string): string {
 	if (!html.trim()) return html
 
 	return withDOM(html, (root, document) => {

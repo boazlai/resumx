@@ -11,7 +11,6 @@
  * - Runs before classifySections so sections are wrapped first
  */
 
-import type { PipelineContext } from '../types.js'
 import { collectSiblings, withDOM } from '../../../lib/dom-kit/dom.js'
 
 /**
@@ -66,11 +65,8 @@ function wrapEntriesInContainer(
  * Finds all h3 elements in the document (excluding those inside <header>),
  * groups them by parent element, and wraps each group.
  *
- * @param html - Input HTML string
- * @param _ctx - Pipeline context (unused by this processor)
- * @returns HTML with entries wrapped
  */
-export function wrapEntries(html: string, _ctx: PipelineContext): string {
+export function wrapEntries(html: string): string {
 	return withDOM(html, (root, document) => {
 		// Find ALL h3s, excluding those inside <header>
 		const allH3s = Array.from(root.querySelectorAll('h3')).filter(

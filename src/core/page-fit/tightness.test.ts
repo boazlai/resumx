@@ -13,6 +13,34 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { generateHtml } from '../html-generator.js'
 import { DEFAULT_STYLESHEET } from '../styles.js'
+import type { DocumentContext } from '../types.js'
+import type { ResolvedView } from '../view/types.js'
+
+const DEFAULT_VIEW: ResolvedView = {
+	selects: null,
+	sections: { hide: [], pin: [] },
+	pages: null,
+	bulletOrder: 'source',
+	vars: {},
+	style: {},
+	format: 'pdf',
+	output: null,
+	css: null,
+	lang: null,
+}
+
+function genHtml(
+	content: string,
+	opts: { cssPaths: string[]; variables?: Record<string, string> },
+): Promise<string> {
+	const doc: DocumentContext = { content, baseDir: '' }
+	const view: ResolvedView = {
+		...DEFAULT_VIEW,
+		style: opts.variables ?? {},
+		css: opts.cssPaths,
+	}
+	return generateHtml(doc, view)
+}
 import { parseFrontmatterFromString } from '../frontmatter.js'
 import { fitToPages } from './index.js'
 import { getContentHeight, readComputedValues } from './measure.js'
@@ -127,7 +155,7 @@ async function measureTightness(
 	const results: TightnessResult[] = []
 	for (let i = 0; i < removals; i++) {
 		const trimmed = removeContentLines(fixture.content, i)
-		const html = await generateHtml(trimmed, {
+		const html = await genHtml(trimmed, {
 			cssPaths: [CSS_PATH],
 			variables: fixture.variables,
 		})
@@ -243,7 +271,7 @@ describe('page-fit heuristic: multi-page tightness', () => {
 		'fits to 2 pages without over-shrinking',
 		async () => {
 			const md = generateResumeMd(3, 3, 7)
-			const html = await generateHtml(md, { cssPaths: [CSS_PATH] })
+			const html = await genHtml(md, { cssPaths: [CSS_PATH] })
 			const result = await fitToPages(html, 2)
 
 			expect(
@@ -264,7 +292,7 @@ describe('page-fit heuristic: multi-page tightness', () => {
 		'fits to 3 pages without over-shrinking',
 		async () => {
 			const md = generateResumeMd(5, 3, 7)
-			const html = await generateHtml(md, { cssPaths: [CSS_PATH] })
+			const html = await genHtml(md, { cssPaths: [CSS_PATH] })
 			const result = await fitToPages(html, 3)
 
 			expect(

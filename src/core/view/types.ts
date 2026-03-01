@@ -20,6 +20,7 @@ export interface ViewLayer {
 	format?: OutputFormat
 	output?: string
 	css?: string[]
+	lang?: string
 }
 
 /**
@@ -36,4 +37,5 @@ export interface ResolvedView {
 	format: OutputFormat
 	output: string | null
 	css: string[] | null
+	lang: string | null
 }

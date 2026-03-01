@@ -1,15 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { parseHTML } from 'linkedom'
 import { wrapSections, slugify } from './index.js'
-import type { PipelineContext } from '../types.js'
 
 // =============================================================================
 // Test Utilities
 // =============================================================================
 
-/**
- * Parse HTML string into a DOM for structural assertions
- */
 function parseHtml(html: string) {
 	const { document } = parseHTML(`<div id="root">${html}</div>`)
 	const root = document.getElementById('root')!
@@ -17,16 +13,6 @@ function parseHtml(html: string) {
 		body: root,
 		querySelector: (selector: string) => root.querySelector(selector),
 		querySelectorAll: (selector: string) => root.querySelectorAll(selector),
-	}
-}
-
-/**
- * Create a minimal pipeline context for testing
- */
-function createContext(): PipelineContext {
-	return {
-		config: {},
-		env: { css: '' },
 	}
 }
 
@@ -132,7 +118,7 @@ describe('wrapSections', () => {
 	describe('basic section wrapping', () => {
 		it('wraps h2 and following content in section element', () => {
 			const html = '<h2>Education</h2><p>Content here</p>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Verify root has exactly one child: the section
@@ -151,7 +137,7 @@ describe('wrapSections', () => {
 
 		it('sets section id from slugified h2 text', () => {
 			const html = '<h2>Work Experience</h2><p>Job details</p>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			const section = doc.body.children[0] as Element
@@ -164,7 +150,7 @@ describe('wrapSections', () => {
 
 		it('h2 becomes child of section', () => {
 			const html = '<h2>Education</h2><p>Content</p>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			const section = doc.body.children[0] as Element
@@ -179,7 +165,7 @@ describe('wrapSections', () => {
 		it('creates multiple sections for multiple h2s', () => {
 			const html =
 				'<h2>Education</h2><p>School</p><h2>Experience</h2><p>Job</p>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Verify root has exactly 2 sections
@@ -207,7 +193,7 @@ describe('wrapSections', () => {
 		it('assigns unique ids to each section', () => {
 			const html =
 				'<h2>Education</h2><p>School</p><h2>Experience</h2><p>Job</p>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			const section1 = doc.body.children[0] as Element
@@ -220,7 +206,7 @@ describe('wrapSections', () => {
 		it('maintains section order matching h2 order', () => {
 			const html =
 				'<h2>First</h2><p>A</p><h2>Second</h2><p>B</p><h2>Third</h2><p>C</p>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Verify exact order and structure
@@ -245,7 +231,7 @@ describe('wrapSections', () => {
 		it('stops section at next h2', () => {
 			const html =
 				'<h2>Education</h2><p>School</p><h2>Experience</h2><p>Job</p>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Verify complete DOM structure: exactly 2 sections, each isolated
@@ -273,7 +259,7 @@ describe('wrapSections', () => {
 
 		it('stops section at hr element', () => {
 			const html = '<h2>Education</h2><p>School</p><hr><h2>Skills</h2>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Verify structure: section, hr, section (3 root children)
@@ -300,7 +286,7 @@ describe('wrapSections', () => {
 
 		it('hr remains at root level between sections', () => {
 			const html = '<h2>Education</h2><p>School</p><hr><h2>Skills</h2>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Verify hr is direct child of body at position 1
@@ -314,7 +300,7 @@ describe('wrapSections', () => {
 	describe('header element handling', () => {
 		it('does not wrap h2 inside header element', () => {
 			const html = '<header><h2>Contact</h2></header><h2>Education</h2>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Root structure: header, section (2 children)
@@ -338,7 +324,7 @@ describe('wrapSections', () => {
 
 		it('only wraps direct child h2s, not nested ones', () => {
 			const html = '<header><h2>In Header</h2></header><h2>Outside</h2>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Verify exactly 2 root children: header, section
@@ -362,7 +348,7 @@ describe('wrapSections', () => {
 		it('preserves classes on h2 elements', () => {
 			const html =
 				'<h2 class="text-blue-500 font-bold">Education</h2><p>Content</p>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			const section = doc.body.children[0] as Element
@@ -377,7 +363,7 @@ describe('wrapSections', () => {
 
 		it('preserves id on h2 elements', () => {
 			const html = '<h2 id="custom-id">Education</h2><p>Content</p>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			const section = doc.body.children[0] as Element
@@ -393,7 +379,7 @@ describe('wrapSections', () => {
 		it('preserves attributes on content elements', () => {
 			const html =
 				'<h2>Skills</h2><ul class="skill-list"><li data-level="5">Python</li></ul>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Verify complete section structure
@@ -419,7 +405,7 @@ describe('wrapSections', () => {
 	describe('edge cases', () => {
 		it('handles empty content after h2', () => {
 			const html = '<h2>Empty Section</h2>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Root has exactly one section
@@ -437,7 +423,7 @@ describe('wrapSections', () => {
 
 		it('handles h2 with no id-able text', () => {
 			const html = '<h2>   </h2><p>Content</p>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Root has exactly one section
@@ -456,7 +442,7 @@ describe('wrapSections', () => {
 
 		it('returns unchanged when no h2 exists', () => {
 			const html = '<p>Just paragraphs</p><div>And divs</div>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// No sections created
@@ -478,7 +464,7 @@ describe('wrapSections', () => {
 						<li><span class="highlight">JavaScript</span></li>
 					</ul>
 				</div>`
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Root has one section
@@ -521,7 +507,7 @@ describe('wrapSections', () => {
 		it('handles content with role classes', () => {
 			const html =
 				'<h2>Experience</h2><p class="@frontend">Frontend work</p><p class="@backend">Backend work</p>'
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Root has one section
@@ -557,7 +543,7 @@ describe('wrapSections', () => {
 			['Work @ Company', 'work-company'],
 		])('correctly slugifies "%s" to "%s"', (title, expectedId) => {
 			const html = `<h2>${title}</h2><p>Content</p>`
-			const result = wrapSections(html, createContext())
+			const result = wrapSections(html)
 			const doc = parseHtml(result)
 
 			// Verify complete DOM structure

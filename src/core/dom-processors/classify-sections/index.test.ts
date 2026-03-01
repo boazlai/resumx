@@ -1,9 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { parseHTML } from 'linkedom'
 import { classifySections, sectionClassifier } from './index.js'
-import type { PipelineContext } from '../types.js'
 
-// Re-export classify function for easier testing
 const classify = (text: string) => sectionClassifier.classify(text)
 
 // =============================================================================
@@ -20,13 +18,6 @@ function parseHtml(html: string) {
 	}
 }
 
-function createContext(): PipelineContext {
-	return {
-		config: {},
-		env: { css: '' },
-	}
-}
-
 // =============================================================================
 // Tests: classifySections
 // =============================================================================
@@ -36,7 +27,7 @@ describe('classifySections', () => {
 		it('adds data-section attribute to section elements', () => {
 			const html =
 				'<section id="work-experience"><h2>Work Experience</h2></section>'
-			const result = classifySections(html, createContext())
+			const result = classifySections(html)
 			const doc = parseHtml(result)
 
 			const section = doc.querySelector('section')
@@ -47,7 +38,7 @@ describe('classifySections', () => {
 		it('preserves original id attribute', () => {
 			const html =
 				'<section id="work-experience"><h2>Work Experience</h2></section>'
-			const result = classifySections(html, createContext())
+			const result = classifySections(html)
 			const doc = parseHtml(result)
 
 			const section = doc.querySelector('section')
@@ -61,7 +52,7 @@ describe('classifySections', () => {
 				<section id="education"><h2>Education</h2></section>
 				<section id="skills"><h2>Skills</h2></section>
 			`
-			const result = classifySections(html, createContext())
+			const result = classifySections(html)
 			const doc = parseHtml(result)
 
 			const sections = doc.querySelectorAll('section')
@@ -93,7 +84,7 @@ describe('classifySections', () => {
 			['Volunteering', 'volunteer'],
 		])('classifies "%s" as %s', (heading, expectedType) => {
 			const html = `<section><h2>${heading}</h2></section>`
-			const result = classifySections(html, createContext())
+			const result = classifySections(html)
 			const doc = parseHtml(result)
 
 			const section = doc.querySelector('section')
@@ -104,7 +95,7 @@ describe('classifySections', () => {
 	describe('edge cases', () => {
 		it('skips sections without h2', () => {
 			const html = '<section id="no-heading"><p>Content</p></section>'
-			const result = classifySections(html, createContext())
+			const result = classifySections(html)
 			const doc = parseHtml(result)
 
 			const section = doc.querySelector('section')
@@ -113,7 +104,7 @@ describe('classifySections', () => {
 
 		it('skips sections with empty h2', () => {
 			const html = '<section><h2>   </h2></section>'
-			const result = classifySections(html, createContext())
+			const result = classifySections(html)
 			const doc = parseHtml(result)
 
 			const section = doc.querySelector('section')
@@ -122,7 +113,7 @@ describe('classifySections', () => {
 
 		it('returns unchanged when no sections exist', () => {
 			const html = '<div><p>Just content</p></div>'
-			const result = classifySections(html, createContext())
+			const result = classifySections(html)
 			expect(result).toContain('Just content')
 		})
 
@@ -132,7 +123,7 @@ describe('classifySections', () => {
 					<article class="entry"><h3>Job</h3></article>
 				</section>
 			`
-			const result = classifySections(html, createContext())
+			const result = classifySections(html)
 			const doc = parseHtml(result)
 
 			const section = doc.querySelector('section')

@@ -15,6 +15,7 @@ const DEFAULTS: ResolvedView = {
 	format: 'pdf',
 	output: null,
 	css: null,
+	lang: null,
 }
 
 /**
@@ -54,6 +55,7 @@ export function resolveView(layers: ViewLayer[]): ResolvedView {
 
 		if (layer.selects !== undefined) result.selects = layer.selects
 		if (layer.css !== undefined) result.css = layer.css
+		if (layer.lang !== undefined) result.lang = layer.lang
 	}
 
 	return result
