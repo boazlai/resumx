@@ -8,7 +8,6 @@
  * regardless of the actual heading text ("Work Experience", "Employment History", etc.)
  */
 
-import type { PipelineContext } from '../types.js'
 import { withDOM } from '../../../lib/dom-kit/dom.js'
 import { Classifier } from '../../../lib/text-classify/index.js'
 
@@ -171,11 +170,8 @@ export const sectionClassifier = new Classifier({
 /**
  * Add data-section attributes to section elements
  *
- * @param html - Input HTML string (after wrapSections processor)
- * @param _ctx - Pipeline context (unused by this processor)
- * @returns HTML with data-section attributes added
  */
-export function classifySections(html: string, _ctx: PipelineContext): string {
+export function classifySections(html: string): string {
 	return withDOM(html, root => {
 		const sections = Array.from(root.querySelectorAll('section'))
 

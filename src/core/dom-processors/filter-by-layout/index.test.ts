@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseHTML } from 'linkedom'
 import { arrangeSections } from './index.js'
-import type { PipelineContext } from '../types.js'
 import type { SectionType } from '../../section-types.js'
 
 function parseHtml(html: string) {
@@ -18,14 +17,12 @@ function parseHtml(html: string) {
 	}
 }
 
-function createContext(
-	hide?: SectionType[],
-	pin?: SectionType[],
-): PipelineContext {
-	return {
-		config: { sections: { hide, pin } },
-		env: { css: '' },
-	}
+function run(
+	html: string,
+	hide: SectionType[] = [],
+	pin: SectionType[] = [],
+): string {
+	return arrangeSections({ hide, pin })(html)
 }
 
 const HTML_WITH_SECTIONS = [
@@ -37,47 +34,35 @@ const HTML_WITH_SECTIONS = [
 ].join('')
 
 describe('arrangeSections', () => {
-	describe('when both hide and pin are empty/undefined (no-op)', () => {
-		it('returns unchanged when sections is undefined', () => {
-			const result = arrangeSections(HTML_WITH_SECTIONS, {
-				config: {},
-				env: { css: '' },
-			})
-			expect(result).toBe(HTML_WITH_SECTIONS)
-		})
-
+	describe('when both hide and pin are empty (no-op)', () => {
 		it('returns unchanged when both are empty', () => {
-			const result = arrangeSections(HTML_WITH_SECTIONS, createContext([], []))
+			const result = run(HTML_WITH_SECTIONS)
 			expect(result).toBe(HTML_WITH_SECTIONS)
 		})
 	})
 
 	describe('hide', () => {
 		it('removes hidden sections', () => {
-			const result = arrangeSections(
-				HTML_WITH_SECTIONS,
-				createContext(['publications', 'projects']),
-			)
+			const result = run(HTML_WITH_SECTIONS, ['publications', 'projects'])
 			const doc = parseHtml(result)
 
 			expect(doc.sections()).toEqual(['work', 'skills', 'education'])
 		})
 
 		it('preserves source order for remaining sections', () => {
-			const result = arrangeSections(
-				HTML_WITH_SECTIONS,
-				createContext(['skills']),
-			)
+			const result = run(HTML_WITH_SECTIONS, ['skills'])
 			const doc = parseHtml(result)
 
 			expect(doc.sections()).toEqual(['work', 'education', 'projects'])
 		})
 
 		it('header always renders regardless of hide', () => {
-			const result = arrangeSections(
-				HTML_WITH_SECTIONS,
-				createContext(['work', 'skills', 'education', 'projects']),
-			)
+			const result = run(HTML_WITH_SECTIONS, [
+				'work',
+				'skills',
+				'education',
+				'projects',
+			])
 			const doc = parseHtml(result)
 
 			expect(doc.hasHeader()).toBe(true)
@@ -85,10 +70,7 @@ describe('arrangeSections', () => {
 		})
 
 		it('ignores hide entries that match no section in the document', () => {
-			const result = arrangeSections(
-				HTML_WITH_SECTIONS,
-				createContext(['awards', 'publications']),
-			)
+			const result = run(HTML_WITH_SECTIONS, ['awards', 'publications'])
 			const doc = parseHtml(result)
 
 			expect(doc.sections()).toEqual([
@@ -100,7 +82,7 @@ describe('arrangeSections', () => {
 		})
 
 		it('empty hide array is a no-op', () => {
-			const result = arrangeSections(HTML_WITH_SECTIONS, createContext([]))
+			const result = run(HTML_WITH_SECTIONS, [])
 			const doc = parseHtml(result)
 
 			expect(doc.sections()).toEqual([
@@ -114,10 +96,7 @@ describe('arrangeSections', () => {
 
 	describe('pin', () => {
 		it('moves pinned sections to the top in specified order', () => {
-			const result = arrangeSections(
-				HTML_WITH_SECTIONS,
-				createContext(undefined, ['skills']),
-			)
+			const result = run(HTML_WITH_SECTIONS, [], ['skills'])
 			const doc = parseHtml(result)
 
 			expect(doc.sections()).toEqual([
@@ -129,10 +108,7 @@ describe('arrangeSections', () => {
 		})
 
 		it('pins multiple sections in specified order, rest follow in source order', () => {
-			const result = arrangeSections(
-				HTML_WITH_SECTIONS,
-				createContext(undefined, ['skills', 'projects']),
-			)
+			const result = run(HTML_WITH_SECTIONS, [], ['skills', 'projects'])
 			const doc = parseHtml(result)
 
 			expect(doc.sections()).toEqual([
@@ -144,10 +120,7 @@ describe('arrangeSections', () => {
 		})
 
 		it('preserves source order for non-pinned sections', () => {
-			const result = arrangeSections(
-				HTML_WITH_SECTIONS,
-				createContext(undefined, ['education']),
-			)
+			const result = run(HTML_WITH_SECTIONS, [], ['education'])
 			const doc = parseHtml(result)
 
 			expect(doc.sections()).toEqual([
@@ -159,20 +132,14 @@ describe('arrangeSections', () => {
 		})
 
 		it('header always renders regardless of pin', () => {
-			const result = arrangeSections(
-				HTML_WITH_SECTIONS,
-				createContext(undefined, ['skills']),
-			)
+			const result = run(HTML_WITH_SECTIONS, [], ['skills'])
 			const doc = parseHtml(result)
 
 			expect(doc.hasHeader()).toBe(true)
 		})
 
 		it('ignores pin entries that match no section in the document', () => {
-			const result = arrangeSections(
-				HTML_WITH_SECTIONS,
-				createContext(undefined, ['awards', 'skills']),
-			)
+			const result = run(HTML_WITH_SECTIONS, [], ['awards', 'skills'])
 			const doc = parseHtml(result)
 
 			expect(doc.sections()).toEqual([
@@ -184,10 +151,7 @@ describe('arrangeSections', () => {
 		})
 
 		it('empty pin array is a no-op', () => {
-			const result = arrangeSections(
-				HTML_WITH_SECTIONS,
-				createContext(undefined, []),
-			)
+			const result = run(HTML_WITH_SECTIONS, [], [])
 			const doc = parseHtml(result)
 
 			expect(doc.sections()).toEqual([
@@ -201,19 +165,17 @@ describe('arrangeSections', () => {
 
 	describe('hide + pin composed', () => {
 		it('hides sections and pins remaining ones', () => {
-			const result = arrangeSections(
-				HTML_WITH_SECTIONS,
-				createContext(['projects'], ['skills', 'work']),
-			)
+			const result = run(HTML_WITH_SECTIONS, ['projects'], ['skills', 'work'])
 			const doc = parseHtml(result)
 
 			expect(doc.sections()).toEqual(['skills', 'work', 'education'])
 		})
 
 		it('hidden sections do not appear even if document has them', () => {
-			const result = arrangeSections(
+			const result = run(
 				HTML_WITH_SECTIONS,
-				createContext(['education', 'projects'], ['skills']),
+				['education', 'projects'],
+				['skills'],
 			)
 			const doc = parseHtml(result)
 
@@ -223,13 +185,13 @@ describe('arrangeSections', () => {
 
 	describe('edge cases', () => {
 		it('handles empty HTML', () => {
-			const result = arrangeSections('', createContext(['work']))
+			const result = run('', ['work'])
 			expect(result).toBe('')
 		})
 
 		it('handles HTML with no sections', () => {
 			const html = '<header><h1>Jane</h1></header><p>No sections</p>'
-			const result = arrangeSections(html, createContext(['work']))
+			const result = run(html, ['work'])
 			const doc = parseHtml(result)
 
 			expect(doc.hasHeader()).toBe(true)

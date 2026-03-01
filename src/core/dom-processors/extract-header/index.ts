@@ -5,7 +5,6 @@
  * This separates the resume header (name, contact info) from sections.
  */
 
-import type { PipelineContext } from '../types.js'
 import {
 	collectSiblings,
 	serializeElements,
@@ -14,12 +13,8 @@ import {
 
 /**
  * Extract content before first h2 into a <header> element
- *
- * @param html - Input HTML string
- * @param _ctx - Pipeline context (unused by this processor)
- * @returns HTML with header extracted, or unchanged if no h2 or h2 is first
  */
-export function extractHeader(html: string, _ctx: PipelineContext): string {
+export function extractHeader(html: string): string {
 	return withDOM(html, root => {
 		const firstH2 = root.querySelector('h2')
 

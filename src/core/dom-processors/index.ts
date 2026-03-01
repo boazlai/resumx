@@ -1,13 +1,9 @@
 /**
  * DOM Processor Pipeline
  *
- * A unified system for structural HTML transformations.
- * Each processor receives HTML and a PipelineContext, returns modified HTML.
- *
- * Design:
- * - Processors are independent and composable
- * - Order matters: processors run in array order
- * - Context provides config (user settings) and env (derived values like CSS)
+ * Assembles a chain of HTML transformations from DocumentContext and ResolvedView.
+ * Each processor is either a pure (html) => string function or a factory that
+ * closes over its configuration and returns one.
  */
 
 import { stripComments } from './strip-comments/index.js'
@@ -19,48 +15,43 @@ import { classifySections } from './classify-sections/index.js'
 import { arrangeSections } from './filter-by-layout/index.js'
 import { classifyHeader } from './classify-header/index.js'
 import { wrapEntries } from './wrap-entries/index.js'
-import type { DOMProcessor, PipelineContext } from './types.js'
+import type { ResolvedView } from '../view/types.js'
+import type { DocumentContext } from '../types.js'
 
 /**
- * Default processor pipeline
+ * Assemble the DOM processor pipeline from view and document config.
+ *
  * Order matters:
- * 1. stripComments - remove HTML comment nodes so downstream processors never see them
- * 2. filterByLang - remove non-matching language content (before target so target filtering operates on language-filtered content)
+ * 1. stripComments - remove HTML comment nodes
+ * 2. filterByLang - remove non-matching language content
  * 3. filterByTag - remove non-matching tag content
  * 4. extractHeader - pull content before first h2 into <header>
- * 5. wrapSections - wrap h2 groups in <section> tags (before columns so no layout awareness needed)
- * 6. wrapEntries - wrap h3 groups in <article class="entry"> tags (before columns so no layout awareness needed)
+ * 5. wrapSections - wrap h2 groups in <section> tags
+ * 6. wrapEntries - wrap h3 groups in <article class="entry"> tags
  * 7. classifySections - add data-section attrs for JSON Resume types
  * 8. arrangeSections - hide sections and pin others to the top
  * 9. classifyHeader - wrap contact info in <address>, add data-field attrs
  */
-export const defaultProcessors: DOMProcessor[] = [
-	{ name: 'stripComments', process: stripComments },
-	{ name: 'filterByLang', process: filterByLang },
-	{ name: 'filterByTag', process: filterByTag },
-	{ name: 'extractHeader', process: extractHeader },
-	{ name: 'wrapSections', process: wrapSections },
-	{ name: 'wrapEntries', process: wrapEntries },
-	{ name: 'classifySections', process: classifySections },
-	{ name: 'arrangeSections', process: arrangeSections },
-	{ name: 'classifyHeader', process: classifyHeader },
-]
-
-/**
- * Run HTML through the processor pipeline
- */
-export function runPipeline(
-	html: string,
-	ctx: PipelineContext,
-	processors: DOMProcessor[] = defaultProcessors,
-): string {
-	return processors.reduce((h, processor) => processor.process(h, ctx), html)
+export function assemblePipeline(
+	view: ResolvedView,
+	doc: DocumentContext,
+): HtmlTransform {
+	const steps: HtmlTransform[] = [
+		stripComments,
+		filterByLang(view.lang),
+		filterByTag(view.selects, doc.tagMap),
+		extractHeader,
+		wrapSections,
+		wrapEntries,
+		classifySections,
+		arrangeSections(view.sections),
+		classifyHeader,
+	]
+	return html => steps.reduce((h, step) => step(h), html)
 }
 
-// Re-export types
-export type { DOMProcessor, PipelineContext, PipelineConfig } from './types.js'
+export type HtmlTransform = (html: string) => string
 
-// Re-export individual processors for testing
 export { filterByLang } from './filter-by-lang/index.js'
 export { filterByTag } from './filter-by-tag/index.js'
 export { extractHeader } from './extract-header/index.js'

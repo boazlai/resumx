@@ -1,21 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseHTML } from 'linkedom'
 import { wrapEntries } from './index.js'
-import type { PipelineContext } from '../types.js'
-
-// =============================================================================
-// Test Utilities
-// =============================================================================
-
-/**
- * Create a minimal pipeline context for testing
- */
-function createContext(): PipelineContext {
-	return {
-		config: {},
-		env: { css: '' },
-	}
-}
 
 /**
  * Normalize HTML by removing whitespace-only text nodes for structural comparison
@@ -48,13 +33,6 @@ function expectStructure(actual: string, expected: string) {
 	expect(normalizeHtml(actual)).toBe(normalizeHtml(expected))
 }
 
-/**
- * Helper to run wrapEntries with default context
- */
-function wrap(html: string): string {
-	return wrapEntries(html, createContext())
-}
-
 // =============================================================================
 // Tests: wrapEntries
 // =============================================================================
@@ -73,7 +51,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('wraps h3 with ul content', () => {
@@ -88,7 +66,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 	})
 
@@ -110,7 +88,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('maintains entry order matching h3 order', () => {
@@ -134,7 +112,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 	})
 
@@ -155,7 +133,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('stops entry at h2 element', () => {
@@ -171,7 +149,7 @@ describe('wrapEntries', () => {
 				<h2>New Section</h2>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('stops entry at hr element', () => {
@@ -190,7 +168,7 @@ describe('wrapEntries', () => {
 				<hr>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 	})
 
@@ -220,7 +198,7 @@ describe('wrapEntries', () => {
 				</section>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('handles multiple sections each with entries', () => {
@@ -250,7 +228,7 @@ describe('wrapEntries', () => {
 				</section>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 	})
 
@@ -268,7 +246,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('preserves id on h3 elements', () => {
@@ -283,7 +261,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('preserves attributes on content elements', () => {
@@ -299,7 +277,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 	})
 
@@ -327,7 +305,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('groups h3 with blockquote and list', () => {
@@ -347,7 +325,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('handles deeply nested content within entries', () => {
@@ -375,7 +353,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 	})
 
@@ -391,7 +369,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('returns unchanged when no h3 exists', () => {
@@ -399,7 +377,7 @@ describe('wrapEntries', () => {
 
 			const expected = '<p>Just paragraphs</p><div>And divs</div>'
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('handles section with only h2 (no h3s)', () => {
@@ -423,7 +401,7 @@ describe('wrapEntries', () => {
 				</section>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('does not wrap h3 inside header element', () => {
@@ -438,7 +416,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('handles content with role classes', () => {
@@ -455,7 +433,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 	})
 
@@ -483,7 +461,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('wraps h3 + bullet list + prose after bullets into one entry', () => {
@@ -509,7 +487,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('wraps h3 + multiple paragraphs + bullet list into one entry', () => {
@@ -537,7 +515,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('keeps prose in separate entries when separated by h3', () => {
@@ -565,7 +543,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 	})
 
@@ -595,7 +573,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('wraps h3s in different containers independently', () => {
@@ -629,7 +607,7 @@ describe('wrapEntries', () => {
 				</div>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('wraps h3 nested inside intermediate element within a section (not a direct child)', () => {
@@ -657,7 +635,7 @@ describe('wrapEntries', () => {
 				</section>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('wraps h3s inside blockquote container', () => {
@@ -679,7 +657,7 @@ describe('wrapEntries', () => {
 				</blockquote>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('wraps h3 inside deeply nested containers', () => {
@@ -713,7 +691,7 @@ describe('wrapEntries', () => {
 				</section>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 	})
 
@@ -759,7 +737,7 @@ describe('wrapEntries', () => {
 				</section>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('handles project entry pattern', () => {
@@ -791,7 +769,7 @@ describe('wrapEntries', () => {
 				</section>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 
 		it('handles certification entry pattern', () => {
@@ -817,7 +795,7 @@ describe('wrapEntries', () => {
 				</section>
 			`
 
-			expectStructure(wrap(input), expected)
+			expectStructure(wrapEntries(input), expected)
 		})
 	})
 })

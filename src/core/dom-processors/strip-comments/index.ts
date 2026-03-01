@@ -1,10 +1,9 @@
-import type { PipelineContext } from '../types.js'
 import { withDOM } from '../../../lib/dom-kit/dom.js'
 
 /** NodeFilter.SHOW_COMMENT — TreeWalker filter for Comment nodes (<!-- … -->) */
 const SHOW_COMMENT = 0x80
 
-export function stripComments(html: string, _ctx: PipelineContext): string {
+export function stripComments(html: string): string {
 	if (!html) return ''
 
 	return withDOM(html, (root, document) => {

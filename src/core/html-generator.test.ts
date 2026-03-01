@@ -3,6 +3,9 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { generateHtml } from './html-generator.js'
+import type { DocumentContext } from './types.js'
+import type { ResolvedView } from './view/types.js'
+import type { SectionsConfig } from './view/types.js'
 
 // =============================================================================
 // Test Utilities
@@ -36,6 +39,42 @@ body {
 }
 `
 
+interface LegacyOptions {
+	cssPaths: string[]
+	variables?: Record<string, string>
+	activeTag?: string
+	activeLang?: string
+	tagMap?: Record<string, string[]>
+	sections?: SectionsConfig
+	icons?: Record<string, string>
+	vars?: Record<string, string>
+}
+
+function gen(content: string, opts: LegacyOptions): Promise<string> {
+	const doc: DocumentContext = {
+		content,
+		icons: opts.icons,
+		tagMap: opts.tagMap,
+		baseDir: '',
+	}
+	const view: ResolvedView = {
+		selects: opts.activeTag ? [opts.activeTag] : null,
+		sections: {
+			hide: opts.sections?.hide ?? [],
+			pin: opts.sections?.pin ?? [],
+		},
+		pages: null,
+		bulletOrder: 'source',
+		vars: opts.vars ?? {},
+		style: opts.variables ?? {},
+		format: 'pdf',
+		output: null,
+		css: opts.cssPaths,
+		lang: opts.activeLang ?? null,
+	}
+	return generateHtml(doc, view)
+}
+
 // =============================================================================
 // Tests
 // =============================================================================
@@ -46,7 +85,7 @@ describe('html-generator', () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-				const html = await generateHtml('# Test', {
+				const html = await gen('# Test', {
 					cssPaths: [join(dir, 'style.css')],
 				})
 
@@ -62,7 +101,7 @@ describe('html-generator', () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-				const html = await generateHtml('# Test', {
+				const html = await gen('# Test', {
 					cssPaths: [join(dir, 'style.css')],
 				})
 
@@ -74,7 +113,7 @@ describe('html-generator', () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-				const html = await generateHtml('# Test', {
+				const html = await gen('# Test', {
 					cssPaths: [join(dir, 'style.css')],
 				})
 
@@ -87,7 +126,7 @@ describe('html-generator', () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-				const html = await generateHtml('# Test', {
+				const html = await gen('# Test', {
 					cssPaths: [join(dir, 'style.css')],
 				})
 
@@ -101,7 +140,7 @@ describe('html-generator', () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-				const html = await generateHtml('# Hello World\n\nParagraph here.', {
+				const html = await gen('# Hello World\n\nParagraph here.', {
 					cssPaths: [join(dir, 'style.css')],
 				})
 
@@ -114,7 +153,7 @@ describe('html-generator', () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-				const html = await generateHtml('# Test', {
+				const html = await gen('# Test', {
 					cssPaths: [join(dir, 'style.css')],
 					variables: {
 						'font-family': 'CustomFont, serif',
@@ -131,7 +170,7 @@ describe('html-generator', () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-				const html = await generateHtml('# Test', {
+				const html = await gen('# Test', {
 					cssPaths: [join(dir, 'style.css')],
 					variables: {
 						'font-family': 'Override',
@@ -153,7 +192,7 @@ describe('html-generator', () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-				const html = await generateHtml('# Hello {{ name }}', {
+				const html = await gen('# Hello {{ name }}', {
 					cssPaths: [join(dir, 'style.css')],
 				})
 
@@ -166,7 +205,7 @@ describe('html-generator', () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-				const html = await generateHtml(
+				const html = await gen(
 					'<div class="text-blue-500 font-bold">Styled</div>',
 					{ cssPaths: [join(dir, 'style.css')] },
 				)
@@ -180,7 +219,7 @@ describe('html-generator', () => {
 			await withTempDir(async dir => {
 				writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-				const html = await generateHtml('', {
+				const html = await gen('', {
 					cssPaths: [join(dir, 'style.css')],
 				})
 
@@ -210,7 +249,7 @@ _Software Engineer_
 Languages
 : TypeScript, Python, Go
 `
-				const html = await generateHtml(markdown, {
+				const html = await gen(markdown, {
 					cssPaths: [join(dir, 'style.css')],
 				})
 
@@ -234,7 +273,7 @@ Languages
 				await withTempDir(async dir => {
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-					const html = await generateHtml('### :myicon: Company', {
+					const html = await gen('### :myicon: Company', {
 						cssPaths: [join(dir, 'style.css')],
 						icons: {
 							myicon:
@@ -265,7 +304,7 @@ Languages
 				await withTempDir(async dir => {
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-					const html = await generateHtml('### :logo: Company', {
+					const html = await gen('### :logo: Company', {
 						cssPaths: [join(dir, 'style.css')],
 						icons: {
 							logo: 'https://example.com/logo.svg',
@@ -288,7 +327,7 @@ Languages
 						'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle r="10"/></svg>',
 					).toString('base64')
 
-					const html = await generateHtml('### :badge: Award', {
+					const html = await gen('### :badge: Award', {
 						cssPaths: [join(dir, 'style.css')],
 						icons: {
 							badge: `data:image/svg+xml;base64,${svgB64}`,
@@ -305,7 +344,7 @@ Languages
 				await withTempDir(async dir => {
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
-					const html = await generateHtml(':react:', {
+					const html = await gen(':react:', {
 						cssPaths: [join(dir, 'style.css')],
 						icons: {
 							react:
@@ -323,7 +362,7 @@ Languages
 					writeVirtualFiles(dir, { 'style.css': SIMPLE_CSS })
 
 					// First render with icons
-					await generateHtml(':myicon:', {
+					await gen(':myicon:', {
 						cssPaths: [join(dir, 'style.css')],
 						icons: {
 							myicon:
@@ -331,8 +370,7 @@ Languages
 						},
 					})
 
-					// Second render without icons - should NOT resolve :myicon:
-					const html2 = await generateHtml(':myicon:', {
+					const html2 = await gen(':myicon:', {
 						cssPaths: [join(dir, 'style.css')],
 					})
 
@@ -343,7 +381,7 @@ Languages
 
 		it('throws error for non-existent CSS file', async () => {
 			await expect(
-				generateHtml('# Test', {
+				gen('# Test', {
 					cssPaths: ['/non/existent/style.css'],
 				}),
 			).rejects.toThrow('not found')
@@ -361,7 +399,7 @@ Languages
 - Backend skill {.@backend}
 - Common skill
 `
-					const html = await generateHtml(markdown, {
+					const html = await gen(markdown, {
 						cssPaths: [join(dir, 'style.css')],
 						activeTag: 'frontend',
 					})
@@ -380,7 +418,7 @@ Languages
 - Frontend skill {.@frontend}
 - Backend skill {.@backend}
 `
-					const html = await generateHtml(markdown, {
+					const html = await gen(markdown, {
 						cssPaths: [join(dir, 'style.css')],
 					})
 
@@ -406,7 +444,7 @@ Languages
 - PostgreSQL
 :::
 `
-					const html = await generateHtml(markdown, {
+					const html = await gen(markdown, {
 						cssPaths: [join(dir, 'style.css')],
 						activeTag: 'backend',
 					})

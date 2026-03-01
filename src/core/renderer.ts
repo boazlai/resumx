@@ -9,31 +9,8 @@ import {
 import { basename, dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { browserPool } from '../lib/browser-pool/index.js'
-import { generateHtml } from './html-generator.js'
-import { fitToPages } from './page-fit/index.js'
-import type { SectionType } from './section-types.js'
 
 export type OutputFormat = 'pdf' | 'html' | 'docx' | 'png'
-
-export interface RenderSectionsConfig {
-	hide?: SectionType[]
-	pin?: SectionType[]
-}
-
-export interface RenderOptions {
-	content: string
-	output: string
-	format: OutputFormat
-	cssPaths: string[]
-	variables?: Record<string, string>
-	activeTag?: string
-	activeLang?: string
-	targetPages?: number
-	sections?: RenderSectionsConfig
-	icons?: Record<string, string>
-	tagMap?: Record<string, string[]>
-	vars?: Record<string, string>
-}
 
 export interface RenderResult {
 	success: boolean
@@ -41,9 +18,6 @@ export interface RenderResult {
 	error?: string
 }
 
-/**
- * Create a temporary file with the given content
- */
 function createTempFile(content: string, extension: string): string {
 	const tempDir = tmpdir()
 	const tempPath = join(tempDir, `resumx-${Date.now()}${extension}`)
@@ -51,9 +25,6 @@ function createTempFile(content: string, extension: string): string {
 	return tempPath
 }
 
-/**
- * Clean up a temporary file
- */
 function cleanupTempFile(path: string): void {
 	if (existsSync(path)) {
 		try {
@@ -64,10 +35,6 @@ function cleanupTempFile(path: string): void {
 	}
 }
 
-/**
- * Render HTML to PDF using Playwright (headless Chrome/Chromium)
- * Uses browser pool for parallel rendering
- */
 async function renderPdf(html: string, outputPath: string): Promise<void> {
 	const browser = await browserPool.acquire()
 	try {
@@ -87,11 +54,6 @@ async function renderPdf(html: string, outputPath: string): Promise<void> {
 	}
 }
 
-/**
- * Render HTML to PNG using Playwright (headless Chrome/Chromium)
- * Uses browser pool for parallel rendering
- * Viewport is set to A4 width (794px) with 2x device scale for high-res output
- */
 async function renderPng(html: string, outputPath: string): Promise<void> {
 	const browser = await browserPool.acquire()
 	try {
@@ -115,11 +77,6 @@ async function renderPng(html: string, outputPath: string): Promise<void> {
 	}
 }
 
-/**
- * Render PDF to DOCX using pdf2docx CLI
- * This provides higher fidelity conversion by leveraging the PDF layout
- * Requires: pip install pdf2docx
- */
 function renderDocxFromPdf(pdfPath: string, outputPath: string): void {
 	try {
 		execFileSync('pdf2docx', ['convert', pdfPath, outputPath], {
@@ -134,49 +91,35 @@ function renderDocxFromPdf(pdfPath: string, outputPath: string): void {
 }
 
 /**
- * Render markdown content to the specified format
+ * Write rendered HTML to disk in the specified format.
+ * Pure output concern: takes final HTML and produces a file.
  */
-export async function render(options: RenderOptions): Promise<RenderResult> {
+export async function writeOutput(
+	html: string,
+	format: OutputFormat,
+	outputPath: string,
+): Promise<RenderResult> {
 	try {
-		let html = await generateHtml(options.content, {
-			cssPaths: options.cssPaths,
-			variables: options.variables,
-			activeTag: options.activeTag,
-			activeLang: options.activeLang,
-			sections: options.sections,
-			icons: options.icons,
-			tagMap: options.tagMap,
-			vars: options.vars,
-		})
-
-		if (options.targetPages) {
-			const fitResult = await fitToPages(html, options.targetPages)
-			html = fitResult.html
-		}
-
-		// Ensure output directory exists
-		const outputDir = dirname(options.output)
+		const outputDir = dirname(outputPath)
 		if (!existsSync(outputDir)) {
 			mkdirSync(outputDir, { recursive: true })
 		}
 
-		// Render to the requested format
-		switch (options.format) {
+		switch (format) {
 			case 'html':
-				writeFileSync(options.output, html)
+				writeFileSync(outputPath, html)
 				break
 			case 'pdf':
-				await renderPdf(html, options.output)
+				await renderPdf(html, outputPath)
 				break
 			case 'png':
-				await renderPng(html, options.output)
+				await renderPng(html, outputPath)
 				break
 			case 'docx': {
-				// Generate PDF first (temporary), then convert to DOCX for high fidelity
 				const tempPdfPath = createTempFile('', '.pdf')
 				try {
 					await renderPdf(html, tempPdfPath)
-					renderDocxFromPdf(tempPdfPath, options.output)
+					renderDocxFromPdf(tempPdfPath, outputPath)
 				} finally {
 					cleanupTempFile(tempPdfPath)
 				}
@@ -184,96 +127,18 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 			}
 		}
 
-		return {
-			success: true,
-			outputPath: options.output,
-		}
+		return { success: true, outputPath }
 	} catch (error) {
 		const message =
 			error instanceof Error ? error.message : 'Unknown error during render'
-		return {
-			success: false,
-			outputPath: options.output,
-			error: message,
-		}
+		return { success: false, outputPath, error: message }
 	}
 }
 
-/**
- * Options for renderMultiple
- */
-export interface RenderMultipleOptions {
-	content: string
-	outputDir: string
-	outputName: string
-	formats: OutputFormat[]
-	cssPaths: string[]
-	variables?: Record<string, string>
-	activeTag?: string
-	activeLang?: string
-	targetPages?: number
-	sections?: RenderSectionsConfig
-	icons?: Record<string, string>
-	tagMap?: Record<string, string[]>
-	vars?: Record<string, string>
-}
-
-/**
- * Render content to multiple formats in parallel
- */
-export async function renderMultiple(
-	options: RenderMultipleOptions,
-): Promise<Map<OutputFormat, RenderResult>> {
-	const {
-		content,
-		outputDir,
-		outputName,
-		formats,
-		cssPaths,
-		variables,
-		activeTag,
-		activeLang,
-		targetPages,
-		sections,
-		icons,
-		tagMap,
-		vars,
-	} = options
-
-	// Render all formats in parallel
-	const renderPromises = formats.map(async format => {
-		const ext = format === 'docx' ? 'docx' : format
-		const output = join(outputDir, `${outputName}.${ext}`)
-
-		const result = await render({
-			content,
-			output,
-			format,
-			cssPaths,
-			variables,
-			activeTag,
-			activeLang,
-			targetPages,
-			sections,
-			icons,
-			tagMap,
-			vars,
-		})
-
-		return [format, result] as const
-	})
-
-	const results = await Promise.all(renderPromises)
-
-	return new Map(results)
-}
+// ── Path utilities ──────────────────────────────────────────────────────────
 
 const DOC_EXTENSIONS = ['.pdf', '.html', '.htm', '.docx', '.doc', '.png']
 
-/**
- * Strip document extensions (.pdf, .html, etc.) from a filename
- * to avoid double extensions like resume.pdf.html
- */
 export function stripDocExtension(name: string): string {
 	for (const ext of DOC_EXTENSIONS) {
 		if (name.endsWith(ext)) return name.slice(0, -ext.length)
@@ -281,12 +146,6 @@ export function stripDocExtension(name: string): string {
 	return name
 }
 
-/**
- * Clean up a path after template expansion:
- * - Collapse repeated separators (-, _) into one
- * - Trim separators from start/end of each path segment
- * - Remove empty path segments
- */
 export function cleanupPath(path: string): string {
 	return path
 		.split('/')
@@ -300,46 +159,27 @@ export function cleanupPath(path: string): string {
 		.join('/')
 }
 
-/**
- * Extract name from the first H1 heading in a markdown string
- * Returns underscore-separated name or undefined
- * e.g. "# Jane Smith" → "Jane_Smith"
- */
 export function extractNameFromContent(content: string): string | undefined {
 	const match = content.match(/^#\s+(.+)$/m)
 	if (!match?.[1]) return undefined
-
 	return match[1].trim().split(/\s+/).join('_')
 }
 
-/**
- * Extract name from the first H1 heading in markdown
- * Returns PascalCase name or undefined
- */
 export function extractNameFromMarkdown(mdPath: string): string | undefined {
 	try {
 		const content = readFileSync(mdPath, 'utf-8')
 		const match = content.match(/^#\s+(.+)$/m)
 		if (!match?.[1]) return undefined
-
-		// Convert to PascalCase: capitalize each word, remove spaces
-		const name = match[1]
+		return match[1]
 			.trim()
 			.split(/\s+/)
 			.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
 			.join('')
-
-		return name
 	} catch {
 		return undefined
 	}
 }
 
-/**
- * Get default output name from input file
- * Uses the input filename without extension
- */
 export function getOutputName(inputPath: string): string {
-	// Use input filename without extension
 	return basename(inputPath, '.md')
 }

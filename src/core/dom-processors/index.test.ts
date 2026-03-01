@@ -1,15 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { parseHTML } from 'linkedom'
-import { runPipeline } from './index.js'
-import type { PipelineContext } from './types.js'
+import { assemblePipeline } from './index.js'
+import type { ResolvedView } from '../view/types.js'
+import type { DocumentContext } from '../types.js'
 
 // =============================================================================
 // Test Utilities
 // =============================================================================
 
-/**
- * Parse HTML string into a DOM for structural assertions
- */
 function parseHtml(html: string) {
 	const { document } = parseHTML(`<div id="root">${html}</div>`)
 	const root = document.getElementById('root')!
@@ -20,19 +18,36 @@ function parseHtml(html: string) {
 	}
 }
 
-/**
- * Create a minimal pipeline context for testing
- */
-function createContext(activeTag?: string): PipelineContext {
-	return {
-		config: {
-			activeTag,
-		},
-	}
+const DEFAULT_VIEW: ResolvedView = {
+	selects: null,
+	sections: { hide: [], pin: [] },
+	pages: null,
+	bulletOrder: 'source',
+	vars: {},
+	style: {},
+	format: 'pdf',
+	output: null,
+	css: null,
+	lang: null,
+}
+
+const DEFAULT_DOC: DocumentContext = {
+	content: '',
+	baseDir: '',
+}
+
+function runPipeline(
+	html: string,
+	view: Partial<ResolvedView> = {},
+	doc: Partial<DocumentContext> = {},
+): string {
+	const fullView = { ...DEFAULT_VIEW, ...view }
+	const fullDoc = { ...DEFAULT_DOC, ...doc }
+	return assemblePipeline(fullView, fullDoc)(html)
 }
 
 // =============================================================================
-// Tests: runPipeline (Integration)
+// Tests: assemblePipeline (Integration)
 //
 // This file tests the pipeline as a whole, verifying that all processors
 // work together correctly. Individual processor tests are in their own files:
@@ -42,11 +57,11 @@ function createContext(activeTag?: string): PipelineContext {
 // - wrap-sections.test.ts
 // =============================================================================
 
-describe('runPipeline', () => {
+describe('assemblePipeline', () => {
 	describe('standard layout pipeline', () => {
 		it('applies all processors in correct order', () => {
 			const html = '<h1>Name</h1><h2>Education</h2><p>School</p>'
-			const result = runPipeline(html, createContext())
+			const result = runPipeline(html)
 			const doc = parseHtml(result)
 
 			expect(doc.body.children.length).toBe(2)
@@ -67,7 +82,7 @@ describe('runPipeline', () => {
 
 		it('wraps multiple sections correctly', () => {
 			const html = '<h2>Experience</h2><p>Job</p><h2>Skills</h2><p>Skill</p>'
-			const result = runPipeline(html, createContext())
+			const result = runPipeline(html)
 			const doc = parseHtml(result)
 
 			const sections = doc.querySelectorAll('section')
@@ -79,7 +94,7 @@ describe('runPipeline', () => {
 		it('filters by target before other processing', () => {
 			const html =
 				'<h1>Name</h1><p class="@frontend">Frontend</p><p class="@backend">Backend</p><h2>Skills</h2>'
-			const result = runPipeline(html, createContext('frontend'))
+			const result = runPipeline(html, { selects: ['frontend'] })
 			const doc = parseHtml(result)
 
 			const header = doc.querySelector('header')
@@ -96,7 +111,7 @@ describe('runPipeline', () => {
 		it('preserves all content when no active target specified', () => {
 			const html =
 				'<h1>Name</h1><p class="@frontend">Frontend</p><p class="@backend">Backend</p><h2>Skills</h2>'
-			const result = runPipeline(html, createContext())
+			const result = runPipeline(html)
 			const doc = parseHtml(result)
 
 			const header = doc.querySelector('header')
@@ -115,7 +130,7 @@ describe('runPipeline', () => {
 				<h2>Skills</h2>
 				<ul><li>JavaScript</li><li>TypeScript</li></ul>
 			`
-			const result = runPipeline(html, createContext())
+			const result = runPipeline(html)
 			const doc = parseHtml(result)
 
 			const header = doc.querySelector('header')
@@ -139,7 +154,7 @@ describe('runPipeline', () => {
 				<h2>Skills</h2><p>Skill</p>
 				<h2>Education</h2><p>School</p>
 			`
-			const result = runPipeline(html, createContext())
+			const result = runPipeline(html)
 			const doc = parseHtml(result)
 
 			const sections = doc.querySelectorAll('section')

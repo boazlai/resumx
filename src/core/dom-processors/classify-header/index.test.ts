@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseHTML } from 'linkedom'
 import { classifyHeader, isContactBlock } from './index.js'
-import type { PipelineContext } from '../types.js'
 
 // =============================================================================
 // Test Utilities
@@ -18,19 +17,9 @@ function parseHtml(html: string) {
 	}
 }
 
-/**
- * Create an element from HTML string for testing isContactBlock
- */
 function createElement(html: string): Element {
 	const { document } = parseHTML(`<div id="root">${html}</div>`)
 	return document.getElementById('root')!.firstElementChild!
-}
-
-function createContext(): PipelineContext {
-	return {
-		config: {},
-		env: { css: '' },
-	}
 }
 
 // =============================================================================
@@ -189,7 +178,7 @@ describe('classifyHeader - address wrapping', () => {
 				</header>
 				<h2>Experience</h2>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const address = doc.querySelector('header address')
@@ -204,7 +193,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="mailto:john@example.com">john@example.com</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('header address')).toBeTruthy()
@@ -218,7 +207,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p class="contact-info" id="main-contact"><a href="mailto:x@y.com">x@y.com</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const address = doc.querySelector('address')
@@ -234,7 +223,7 @@ describe('classifyHeader - address wrapping', () => {
 					<h1><a href="https://linkedin.com/in/john">John Doe</a></h1>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('header h1')).toBeTruthy()
@@ -248,7 +237,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p>Experienced software engineer with 10 years of experience.</p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('header p')).toBeTruthy()
@@ -262,7 +251,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p>React | TypeScript | Node.js | AWS</p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('header p')).toBeTruthy()
@@ -276,7 +265,7 @@ describe('classifyHeader - address wrapping', () => {
 					<address><a href="mailto:x@y.com">x@y.com</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			// Should still have exactly one address, not nested
@@ -288,7 +277,7 @@ describe('classifyHeader - address wrapping', () => {
 	describe('without header element', () => {
 		it('returns unchanged when no header exists', () => {
 			const html = '<div><p>No header</p></div>'
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			expect(result).toBe(html)
 		})
 	})
@@ -302,7 +291,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p>Passionate engineer seeking new opportunities.</p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('header address')).toBeTruthy()
@@ -313,17 +302,17 @@ describe('classifyHeader - address wrapping', () => {
 
 	describe('edge cases', () => {
 		it('returns empty string unchanged', () => {
-			expect(classifyHeader('', createContext())).toBe('')
+			expect(classifyHeader('')).toBe('')
 		})
 
 		it('returns whitespace-only unchanged', () => {
 			const input = '   \n\t  '
-			expect(classifyHeader(input, createContext())).toBe(input)
+			expect(classifyHeader(input)).toBe(input)
 		})
 
 		it('handles header with only h1', () => {
 			const html = '<header><h1>John Doe</h1></header>'
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			expect(result).toContain('<h1')
 			expect(result).toContain('John Doe')
 		})
@@ -337,7 +326,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="mailto:x@y.com">x@y.com</a> | San Francisco, CA</p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 			expect(doc.querySelector('header address')).toBeTruthy()
 		})
@@ -350,7 +339,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="mailto:x@y.com">x@y.com</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			// Both elements should be merged into one address
@@ -368,7 +357,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="mailto:x@y.com">x@y.com</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelectorAll('header address').length).toBe(1)
@@ -385,7 +374,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="mailto:x@y.com">x@y.com</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelectorAll('header address').length).toBe(1)
@@ -402,7 +391,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="mailto:x@y.com">x@y.com</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('header address')?.textContent).toContain(
@@ -418,7 +407,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="mailto:x@y.com">x@y.com</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			// "Java Developer" should NOT be merged - it should remain as p
@@ -436,7 +425,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="mailto:x@y.com">x@y.com</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('header p')).toBeTruthy()
@@ -456,7 +445,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="https://linkedin.com/in/john">LinkedIn</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			// Should have exactly one address containing all contact info
@@ -477,7 +466,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="https://github.com/john">GitHub</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const address = doc.querySelector('header address')!
@@ -501,7 +490,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="mailto:x@y.com">x@y.com</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelectorAll('header address').length).toBe(1)
@@ -519,7 +508,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="https://linkedin.com/in/john">LinkedIn</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			// Should have two separate addresses since summary breaks the run
@@ -548,7 +537,7 @@ describe('classifyHeader - address wrapping', () => {
 					<p><a href="${url}">${domain}</a></p>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('header address')).toBeTruthy()
@@ -564,7 +553,7 @@ describe('classifyHeader - field classification', () => {
 	describe('name field', () => {
 		it('adds data-field="name" to h1 in header', () => {
 			const html = '<header><h1>John Doe</h1></header>'
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const h1 = doc.querySelector('h1')
@@ -573,7 +562,7 @@ describe('classifyHeader - field classification', () => {
 
 		it('preserves h1 content', () => {
 			const html = '<header><h1>John Doe</h1></header>'
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('h1')?.textContent).toBe('John Doe')
@@ -588,7 +577,7 @@ describe('classifyHeader - field classification', () => {
 					<address><a href="mailto:john@example.com">john@example.com</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const emailLink = doc.querySelector('a[href^="mailto:"]')
@@ -604,7 +593,7 @@ describe('classifyHeader - field classification', () => {
 					<address><a href="tel:+15551234567">555-123-4567</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const phoneLink = doc.querySelector('a[href^="tel:"]')
@@ -639,7 +628,7 @@ describe('classifyHeader - field classification', () => {
 					<address><a href="${url}">Profile</a></address>
 				</header>
 			`
-				const result = classifyHeader(html, createContext())
+				const result = classifyHeader(html)
 				const doc = parseHtml(result)
 
 				const link = doc.querySelector(`a[href="${url}"]`)
@@ -656,7 +645,7 @@ describe('classifyHeader - field classification', () => {
 					<address><a href="https://youtube.com/@johndoe">YouTube</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const link = doc.querySelector('a')
@@ -673,7 +662,7 @@ describe('classifyHeader - field classification', () => {
 					<address><a href="https://johndoe.com">My Website</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const link = doc.querySelector('a[href="https://johndoe.com"]')
@@ -687,7 +676,7 @@ describe('classifyHeader - field classification', () => {
 					<address><a href="https://github.com/johndoe">GitHub</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const link = doc.querySelector('a')
@@ -709,7 +698,7 @@ describe('classifyHeader - field classification', () => {
 					</address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('h1')?.getAttribute('data-field')).toBe('name')
@@ -733,7 +722,7 @@ describe('classifyHeader - field classification', () => {
 	describe('edge cases', () => {
 		it('handles header without address', () => {
 			const html = '<header><h1>John Doe</h1></header>'
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(doc.querySelector('h1')?.getAttribute('data-field')).toBe('name')
@@ -745,7 +734,7 @@ describe('classifyHeader - field classification', () => {
 					<address><a href="mailto:john@example.com">Email</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			expect(
@@ -762,7 +751,7 @@ describe('classifyHeader - field classification', () => {
 					<address><a href="mailto:x@y.com">x@y.com</a> | San Francisco, CA</address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const locationSpan = doc.querySelector('[data-field="location"]')
@@ -777,7 +766,7 @@ describe('classifyHeader - field classification', () => {
 					<address>Hong Kong | <a href="mailto:x@y.com">x@y.com</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const locationSpan = doc.querySelector('[data-field="location"]')
@@ -792,7 +781,7 @@ describe('classifyHeader - field classification', () => {
 					<address>Singapore | <a href="mailto:x@y.com">x@y.com</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const locationSpan = doc.querySelector('[data-field="location"]')
@@ -807,7 +796,7 @@ describe('classifyHeader - field classification', () => {
 					<address>Tokyo | <a href="mailto:x@y.com">x@y.com</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const locationSpan = doc.querySelector('[data-field="location"]')
@@ -822,7 +811,7 @@ describe('classifyHeader - field classification', () => {
 					<address>Remote | <a href="mailto:x@y.com">x@y.com</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const locationSpan = doc.querySelector('[data-field="location"]')
@@ -837,7 +826,7 @@ describe('classifyHeader - field classification', () => {
 					<address>Hybrid | <a href="mailto:x@y.com">x@y.com</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const locationSpan = doc.querySelector('[data-field="location"]')
@@ -852,7 +841,7 @@ describe('classifyHeader - field classification', () => {
 					<address>Java Developer | <a href="mailto:x@y.com">x@y.com</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			// Should NOT have location for "Java Developer"
@@ -869,7 +858,7 @@ describe('classifyHeader - field classification', () => {
 					<address>Senior Software Engineer | <a href="mailto:x@y.com">x@y.com</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const locationSpans = doc.querySelectorAll('[data-field="location"]')
@@ -888,7 +877,7 @@ describe('classifyHeader - field classification', () => {
 					<address><a href="mailto:x@y.com">x@y.com</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const summaryEl = doc.querySelector('[data-field="summary"]')
@@ -903,7 +892,7 @@ describe('classifyHeader - field classification', () => {
 					<address>Passionate about building scalable systems | <a href="mailto:x@y.com">x@y.com</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			const summarySpan = doc.querySelector('[data-field="summary"]')
@@ -918,7 +907,7 @@ describe('classifyHeader - field classification', () => {
 					<address>Dev | <a href="mailto:x@y.com">x@y.com</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			// "Dev" is too short (< 10 chars) to be marked as summary
@@ -933,7 +922,7 @@ describe('classifyHeader - field classification', () => {
 					<address><a href="mailto:x@y.com">x@y.com</a> | <a href="https://github.com/john">GitHub</a></address>
 				</header>
 			`
-			const result = classifyHeader(html, createContext())
+			const result = classifyHeader(html)
 			const doc = parseHtml(result)
 
 			// Separators should not be marked as summary

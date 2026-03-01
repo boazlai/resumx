@@ -12,8 +12,12 @@ import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { browserPool } from '../lib/browser-pool/index.js'
+import { generateHtml } from './html-generator.js'
+import { fitToPages } from './page-fit/index.js'
+import type { DocumentContext } from './types.js'
+import type { ResolvedView, SectionsConfig } from './view/types.js'
+import type { OutputFormat, RenderResult } from './renderer.js'
 
-// Get project paths
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const STYLES_DIR = join(__dirname, '../../styles')
 
@@ -22,6 +26,57 @@ const STYLES_DIR = join(__dirname, '../../styles')
 // =============================================================================
 
 type VirtualFileMap = Record<string, string>
+
+interface RenderTestOptions {
+	content: string
+	output: string
+	format: OutputFormat
+	cssPaths: string[]
+	variables?: Record<string, string>
+	activeTag?: string
+	activeLang?: string
+	targetPages?: number
+	sections?: SectionsConfig
+	icons?: Record<string, string>
+	tagMap?: Record<string, string[]>
+	vars?: Record<string, string>
+}
+
+async function render(opts: RenderTestOptions): Promise<RenderResult> {
+	const { writeOutput } = await import('./renderer.js')
+	const doc: DocumentContext = {
+		content: opts.content,
+		icons: opts.icons,
+		tagMap: opts.tagMap,
+		baseDir: '',
+	}
+	const view: ResolvedView = {
+		selects: opts.activeTag ? [opts.activeTag] : null,
+		sections: {
+			hide: opts.sections?.hide ?? [],
+			pin: opts.sections?.pin ?? [],
+		},
+		pages: opts.targetPages ?? null,
+		bulletOrder: 'source',
+		vars: opts.vars ?? {},
+		style: opts.variables ?? {},
+		format: opts.format,
+		output: opts.output,
+		css: opts.cssPaths,
+		lang: opts.activeLang ?? null,
+	}
+	try {
+		let html = await generateHtml(doc, view)
+		if (opts.targetPages) {
+			const fitResult = await fitToPages(html, opts.targetPages)
+			html = fitResult.html
+		}
+		return writeOutput(html, opts.format, opts.output)
+	} catch (error) {
+		const message = error instanceof Error ? error.message : 'Unknown error'
+		return { success: false, outputPath: opts.output, error: message }
+	}
+}
 
 function withTempDir<T>(fn: (dir: string) => T): T {
 	const dir = mkdtempSync(join(tmpdir(), 'renderer-test-'))
@@ -69,9 +124,6 @@ h1 { color: black; }
 // =============================================================================
 
 describe('renderer', () => {
-	// Import once at top level to avoid MaxListeners warning from repeated module loads
-	let render: typeof import('./renderer.js').render
-	let renderMultiple: typeof import('./renderer.js').renderMultiple
 	let extractNameFromMarkdown: typeof import('./renderer.js').extractNameFromMarkdown
 	let getOutputName: typeof import('./renderer.js').getOutputName
 	let moduleLoaded = false
@@ -79,8 +131,6 @@ describe('renderer', () => {
 	beforeEach(async () => {
 		if (!moduleLoaded) {
 			const module = await import('./renderer.js')
-			render = module.render
-			renderMultiple = module.renderMultiple
 			extractNameFromMarkdown = module.extractNameFromMarkdown
 			getOutputName = module.getOutputName
 			moduleLoaded = true
@@ -736,109 +786,45 @@ Tools
 	})
 
 	// =========================================================================
-	// renderMultiple Function
+	// writeOutput Function
 	// =========================================================================
 
-	describe('renderMultiple', () => {
-		it('renders single format', async () => {
+	describe('writeOutput', () => {
+		it('renders single format via writeOutput', async () => {
 			await withTempDirAsync(async dir => {
 				const mdContent = '# Test'
 				writeVirtualFiles(dir, {
 					'style.css': SIMPLE_CSS,
 				})
 
-				const results = await renderMultiple({
+				const result = await render({
 					content: mdContent,
-					outputDir: dir,
-					outputName: 'output',
-					formats: ['html'],
+					output: join(dir, 'output.html'),
+					format: 'html',
 					cssPaths: [join(dir, 'style.css')],
 				})
 
-				expect(results.size).toBe(1)
-				expect(results.get('html')?.success).toBe(true)
+				expect(result.success).toBe(true)
 				expect(existsSync(join(dir, 'output.html'))).toBe(true)
 			})
 		})
 
-		it('renders multiple formats', async () => {
-			await withTempDirAsync(async dir => {
-				const mdContent = '# Test Multiple'
-				writeVirtualFiles(dir, {
-					'style.css': SIMPLE_CSS,
-				})
-
-				const results = await renderMultiple({
-					content: mdContent,
-					outputDir: dir,
-					outputName: 'multi',
-					formats: ['html', 'pdf'],
-					cssPaths: [join(dir, 'style.css')],
-				})
-
-				expect(results.size).toBe(2)
-				expect(results.get('html')?.success).toBe(true)
-
-				// PDF may fail if Chromium is not installed
-				const pdfResult = results.get('pdf')
-				expect(
-					pdfResult?.success || pdfResult?.error?.includes('Chromium'),
-				).toBeTruthy()
-
-				expect(existsSync(join(dir, 'multi.html'))).toBe(true)
-			})
-		})
-
-		it('renders all three formats', async () => {
-			await withTempDirAsync(async dir => {
-				const mdContent = '# Test All'
-				writeVirtualFiles(dir, {
-					'style.css': SIMPLE_CSS,
-				})
-
-				const results = await renderMultiple({
-					content: mdContent,
-					outputDir: dir,
-					outputName: 'all-formats',
-					formats: ['html', 'pdf', 'docx'],
-					cssPaths: [join(dir, 'style.css')],
-				})
-
-				expect(results.size).toBe(3)
-				expect(results.get('html')?.success).toBe(true)
-
-				// PDF/DOCX may fail without Chromium/pdf2docx
-				const pdfResult = results.get('pdf')
-				expect(
-					pdfResult?.success || pdfResult?.error?.includes('Chromium'),
-				).toBeTruthy()
-
-				const docxResult = results.get('docx')
-				expect(
-					docxResult?.success
-						|| docxResult?.error?.includes('pdf2docx')
-						|| docxResult?.error?.includes('Chromium'),
-				).toBeTruthy()
-			})
-		})
-
-		it('applies variables to all formats', async () => {
+		it('applies variables', async () => {
 			await withTempDirAsync(async dir => {
 				const mdContent = '# Test'
 				writeVirtualFiles(dir, {
 					'style.css': SIMPLE_CSS,
 				})
 
-				const results = await renderMultiple({
+				const result = await render({
 					content: mdContent,
-					outputDir: dir,
-					outputName: 'with-vars',
-					formats: ['html'],
+					output: join(dir, 'with-vars.html'),
+					format: 'html',
 					cssPaths: [join(dir, 'style.css')],
 					variables: { 'custom-var': 'custom-value' },
 				})
 
-				expect(results.get('html')?.success).toBe(true)
+				expect(result.success).toBe(true)
 				const html = readFileSync(join(dir, 'with-vars.html'), 'utf-8')
 				expect(html).toContain('--custom-var: custom-value')
 			})
@@ -851,36 +837,17 @@ Tools
 					'style.css': SIMPLE_CSS,
 				})
 
-				const outputDir = join(dir, 'nested', 'output')
+				const outputPath = join(dir, 'nested', 'output', 'nested.html')
 
-				const results = await renderMultiple({
+				const result = await render({
 					content: mdContent,
-					outputDir,
-					outputName: 'nested',
-					formats: ['html'],
+					output: outputPath,
+					format: 'html',
 					cssPaths: [join(dir, 'style.css')],
 				})
 
-				expect(results.get('html')?.success).toBe(true)
-				expect(existsSync(join(outputDir, 'nested.html'))).toBe(true)
-			})
-		})
-
-		it('returns results map even with partial failures', async () => {
-			await withTempDirAsync(async dir => {
-				const mdContent = '# Test'
-				// No CSS file - should cause errors
-				const results = await renderMultiple({
-					content: mdContent,
-					outputDir: dir,
-					outputName: 'partial',
-					formats: ['html', 'pdf'],
-					cssPaths: ['/non/existent/style.css'],
-				})
-
-				expect(results.size).toBe(2)
-				expect(results.get('html')?.success).toBe(false)
-				expect(results.get('pdf')?.success).toBe(false)
+				expect(result.success).toBe(true)
+				expect(existsSync(outputPath)).toBe(true)
 			})
 		})
 	})

@@ -1,19 +1,23 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { resolve, dirname, relative, basename, isAbsolute } from 'node:path'
+import { resolve, dirname, relative, basename, join } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import { requireDependencies } from '../lib/check.js'
-import { DEFAULT_STYLESHEET } from '../core/styles.js'
 import { parseStyleFlags } from './utils/style-flags.js'
+import { resolveCssPaths, generateHtml } from '../core/html-generator.js'
 import {
-	renderMultiple,
+	writeOutput,
 	getOutputName,
 	extractNameFromContent,
 	stripDocExtension,
-	cleanupPath,
 	type OutputFormat,
+	type RenderResult,
 } from '../core/renderer.js'
+import { fitToPages } from '../core/page-fit/index.js'
+import { planRenders, type RenderPlan } from '../core/view/plan.js'
+import { reportResults } from './utils/report.js'
+import type { DocumentContext } from '../core/types.js'
 import {
 	parseFrontmatterFromString,
 	type FrontmatterConfig,
@@ -24,10 +28,8 @@ import {
 	extractBySelector,
 	resolveValues,
 } from '../lib/dom-kit/content-filter.js'
-import { cartesian } from '../lib/solver/cartesian.js'
 import {
 	validateTemplateVars,
-	expandTemplate,
 	validateTemplateUniqueness,
 } from '../lib/string-template/index.js'
 import { runCheck, printCheckResults } from './check.js'
@@ -38,28 +40,6 @@ import {
 } from '../core/section-types.js'
 import type { ViewLayer } from '../core/view/types.js'
 import type { Severity } from '../core/validator/types.js'
-
-/**
- * Resolve CSS file paths from an already-cascaded list.
- * The default stylesheet is always included first, user CSS cascades on top.
- * Paths resolve relative to the markdown file's directory.
- */
-function resolveCssPaths(
-	resolvedCss: string[] | null,
-	baseDir: string,
-): string[] {
-	if (!resolvedCss || resolvedCss.length === 0) return [DEFAULT_STYLESHEET]
-
-	const userPaths = resolvedCss.map(p => {
-		const absolutePath = isAbsolute(p) ? p : resolve(baseDir, p)
-		if (!existsSync(absolutePath)) {
-			throw new Error(`CSS file not found: ${absolutePath}`)
-		}
-		return absolutePath
-	})
-
-	return [DEFAULT_STYLESHEET, ...userPaths]
-}
 
 export interface RenderCommandOptions {
 	css?: string[]
@@ -94,84 +74,6 @@ function resolveFormats(options: RenderCommandOptions): OutputFormat[] {
 	}
 
 	return ['pdf']
-}
-
-function formatDuration(ms: number): string {
-	if (ms < 1000) {
-		return `${Math.round(ms)}ms`
-	}
-
-	const seconds = ms / 1000
-	if (seconds < 60) {
-		return `${seconds.toFixed(2)}s`
-	}
-
-	const minutes = Math.floor(seconds / 60)
-	const remainingSeconds = seconds - minutes * 60
-	return `${minutes}m ${remainingSeconds.toFixed(1)}s`
-}
-
-interface RenderTask {
-	cssPaths: string[]
-	variables: Record<string, string>
-	outputDir: string
-	outputName: string
-	activeTag: string | undefined
-	activeLang: string | undefined
-	label: string
-}
-
-/**
- * Build render tasks for all target × lang combinations.
- *
- * Output filename: {name}-{view}-{lang}.{format}
- * Each dimension is included as a suffix only when it has multiple values.
- */
-function buildRenderTasks(
-	cssPaths: string[],
-	variables: Record<string, string>,
-	targets: string[],
-	langs: string[],
-	baseOutputDir: string,
-	baseOutputName: string,
-): RenderTask[] {
-	const tasks: RenderTask[] = []
-	const hasMultipleTargets = targets.length > 1
-	const hasMultipleLangs = langs.length > 1
-
-	const effectiveTargets: Array<string | undefined> =
-		targets.length > 0 ? targets : [undefined]
-	const effectiveLangs: Array<string | undefined> =
-		langs.length > 0 ? langs : [undefined]
-
-	for (const [target, lang] of cartesian(effectiveTargets, effectiveLangs)) {
-		const suffixParts = [
-			hasMultipleTargets && target,
-			hasMultipleLangs && lang,
-		].filter(Boolean) as string[]
-
-		const labelParts = [
-			hasMultipleTargets && target,
-			hasMultipleLangs && lang,
-		].filter(Boolean) as string[]
-
-		const outputName =
-			suffixParts.length > 0 ?
-				`${baseOutputName}-${suffixParts.join('-')}`
-			:	baseOutputName
-
-		tasks.push({
-			cssPaths,
-			variables,
-			outputDir: baseOutputDir,
-			outputName,
-			activeTag: target,
-			activeLang: lang,
-			label: labelParts.length > 0 ? `[${labelParts.join(', ')}]` : '',
-		})
-	}
-
-	return tasks
 }
 
 async function readStdin(): Promise<string> {
@@ -304,129 +206,63 @@ async function runRender(
 		'language',
 	)
 
-	let renderTasks: RenderTask[]
-
 	if (outputTemplate) {
 		validateTemplateUniqueness(outputTemplate, {
 			view: tagsToGenerate,
 			lang: langsToGenerate,
 		})
+	}
 
-		renderTasks = []
-		const effectiveTargets: Array<string | undefined> =
-			tagsToGenerate.length > 0 ? tagsToGenerate : [undefined]
-		const effectiveLangs: Array<string | undefined> =
-			langsToGenerate.length > 0 ? langsToGenerate : [undefined]
+	const outputStrategy =
+		outputTemplate ?
+			{ template: outputTemplate, cwd }
+		:	{ dir: baseOutputDir, name: baseOutputName }
 
-		for (const [target, lang] of cartesian(effectiveTargets, effectiveLangs)) {
-			const expanded = cleanupPath(
-				expandTemplate(outputTemplate, {
-					view: target ?? '',
-					lang: lang ?? '',
-				}),
-			)
-			const resolved = resolve(cwd, expanded)
-			const labelParts: string[] = []
-			if (target) labelParts.push(target)
-			if (lang) labelParts.push(lang)
+	const plans = planRenders(
+		view,
+		cssPaths,
+		view.style,
+		tagsToGenerate,
+		langsToGenerate,
+		formats,
+		outputStrategy,
+	)
 
-			renderTasks.push({
-				cssPaths,
-				variables: view.style,
-				outputDir: dirname(resolved),
-				outputName: stripDocExtension(basename(resolved)),
-				activeTag: target,
-				activeLang: lang,
-				label: labelParts.length > 0 ? `[${labelParts.join(', ')}]` : '',
-			})
-		}
-	} else {
-		renderTasks = buildRenderTasks(
-			cssPaths,
-			view.style,
-			tagsToGenerate,
-			langsToGenerate,
-			baseOutputDir,
-			baseOutputName,
-		)
+	const doc: DocumentContext = {
+		content,
+		icons: fmConfig?.icons,
+		tagMap,
+		baseDir: context.cssBaseDir,
+	}
+
+	const plansByLabel = new Map<string, RenderPlan[]>()
+	for (const plan of plans) {
+		const group = plansByLabel.get(plan.label) ?? []
+		group.push(plan)
+		plansByLabel.set(plan.label, group)
 	}
 
 	const taskResults = await Promise.all(
-		renderTasks.map(async task => {
-			const hasVariables = Object.keys(task.variables).length > 0
-			const results = await renderMultiple({
-				content,
-				outputDir: task.outputDir,
-				outputName: task.outputName,
-				formats,
-				cssPaths: task.cssPaths,
-				variables: hasVariables ? task.variables : undefined,
-				activeTag: task.activeTag,
-				activeLang: task.activeLang,
-				targetPages: view.pages ?? undefined,
-				sections: view.sections,
-				icons: fmConfig?.icons,
-				tagMap,
-				vars,
-			})
-			return { label: task.label, results }
+		[...plansByLabel.entries()].map(async ([label, groupPlans]) => {
+			const planView = groupPlans[0]!.view
+			let html = await generateHtml(doc, planView)
+			if (planView.pages) {
+				const fitResult = await fitToPages(html, planView.pages)
+				html = fitResult.html
+			}
+
+			const results = new Map<OutputFormat, RenderResult>()
+			await Promise.all(
+				groupPlans.map(async plan => {
+					const result = await writeOutput(html, plan.format, plan.outputPath)
+					results.set(plan.format, result)
+				}),
+			)
+			return { label, results }
 		}),
 	)
 
-	let allSuccess = true
-	let totalFiles = 0
-	const outputDirs = new Set<string>()
-
-	const maxLabelWidth = Math.max(
-		0,
-		...taskResults.map(({ label }) => label.length),
-	)
-
-	for (const { label, results } of taskResults) {
-		const formatParts: string[] = []
-		const errors: string[] = []
-
-		for (const [format, result] of results) {
-			const tag = format.toUpperCase()
-			if (result.success) {
-				totalFiles++
-				const relDir = relative(cwd, dirname(result.outputPath)) || '.'
-				outputDirs.add(relDir)
-				formatParts.push(`${tag} ${chalk.green('✓')}`)
-			} else {
-				formatParts.push(`${tag} ${chalk.red('✗')}`)
-				errors.push(`${tag}: ${result.error}`)
-				allSuccess = false
-			}
-		}
-
-		const prefix = label ? `  ${label.padEnd(maxLabelWidth)} ` : '  '
-		console.log(`${prefix}${formatParts.join('  ')}`)
-
-		for (const err of errors) {
-			console.log(chalk.red(`${''.padEnd(maxLabelWidth + 4)}${err}`))
-		}
-	}
-
-	console.log('')
-
-	const renderDuration = formatDuration(performance.now() - renderStart)
-	const fileCount = `${totalFiles} file${totalFiles !== 1 ? 's' : ''}`
-	const outputDir =
-		outputDirs.size === 1 ?
-			` \u2192 ${chalk.cyan([...outputDirs][0]!)}${[...outputDirs][0] === '.' ? '' : '/'}`
-		:	''
-
-	if (allSuccess) {
-		console.log(
-			`${chalk.green('Done!')} ${fileCount}${outputDir} ${chalk.gray(`(Time: ${renderDuration})`)}`,
-		)
-	} else {
-		console.log(
-			`${chalk.red('Some formats failed.')} ${chalk.gray(`(Time: ${renderDuration})`)}`,
-		)
-		throw new Error('Some formats failed to render')
-	}
+	reportResults(taskResults, cwd, renderStart)
 }
 
 function isStdinInput(file: string | undefined): boolean {

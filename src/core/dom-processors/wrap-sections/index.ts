@@ -10,7 +10,6 @@
  * - Runs before classifySections so sections are wrapped first
  */
 
-import type { PipelineContext } from '../types.js'
 import { collectSiblings, withDOM } from '../../../lib/dom-kit/dom.js'
 import { slugify } from '../../../lib/dom-kit/slugify.js'
 
@@ -18,12 +17,8 @@ export { slugify }
 
 /**
  * Wrap h2 groups in <section> tags with slugified IDs
- *
- * @param html - Input HTML string
- * @param _ctx - Pipeline context (unused by this processor)
- * @returns HTML with sections wrapped
  */
-export function wrapSections(html: string, _ctx: PipelineContext): string {
+export function wrapSections(html: string): string {
 	return withDOM(html, (root, document) => {
 		// Find all direct h2 children (not nested inside other elements)
 		const h2s = Array.from(root.querySelectorAll(':scope > h2'))

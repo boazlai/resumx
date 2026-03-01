@@ -17,6 +17,7 @@ describe('resolveView', () => {
 				format: 'pdf',
 				output: null,
 				css: null,
+				lang: null,
 			})
 		})
 
@@ -33,6 +34,7 @@ describe('resolveView', () => {
 				format: 'pdf',
 				output: null,
 				css: null,
+				lang: null,
 			})
 		})
 	})
