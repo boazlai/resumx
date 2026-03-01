@@ -126,7 +126,7 @@ one-pager:
   pages: 1
 ```
 
-An explicit empty array (`selects: []`) is different: it means "select no tags," so only untagged content appears. Tagged content is stripped. Think of it like a SQL query: omitting the WHERE clause returns everything, while `WHERE tag IN ()` matches nothing.
+An explicit empty array (`selects: []`) is different: it means "select no tags," so only untagged content appears. Tagged content is stripped. Think of it like a SQL query: omitting the WHERE clause returns everything, while `WHERE tag IN ()` matches nothing. Every tag name in `selects` must exist as a content tag, a composed tag, or a tag view; unknown names produce an error with a suggestion for likely typos.
 
 ```yaml
 generic:

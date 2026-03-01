@@ -5,31 +5,125 @@ import * as TOML from 'smol-toml'
 import { z } from 'zod'
 import { parseSectionList } from './section-types.js'
 
-const FrontmatterSchema = z.object({
-	css: z
-		.preprocess(
-			val => (typeof val === 'string' ? [val] : val),
-			z.array(z.string({ error: "'css' must contain only strings" }), {
-				error: "'css' must be a string or an array of strings",
-			}),
+// Shared view field schemas used by both FrontmatterSchema and TagExpandedSchema
+const SectionsSchema = z.object({
+	hide: z
+		.array(z.string())
+		.optional()
+		.transform((val, ctx) => {
+			if (!val) return val
+			const result = parseSectionList(val, 'sections.hide')
+			if (!result.ok) {
+				ctx.addIssue(result.error)
+				return z.NEVER
+			}
+			return result.sections
+		}),
+	pin: z
+		.array(z.string())
+		.optional()
+		.transform((val, ctx) => {
+			if (!val) return val
+			const result = parseSectionList(val, 'sections.pin')
+			if (!result.ok) {
+				ctx.addIssue(result.error)
+				return z.NEVER
+			}
+			return result.sections
+		}),
+})
+
+const PagesSchema = z
+	.number({ error: "'pages' must be a positive integer (>= 1)" })
+	.int({ error: "'pages' must be a positive integer (>= 1)" })
+	.min(1, { error: "'pages' must be a positive integer (>= 1)" })
+
+const BulletOrderSchema = z.enum(['none', 'tag'])
+
+const VarsSchema = z.record(
+	z.string(),
+	z.preprocess(
+		val => {
+			if (val === null) return ''
+			if (typeof val === 'number') return String(val)
+			return val
+		},
+		z.string({ error: "'vars' values must be strings or numbers" }),
+	),
+	{ error: "'vars' must be an object mapping variable names to values" },
+)
+
+const StyleSchema = z.preprocess(
+	val => (val === null ? undefined : val),
+	z
+		.record(
+			z.string(),
+			z.coerce.string({ error: "'style' values must be strings or numbers" }),
+			{ error: "'style' must be an object" },
 		)
 		.optional(),
-	output: z.string({ error: "'output' must be a string" }).optional(),
-	pages: z
-		.number({ error: "'pages' must be a positive integer (>= 1)" })
-		.int({ error: "'pages' must be a positive integer (>= 1)" })
-		.min(1, { error: "'pages' must be a positive integer (>= 1)" })
+)
+
+const CssSchema = z.preprocess(
+	val => (typeof val === 'string' ? [val] : val),
+	z.array(z.string({ error: "'css' must contain only strings" }), {
+		error: "'css' must be a string or an array of strings",
+	}),
+)
+
+const TagExpandedSchema = z.object({
+	extends: z
+		.preprocess(
+			val => (typeof val === 'string' ? [val] : val),
+			z.array(z.string()),
+		)
 		.optional(),
-	style: z.preprocess(
-		val => (val === null ? undefined : val),
-		z
-			.record(
-				z.string(),
-				z.coerce.string({ error: "'style' values must be strings or numbers" }),
-				{ error: "'style' must be an object" },
-			)
-			.optional(),
-	),
+	sections: SectionsSchema.optional(),
+	pages: PagesSchema.optional(),
+	'bullet-order': BulletOrderSchema.optional(),
+	vars: VarsSchema.optional(),
+	style: StyleSchema,
+	format: z
+		.enum(['pdf', 'html', 'docx', 'png'], {
+			error: "'format' must be one of: pdf, html, docx, png",
+		})
+		.optional(),
+	output: z.string().optional(),
+	css: CssSchema.optional(),
+})
+
+export type TagExpandedConfig = z.infer<typeof TagExpandedSchema>
+export type TagEntry = string[] | TagExpandedConfig
+
+const ShorthandTagSchema = z.array(
+	z.string({ error: "'tags' values must be arrays of strings" }),
+	{ error: "'tags' values must be strings or arrays of strings" },
+)
+
+const TagEntrySchema = z
+	.preprocess(val => (typeof val === 'string' ? [val] : val), z.unknown())
+	.transform((val, ctx) => {
+		if (Array.isArray(val)) {
+			const result = ShorthandTagSchema.safeParse(val)
+			if (!result.success) {
+				for (const issue of result.error.issues) ctx.addIssue({ ...issue })
+				return z.NEVER
+			}
+			return result.data as TagEntry
+		}
+		const result = TagExpandedSchema.safeParse(val)
+		if (!result.success) {
+			for (const issue of result.error.issues) ctx.addIssue({ ...issue })
+			return z.NEVER
+		}
+		return result.data as TagEntry
+	})
+
+const FrontmatterSchema = z.object({
+	css: CssSchema.optional(),
+	output: z.string({ error: "'output' must be a string" }).optional(),
+	pages: PagesSchema.optional(),
+	style: StyleSchema,
 	icons: z
 		.record(z.string(), z.string({ error: "'icons' values must be strings" }), {
 			error:
@@ -47,70 +141,14 @@ const FrontmatterSchema = z.object({
 				.optional(),
 		})
 		.optional(),
-	vars: z
-		.record(
-			z.string(),
-			z.preprocess(
-				val => {
-					if (val === null) return ''
-					if (typeof val === 'number') return String(val)
-					return val
-				},
-				z.string({ error: "'vars' values must be strings or numbers" }),
-			),
-			{ error: "'vars' must be an object mapping variable names to values" },
-		)
-		.optional(),
-	sections: z
-		.object({
-			hide: z
-				.array(z.string())
-				.optional()
-				.transform((val, ctx) => {
-					if (!val) return val
-					const result = parseSectionList(val, 'sections.hide')
-					if (!result.ok) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: result.error,
-						})
-						return z.NEVER
-					}
-					return result.sections
-				}),
-			pin: z
-				.array(z.string())
-				.optional()
-				.transform((val, ctx) => {
-					if (!val) return val
-					const result = parseSectionList(val, 'sections.pin')
-					if (!result.ok) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: result.error,
-						})
-						return z.NEVER
-					}
-					return result.sections
-				}),
-		})
-		.optional(),
-	'bullet-order': z.enum(['none', 'tag']).default('none'),
+	vars: VarsSchema.optional(),
+	sections: SectionsSchema.optional(),
+	'bullet-order': BulletOrderSchema.default('none'),
 	tags: z
-		.record(
-			z.string(),
-			z.preprocess(
-				val => (typeof val === 'string' ? [val] : val),
-				z.array(
-					z.string({ error: "'tags' values must be arrays of strings" }),
-					{ error: "'tags' values must be strings or arrays of strings" },
-				),
-			),
-			{
-				error:
-					"'tags' must be an object mapping tag names to constituent arrays",
-			},
-		)
+		.record(z.string(), TagEntrySchema, {
+			error:
+				"'tags' must be an object mapping tag names to constituent arrays or view configs",
+		})
 		.optional(),
 	extra: z.record(z.string(), z.unknown()).optional(),
 })
@@ -236,4 +274,20 @@ export function parseFrontmatterFromString(input: string): ParseResult {
 export function parseFrontmatter(filePath: string): ParseResult {
 	const input = readFileSync(filePath, 'utf-8')
 	return parseFrontmatterFromString(input)
+}
+
+/**
+ * Extract the tag composition map from parsed tags.
+ * Returns only the composition data (extends/constituents),
+ * stripping any view config from expanded entries.
+ */
+export function extractTagMap(
+	tags: FrontmatterConfig['tags'],
+): Record<string, string[]> {
+	if (!tags) return {}
+	const map: Record<string, string[]> = {}
+	for (const [name, entry] of Object.entries(tags)) {
+		map[name] = Array.isArray(entry) ? entry : (entry.extends ?? [])
+	}
+	return map
 }

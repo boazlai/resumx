@@ -3,7 +3,11 @@ import { existsSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import assert from 'node:assert'
-import { parseFrontmatter, parseFrontmatterFromString } from './frontmatter.js'
+import {
+	parseFrontmatter,
+	parseFrontmatterFromString,
+	extractTagMap,
+} from './frontmatter.js'
 
 describe('frontmatter', () => {
 	let tempDir: string
@@ -874,6 +878,168 @@ tags:
 					tags: { fullstack: ['frontend', 'backend'] },
 				})
 			})
+
+			describe('expanded form (tag views)', () => {
+				it('parses expanded form with all fields', () => {
+					const input = `---
+tags:
+  frontend:
+    extends: [backend, leadership]
+    sections:
+      hide: [publications]
+      pin: [skills, projects]
+    pages: 1
+    bullet-order: tag
+    vars:
+      tagline: Frontend specialist
+    style:
+      accent-color: "#2563eb"
+    format: html
+    output: ./dist/frontend
+    css: custom.css
+---
+# Resume`
+
+					const result = parseFrontmatterFromString(input)
+					assert(result.ok)
+
+					const tag = result.config?.tags?.frontend
+					assert(!Array.isArray(tag))
+					expect(tag?.extends).toEqual(['backend', 'leadership'])
+					expect(tag?.sections?.hide).toEqual(['publications'])
+					expect(tag?.sections?.pin).toEqual(['skills', 'projects'])
+					expect(tag?.pages).toBe(1)
+					expect(tag?.['bullet-order']).toBe('tag')
+					expect(tag?.vars).toEqual({ tagline: 'Frontend specialist' })
+					expect(tag?.style).toEqual({ 'accent-color': '#2563eb' })
+					expect(tag?.format).toBe('html')
+					expect(tag?.output).toBe('./dist/frontend')
+					expect(tag?.css).toEqual(['custom.css'])
+				})
+
+				it('parses expanded form with only extends', () => {
+					const input = `---
+tags:
+  fullstack:
+    extends: [frontend, backend]
+---
+# Resume`
+
+					const result = parseFrontmatterFromString(input)
+					assert(result.ok)
+
+					const tag = result.config?.tags?.fullstack
+					assert(!Array.isArray(tag))
+					expect(tag?.extends).toEqual(['frontend', 'backend'])
+				})
+
+				it('parses expanded form with no extends', () => {
+					const input = `---
+tags:
+  frontend:
+    pages: 1
+    sections:
+      hide: [publications]
+---
+# Resume`
+
+					const result = parseFrontmatterFromString(input)
+					assert(result.ok)
+
+					const tag = result.config?.tags?.frontend
+					assert(!Array.isArray(tag))
+					expect(tag?.extends).toBeUndefined()
+					expect(tag?.pages).toBe(1)
+					expect(tag?.sections?.hide).toEqual(['publications'])
+				})
+
+				it('coerces single-string extends to array', () => {
+					const input = `---
+tags:
+  senior:
+    extends: backend
+---
+# Resume`
+
+					const result = parseFrontmatterFromString(input)
+					assert(result.ok)
+
+					const tag = result.config?.tags?.senior
+					assert(!Array.isArray(tag))
+					expect(tag?.extends).toEqual(['backend'])
+				})
+
+				it('mixes shorthand and expanded forms', () => {
+					const input = `---
+tags:
+  fullstack: [frontend, backend]
+  frontend:
+    sections:
+      pin: [skills]
+    pages: 1
+---
+# Resume`
+
+					const result = parseFrontmatterFromString(input)
+					assert(result.ok)
+
+					expect(Array.isArray(result.config?.tags?.fullstack)).toBe(true)
+					expect(result.config?.tags?.fullstack).toEqual([
+						'frontend',
+						'backend',
+					])
+
+					const frontend = result.config?.tags?.frontend
+					assert(!Array.isArray(frontend))
+					expect(frontend?.pages).toBe(1)
+					expect(frontend?.sections?.pin).toEqual(['skills'])
+				})
+
+				it('rejects invalid format value', () => {
+					const input = `---
+tags:
+  frontend:
+    format: xlsx
+---
+# Resume`
+
+					const result = parseFrontmatterFromString(input)
+					expect(result.ok).toBe(false)
+				})
+
+				it('rejects invalid section type in expanded form', () => {
+					const input = `---
+tags:
+  frontend:
+    sections:
+      hide: [experience]
+---
+# Resume`
+
+					const result = parseFrontmatterFromString(input)
+					expect(result.ok).toBe(false)
+					if (!result.ok) {
+						expect(result.error).toContain("Unknown section 'experience'")
+						expect(result.error).toContain("Did you mean 'work'?")
+					}
+				})
+
+				it('parses expanded form with empty object', () => {
+					const input = `---
+tags:
+  frontend: {}
+---
+# Resume`
+
+					const result = parseFrontmatterFromString(input)
+					assert(result.ok)
+
+					const tag = result.config?.tags?.frontend
+					assert(!Array.isArray(tag))
+					expect(tag?.extends).toBeUndefined()
+					expect(tag?.pages).toBeUndefined()
+				})
+			})
 		})
 
 		describe('extra field', () => {
@@ -1217,6 +1383,58 @@ No frontmatter here.`
 			const filePath = join(tempDir, 'nonexistent.md')
 
 			expect(() => parseFrontmatter(filePath)).toThrow()
+		})
+	})
+
+	describe('extractTagMap', () => {
+		it('returns empty object for undefined tags', () => {
+			expect(extractTagMap(undefined)).toEqual({})
+		})
+
+		it('extracts shorthand tags as-is', () => {
+			const result = extractTagMap({
+				fullstack: ['frontend', 'backend'],
+				senior: ['backend'],
+			})
+			expect(result).toEqual({
+				fullstack: ['frontend', 'backend'],
+				senior: ['backend'],
+			})
+		})
+
+		it('extracts extends from expanded form', () => {
+			const result = extractTagMap({
+				frontend: {
+					extends: ['backend', 'leadership'],
+					pages: 1,
+				},
+			})
+			expect(result).toEqual({
+				frontend: ['backend', 'leadership'],
+			})
+		})
+
+		it('returns empty array for expanded form without extends', () => {
+			const result = extractTagMap({
+				frontend: { pages: 1 },
+			})
+			expect(result).toEqual({
+				frontend: [],
+			})
+		})
+
+		it('handles mixed shorthand and expanded', () => {
+			const result = extractTagMap({
+				fullstack: ['frontend', 'backend'],
+				frontend: {
+					extends: ['design'],
+					sections: { hide: ['publications'] },
+				},
+			})
+			expect(result).toEqual({
+				fullstack: ['frontend', 'backend'],
+				frontend: ['design'],
+			})
 		})
 	})
 })

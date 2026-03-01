@@ -15,11 +15,16 @@ import {
 	type RenderResult,
 } from '../core/renderer.js'
 import { fitToPages } from '../core/page-fit/index.js'
-import { planRenders, type RenderPlan } from '../core/view/plan.js'
+import {
+	planRenders,
+	type RenderPlan,
+	type NamedView,
+} from '../core/view/plan.js'
 import { reportResults } from './utils/report.js'
 import type { DocumentContext } from '../core/types.js'
 import {
 	parseFrontmatterFromString,
+	extractTagMap,
 	type FrontmatterConfig,
 	type ParseResult,
 } from '../core/frontmatter.js'
@@ -35,6 +40,11 @@ import {
 import { extractTagNames } from '../core/target-composition.js'
 import { runCheck, printCheckResults } from './check.js'
 import { resolveView } from '../core/view/resolve.js'
+import {
+	extractTagViews,
+	resolveForFlag,
+	validateTagComposition,
+} from '../core/view/resolve-for.js'
 import {
 	validateHidePinOverlap,
 	type SectionType,
@@ -137,43 +147,6 @@ async function runRender(
 		css: options.css && options.css.length > 0 ? options.css : undefined,
 	}
 
-	const view = resolveView([defaultView, ephemeralView])
-
-	const overlapError = validateHidePinOverlap(
-		view.sections.hide,
-		view.sections.pin,
-	)
-	if (overlapError) throw new Error(overlapError)
-
-	// Resolve CSS paths from the cascade result
-	const cssPaths = resolveCssPaths(view.css, context.cssBaseDir)
-
-	// Determine output path
-	let baseOutputName = context.defaultOutputName
-	let baseOutputDir = cwd
-	let outputTemplate: string | undefined
-
-	if (view.output) {
-		validateTemplateVars(view.output, ['view', 'lang'])
-
-		if (view.output.endsWith('/')) {
-			baseOutputDir = resolve(cwd, view.output.slice(0, -1) || '.')
-		} else if (/\{[^}]+\}/.test(view.output)) {
-			outputTemplate = view.output
-		} else {
-			const resolved = resolve(cwd, view.output)
-			baseOutputDir = dirname(resolved)
-			baseOutputName = stripDocExtension(basename(resolved))
-		}
-	}
-
-	const formats = resolveFormats(options)
-
-	const needsDocx = formats.includes('docx')
-	requireDependencies({ docx: needsDocx })
-
-	const vars = Object.keys(view.vars).length > 0 ? view.vars : undefined
-
 	console.log(`Building resume from: ${chalk.cyan(context.label)}\n`)
 
 	// Discover targets and languages from content
@@ -186,17 +159,16 @@ async function runRender(
 		return v ? [v] : []
 	})
 
-	const tagMap = fmConfig?.tags
-	const allKnownTargets =
-		tagMap ?
-			[...new Set([...discoveredTargets, ...Object.keys(tagMap)])]
-		:	discoveredTargets
+	// Extract tag composition map and tag views from frontmatter
+	const tagMap = extractTagMap(fmConfig?.tags)
+	const tagViews = extractTagViews(fmConfig?.tags)
 
-	const tagsToGenerate = resolveValues(
-		options.for ?? [],
-		allKnownTargets,
-		'target',
-	)
+	// Validate tag compositions reference existing tags
+	if (Object.keys(tagMap).length > 0) {
+		validateTagComposition(tagMap, discoveredTargets)
+	}
+
+	const forFlags = options.for ?? []
 
 	const langsToGenerate = resolveValues(
 		options.lang ?? [],
@@ -204,9 +176,66 @@ async function runRender(
 		'language',
 	)
 
+	// Build named views: for each --for tag, resolve 3-layer cascade.
+	// No --for → single base render (no tag filtering).
+	const namedViews: NamedView[] = []
+
+	if (forFlags.length > 0) {
+		for (const tagName of forFlags) {
+			const tagViewLayer = resolveForFlag(tagName, tagViews, discoveredTargets)
+			const view = resolveView([defaultView, tagViewLayer, ephemeralView])
+
+			const overlapError = validateHidePinOverlap(
+				view.sections.hide,
+				view.sections.pin,
+			)
+			if (overlapError) throw new Error(overlapError)
+
+			namedViews.push({ name: tagName, view })
+		}
+	} else {
+		const view = resolveView([defaultView, ephemeralView])
+
+		const overlapError = validateHidePinOverlap(
+			view.sections.hide,
+			view.sections.pin,
+		)
+		if (overlapError) throw new Error(overlapError)
+
+		namedViews.push({ name: undefined, view })
+	}
+
+	// Determine output path from the first view (output is typically shared)
+	const firstView = namedViews[0]!.view
+	let baseOutputName = context.defaultOutputName
+	let baseOutputDir = cwd
+	let outputTemplate: string | undefined
+
+	if (firstView.output) {
+		validateTemplateVars(firstView.output, ['view', 'lang'])
+
+		if (firstView.output.endsWith('/')) {
+			baseOutputDir = resolve(cwd, firstView.output.slice(0, -1) || '.')
+		} else if (/\{[^}]+\}/.test(firstView.output)) {
+			outputTemplate = firstView.output
+		} else {
+			const resolved = resolve(cwd, firstView.output)
+			baseOutputDir = dirname(resolved)
+			baseOutputName = stripDocExtension(basename(resolved))
+		}
+	}
+
+	const formats = resolveFormats(options)
+
+	const needsDocx = formats.includes('docx')
+	requireDependencies({ docx: needsDocx })
+
 	if (outputTemplate) {
+		const viewNames = namedViews
+			.map(nv => nv.name)
+			.filter((n): n is string => !!n)
 		validateTemplateUniqueness(outputTemplate, {
-			view: tagsToGenerate,
+			view: viewNames,
 			lang: langsToGenerate,
 		})
 	}
@@ -217,19 +246,17 @@ async function runRender(
 		:	{ dir: baseOutputDir, name: baseOutputName }
 
 	const plans = planRenders(
-		view,
-		cssPaths,
-		view.style,
-		tagsToGenerate,
+		namedViews,
 		langsToGenerate,
 		formats,
 		outputStrategy,
 	)
 
+	const hasTagMap = Object.keys(tagMap).length > 0
 	const doc: DocumentContext = {
 		content,
 		icons: fmConfig?.icons,
-		tagMap,
+		tagMap: hasTagMap ? tagMap : undefined,
 		baseDir: context.cssBaseDir,
 	}
 
