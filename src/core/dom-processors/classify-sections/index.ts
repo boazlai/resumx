@@ -12,23 +12,9 @@ import type { PipelineContext } from '../types.js'
 import { withDOM } from '../../../lib/dom-kit/dom.js'
 import { Classifier } from '../../../lib/text-classify/index.js'
 
-/**
- * Section types aligned with JSON Resume schema
- * @see https://jsonresume.org/schema
- */
-export type SectionType =
-	| 'basics' // summary, profile, objective, about
-	| 'work' // experience, employment, career
-	| 'volunteer' // volunteering, community service
-	| 'education' // academic, degrees, schools
-	| 'awards' // prizes, distinctions, scholarships
-	| 'certificates' // certifications, licenses, training
-	| 'publications' // papers, articles, books
-	| 'skills' // competencies, expertise, abilities
-	| 'languages' // spoken languages, fluency
-	| 'interests' // hobbies, activities, pastimes
-	| 'references' // recommendations, referees
-	| 'projects' // portfolio, case studies
+import type { SectionType } from '../../section-types.js'
+
+export type { SectionType }
 
 /**
  * Stop words for resume section heading classification

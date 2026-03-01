@@ -926,6 +926,125 @@ css: zurich
 			})
 		})
 
+		describe('sections field', () => {
+			it('accepts valid hide section types', () => {
+				const input = `---
+sections:
+  hide: [publications, volunteer]
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+				expect(result.config?.sections?.hide).toEqual([
+					'publications',
+					'volunteer',
+				])
+			})
+
+			it('accepts valid pin section types', () => {
+				const input = `---
+sections:
+  pin: [skills, work]
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+				expect(result.config?.sections?.pin).toEqual(['skills', 'work'])
+			})
+
+			it('accepts both hide and pin together', () => {
+				const input = `---
+sections:
+  hide: [publications]
+  pin: [skills, work]
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+				expect(result.config?.sections?.hide).toEqual(['publications'])
+				expect(result.config?.sections?.pin).toEqual(['skills', 'work'])
+			})
+
+			it('rejects synonym with suggestion for canonical type in hide', () => {
+				const input = `---
+sections:
+  hide: [experience]
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				expect(result.ok).toBe(false)
+				if (!result.ok) {
+					expect(result.error).toContain(
+						"Unknown section 'experience' in sections.hide",
+					)
+					expect(result.error).toContain("Did you mean 'work'?")
+				}
+			})
+
+			it('rejects synonym with suggestion for canonical type in pin', () => {
+				const input = `---
+sections:
+  pin: [experience, skills]
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				expect(result.ok).toBe(false)
+				if (!result.ok) {
+					expect(result.error).toContain(
+						"Unknown section 'experience' in sections.pin",
+					)
+					expect(result.error).toContain("Did you mean 'work'?")
+				}
+			})
+
+			it('rejects completely unknown section type', () => {
+				const input = `---
+sections:
+  hide: [xyzzy]
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				expect(result.ok).toBe(false)
+				if (!result.ok) {
+					expect(result.error).toContain(
+						"Unknown section 'xyzzy' in sections.hide",
+					)
+					expect(result.error).toContain('Valid sections:')
+				}
+			})
+
+			it('is optional', () => {
+				const input = `---
+pages: 1
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+				expect(result.config?.sections).toBeUndefined()
+			})
+
+			it('accepts empty arrays', () => {
+				const input = `---
+sections:
+  hide: []
+  pin: []
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+				expect(result.config?.sections?.hide).toEqual([])
+				expect(result.config?.sections?.pin).toEqual([])
+			})
+		})
+
 		describe('edge cases', () => {
 			it('handles frontmatter with empty values', () => {
 				const input = `---

@@ -17,6 +17,7 @@ import { extractHeader } from './extract-header/index.js'
 import { processColumns } from './process-columns/index.js'
 import { wrapSections } from './wrap-sections/index.js'
 import { classifySections } from './classify-sections/index.js'
+import { arrangeSections } from './filter-by-layout/index.js'
 import { classifyHeader } from './classify-header/index.js'
 import { wrapEntries } from './wrap-entries/index.js'
 import type { DOMProcessor, PipelineContext } from './types.js'
@@ -32,7 +33,8 @@ import type { DOMProcessor, PipelineContext } from './types.js'
  * 6. wrapEntries - wrap h3 groups in <article class="entry"> tags (before columns so no layout awareness needed)
  * 7. processColumns - handle <hr>, create two-column layout (operates on already-wrapped sections)
  * 8. classifySections - add data-section attrs for JSON Resume types
- * 9. classifyHeader - wrap contact info in <address>, add data-field attrs
+ * 9. arrangeSections - hide sections and pin others to the top
+ * 10. classifyHeader - wrap contact info in <address>, add data-field attrs
  */
 export const defaultProcessors: DOMProcessor[] = [
 	{ name: 'stripComments', process: stripComments },
@@ -43,6 +45,7 @@ export const defaultProcessors: DOMProcessor[] = [
 	{ name: 'wrapEntries', process: wrapEntries },
 	{ name: 'processColumns', process: processColumns },
 	{ name: 'classifySections', process: classifySections },
+	{ name: 'arrangeSections', process: arrangeSections },
 	{ name: 'classifyHeader', process: classifyHeader },
 ]
 
@@ -74,4 +77,5 @@ export { wrapSections, slugify } from './wrap-sections/index.js'
 export { classifySections } from './classify-sections/index.js'
 export { classifyHeader, isContactBlock } from './classify-header/index.js'
 export { wrapEntries } from './wrap-entries/index.js'
+export { arrangeSections } from './filter-by-layout/index.js'
 export { stripComments } from './strip-comments/index.js'

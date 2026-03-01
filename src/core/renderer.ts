@@ -11,8 +11,14 @@ import { tmpdir } from 'node:os'
 import { browserPool } from '../lib/browser-pool/index.js'
 import { generateHtml } from './html-generator.js'
 import { fitToPages } from './page-fit/index.js'
+import type { SectionType } from './section-types.js'
 
 export type OutputFormat = 'pdf' | 'html' | 'docx' | 'png'
+
+export interface RenderSectionsConfig {
+	hide?: SectionType[]
+	pin?: SectionType[]
+}
 
 export interface RenderOptions {
 	content: string
@@ -23,6 +29,7 @@ export interface RenderOptions {
 	activeTag?: string
 	activeLang?: string
 	targetPages?: number
+	sections?: RenderSectionsConfig
 	icons?: Record<string, string>
 	tagMap?: Record<string, string[]>
 	vars?: Record<string, string>
@@ -136,6 +143,7 @@ export async function render(options: RenderOptions): Promise<RenderResult> {
 			variables: options.variables,
 			activeTag: options.activeTag,
 			activeLang: options.activeLang,
+			sections: options.sections,
 			icons: options.icons,
 			tagMap: options.tagMap,
 			vars: options.vars,
@@ -204,6 +212,7 @@ export interface RenderMultipleOptions {
 	activeTag?: string
 	activeLang?: string
 	targetPages?: number
+	sections?: RenderSectionsConfig
 	icons?: Record<string, string>
 	tagMap?: Record<string, string[]>
 	vars?: Record<string, string>
@@ -225,6 +234,7 @@ export async function renderMultiple(
 		activeTag,
 		activeLang,
 		targetPages,
+		sections,
 		icons,
 		tagMap,
 		vars,
@@ -244,6 +254,7 @@ export async function renderMultiple(
 			activeTag,
 			activeLang,
 			targetPages,
+			sections,
 			icons,
 			tagMap,
 			vars,

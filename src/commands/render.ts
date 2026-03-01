@@ -32,6 +32,10 @@ import {
 } from '../lib/string-template/index.js'
 import { runCheck, printCheckResults } from './check.js'
 import { resolveView } from '../core/view/resolve.js'
+import {
+	validateHidePinOverlap,
+	type SectionType,
+} from '../core/section-types.js'
 import type { ViewLayer } from '../core/view/types.js'
 import type { Severity } from '../core/validator/types.js'
 
@@ -67,6 +71,8 @@ export interface RenderCommandOptions {
 	format?: string[]
 	watch?: boolean
 	pages?: number
+	hide?: SectionType[]
+	pin?: SectionType[]
 	check?: boolean
 	strict?: boolean
 	minSeverity?: Severity
@@ -201,14 +207,21 @@ async function runRender(
 
 	const defaultView: ViewLayer = {
 		pages: fmConfig?.pages,
+		sections: fmConfig?.sections,
 		vars: fmConfig?.vars,
 		style: fmConfig?.style,
 		output: fmConfig?.output,
 		css: fmConfig?.css,
 	}
 
+	const cliSections =
+		options.hide || options.pin ?
+			{ hide: options.hide, pin: options.pin }
+		:	undefined
+
 	const ephemeralView: ViewLayer = {
 		pages: options.pages,
+		sections: cliSections,
 		vars:
 			options.var && Object.keys(options.var).length > 0 ?
 				options.var
@@ -219,6 +232,12 @@ async function runRender(
 	}
 
 	const view = resolveView([defaultView, ephemeralView])
+
+	const overlapError = validateHidePinOverlap(
+		view.sections.hide,
+		view.sections.pin,
+	)
+	if (overlapError) throw new Error(overlapError)
 
 	// Resolve CSS paths from the cascade result
 	const cssPaths = resolveCssPaths(view.css, context.cssBaseDir)
@@ -345,6 +364,7 @@ async function runRender(
 				activeTag: task.activeTag,
 				activeLang: task.activeLang,
 				targetPages: view.pages ?? undefined,
+				sections: view.sections,
 				icons: fmConfig?.icons,
 				tagMap,
 				vars,

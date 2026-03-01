@@ -12,7 +12,7 @@ Give the agent your `resume.md` and a job posting URL, and it handles tailoring,
 2. **Map** each requirement to your existing bullets: covered, weak, or missing
 3. **Decide** what's durable vs ephemeral (see [edit vs query](#edit-vs-query))
 4. **Edit** resume.md for durable improvements (new bullets, better phrasing, new tags)
-5. **Compose** a [view](/guide/views) or CLI vars for ephemeral, per-JD adjustments (keywords, layout)
+5. **Compose** a [view](/guide/views) or CLI vars for ephemeral, per-JD adjustments (keywords, section order)
 6. **Render** and show you the result
 
 ```bash
@@ -43,7 +43,7 @@ Not every change belongs in the resume file. The agent skill encodes a simple he
 | You shipped a new project                               | Edit resume.md  | Every future application benefits   |
 | A JD emphasizes "stream processing"                     | View vars / CLI | Only this application cares         |
 | A bullet undersells its impact                          | Edit resume.md  | Better phrasing helps everywhere    |
-| A role wants skills before experience                   | View layout     | Other roles want the original order |
+| A role wants skills before experience                   | View `pin`      | Other roles want the original order |
 | You learned Rust                                        | Edit resume.md  | Permanent addition to your skillset |
 | A JD says "CI/CD" and you wrote "deployment automation" | Judgment call   | Could go either way                 |
 
@@ -60,7 +60,7 @@ Your `resume.md` is your career, and it grows as your career does. Each applicat
 For maximum speed and zero git diff pollution, the agent can render without touching any file:
 
 ```bash
-resumx resume.md --for backend -v tagline="Stream Processing, Go, Kafka" --layout work,skills,projects -o stripe.pdf
+resumx resume.md --for backend -v tagline="Stream Processing, Go, Kafka" --pin skills,work -o stripe.pdf
 ```
 
 All inputs are explicit in the command. Nothing saved, nothing to undo.
@@ -73,7 +73,8 @@ Create `.view.yaml` files for each application:
 # stripe-swe.view.yaml
 stripe-swe:
   selects: [backend, distributed-systems]
-  layout: [work, skills, projects]
+  sections:
+    pin: [skills, work]
   vars:
     tagline: 'Stream Processing, Event-Driven Architecture, Go, Kafka'
 ```

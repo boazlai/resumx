@@ -4,6 +4,13 @@
  * Defines the context and processor interfaces for the HTML transformation pipeline.
  */
 
+import type { SectionType } from '../../core/section-types.js'
+
+export interface PipelineSectionsConfig {
+	hide?: SectionType[]
+	pin?: SectionType[]
+}
+
 /**
  * User configuration from CLI flags and frontmatter
  */
@@ -16,6 +23,8 @@ export interface PipelineConfig {
 	style?: string
 	/** CSS variable overrides */
 	variables?: Record<string, string>
+	/** Section hiding and pinning config */
+	sections?: PipelineSectionsConfig
 	/** Active tag for content filtering */
 	activeTag?: string
 	/** Tag composition map from frontmatter (composed tag name -> constituent tags) */

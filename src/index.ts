@@ -4,6 +4,7 @@ import { Command } from 'commander'
 import chalk from 'chalk'
 import { renderCommand, type RenderCommandOptions } from './commands/render.js'
 import { initCommand, type InitCommandOptions } from './commands/init.js'
+import { parseSectionList } from './core/section-types.js'
 
 const program = new Command()
 
@@ -170,6 +171,32 @@ program
 				throw new Error("'--pages' must be a positive integer (>= 1)")
 			}
 			return n
+		},
+	)
+	.option(
+		'--hide <sections>',
+		'Hide sections from output (comma-separated data-section types)',
+		(value: string) => {
+			const values = value
+				.split(',')
+				.map(v => v.trim())
+				.filter(v => v.length > 0)
+			const result = parseSectionList(values, 'hide')
+			if (!result.ok) throw new Error(result.error)
+			return result.sections
+		},
+	)
+	.option(
+		'--pin <sections>',
+		'Pin sections to the top in specified order (comma-separated data-section types)',
+		(value: string) => {
+			const values = value
+				.split(',')
+				.map(v => v.trim())
+				.filter(v => v.length > 0)
+			const result = parseSectionList(values, 'pin')
+			if (!result.ok) throw new Error(result.error)
+			return result.sections
 		},
 	)
 	.option('--check', 'Validate only, do not render')

@@ -17,11 +17,13 @@ Tag views and custom views are peers, not a hierarchy. `--for` resolves to one o
 
 ## Default View
 
-Frontmatter render fields (`pages`, `style`, `vars`, `layout`, `bullet-order`) are the default view. They apply to every render unless overridden by a more specific view.
+Frontmatter render fields (`pages`, `style`, `vars`, `sections`, `bullet-order`) are the default view. They apply to every render unless overridden by a more specific view.
 
 ```yaml
 ---
 pages: 1
+sections:
+  hide: [publications]
 style:
   accent-color: '#2563eb'
 vars:
@@ -39,12 +41,15 @@ Every [tag](/guide/tags) implicitly generates a tag view. With no configuration,
 ---
 tags:
   frontend:
-    layout: [experience, skills, projects]
+    sections:
+      hide: [publications]
+      pin: [skills, projects]
     pages: 1
 
   fullstack:
     extends: [frontend, backend]
-    layout: [experience, skills, projects, education]
+    sections:
+      pin: [work, skills]
     pages: 2
 ---
 ```
@@ -61,7 +66,9 @@ Custom views live in `.view.yaml` files. Top-level keys are view names:
 # stripe.view.yaml
 stripe-swe:
   selects: [backend, distributed-systems, leadership]
-  layout: [experience, skills, projects]
+  sections:
+    hide: [publications]
+    pin: [skills, work]
   vars:
     tagline: 'Stream Processing, Event-Driven Architecture, Go, Kafka'
 
@@ -95,16 +102,16 @@ resumx resume.md --for stripe-swe
 
 ## Custom View Fields
 
-| Field          | Type                     | Description                                                                                   |
-| -------------- | ------------------------ | --------------------------------------------------------------------------------------------- |
-| `selects`      | `string[]`               | Content tags to include (union).                                                              |
-| `layout`       | `string[]`               | Section whitelist and ordering ([`data-section`](/guide/semantic-selectors#sections) values). |
-| `pages`        | `number`                 | Target page count (overrides frontmatter).                                                    |
-| `bullet-order` | `source` \| `tag`        | Bullet ordering strategy. Default: `source`.                                                  |
-| `vars`         | `Record<string, string>` | Variable values for <code v-pre>{{ }}</code> placeholders.                                    |
-| `style`        | `Record<string, string>` | Style overrides (same as frontmatter `style`).                                                |
-| `format`       | `string`                 | Output format (`pdf`, `html`, `docx`, `png`).                                                 |
-| `output`       | `string`                 | Output path (same as frontmatter `output`).                                                   |
+| Field          | Type                     | Description                                                  |
+| -------------- | ------------------------ | ------------------------------------------------------------ |
+| `selects`      | `string[]`               | Content tags to include (union).                             |
+| `sections`     | `object`                 | Section visibility and ordering (see [Sections](#sections)). |
+| `pages`        | `number`                 | Target page count (overrides frontmatter).                   |
+| `bullet-order` | `source` \| `tag`        | Bullet ordering strategy. Default: `source`.                 |
+| `vars`         | `Record<string, string>` | Variable values for <code v-pre>{{ }}</code> placeholders.   |
+| `style`        | `Record<string, string>` | Style overrides (same as frontmatter `style`).               |
+| `format`       | `string`                 | Output format (`pdf`, `html`, `docx`, `png`).                |
+| `output`       | `string`                 | Output path (same as frontmatter `output`).                  |
 
 Base defaults (pages, style, bullet-order) live in frontmatter. Custom view fields are overrides.
 
@@ -114,7 +121,8 @@ A custom view without `selects` applies no content filter. All content renders, 
 
 ```yaml
 one-pager:
-  layout: [experience, skills]
+  sections:
+    pin: [skills, work]
   pages: 1
 ```
 
@@ -158,14 +166,29 @@ Defining a variable with no matching <code v-pre>{{ }}</code> placeholder is an 
 
 Variables resolve in order: ephemeral view (CLI `-v`) > tag view or custom view `vars` > default view `vars`.
 
-## Layout
+## Sections
 
-`layout` controls which sections appear and in what order. Unlisted sections are excluded. The header always renders.
+`sections` is a namespace for controlling which sections appear and how they're ordered. It contains two sub-fields:
+
+- **`hide`** removes sections from the output. Everything not hidden renders in source order by default.
+- **`pin`** moves sections to the top of the document in the specified order. Non-pinned sections follow in their original source order.
+
+Both fields accept [`data-section`](/guide/semantic-selectors#sections) type values (e.g. `work`, `skills`, `education`). If you use a common synonym like `experience`, Resumx suggests the canonical name.
 
 ```yaml
-backend-role:
-  selects: [backend]
-  layout: [experience, skills, projects, education]
+sections:
+  hide: [publications, volunteer]
+  pin: [skills, work]
+```
+
+This hides publications and volunteer sections, pins skills first and work second, then everything else follows in source order. The header always renders regardless of configuration.
+
+A section cannot appear in both `hide` and `pin`. If it does, Resumx raises an error.
+
+On the CLI, use `--hide` and `--pin` flags (they map to `sections.hide` and `sections.pin` internally):
+
+```bash
+resumx resume.md --hide publications --pin skills,work
 ```
 
 ## Bullet Order
@@ -197,13 +220,13 @@ The recruiter's 7.4-second scan hits the most relevant content first, without re
 
 ## Ephemeral Views
 
-CLI flags like `-v`, `--layout`, `--pages`, `--bullet-order`, and `-s` define a view inline without persisting it. Useful for quick iteration, scripting, and CI pipelines:
+CLI flags like `-v`, `--hide`, `--pin`, `--pages`, `--bullet-order`, and `-s` define a view inline without persisting it. Useful for quick iteration, scripting, and CI pipelines:
 
 ```bash
-resumx resume.md --for backend -v tagline="Stream Processing, Go" --layout experience,skills -o stripe.pdf
+resumx resume.md --for backend -v tagline="Stream Processing, Go" --pin skills,work -o stripe.pdf
 ```
 
-This is functionally a view with `selects: [backend]`, `vars.tagline`, `layout`, and `output`, it just doesn't live in a file.
+This is functionally a view with `selects: [backend]`, `vars.tagline`, `sections.pin`, and `output`, it just doesn't live in a file.
 
 ## Cascade Order
 
@@ -226,11 +249,12 @@ Not all fields merge the same way. The rule depends on the field's shape:
 | ----------- | ------------------------------------------- | ----------------------------------------------------------- |
 | Scalar      | `pages`, `bullet-order`, `format`, `output` | Later layer replaces                                        |
 | Record      | `vars`, `style`                             | Shallow merge (later keys override, earlier keys preserved) |
-| Array       | `selects`, `layout`, `css`                  | Later layer replaces (not concatenated)                     |
+| Namespace   | `sections`                                  | Each sub-field (`hide`, `pin`) replaces independently       |
+| Array       | `selects`, `css`                            | Later layer replaces (not concatenated)                     |
 
 For example, if the default view sets `vars: { tagline: "Full-stack engineer", keywords: "React" }` and a custom view sets `vars: { tagline: "Backend engineer" }`, the resolved result is `{ tagline: "Backend engineer", keywords: "React" }`. The custom view's `tagline` overrides, the default view's `keywords` is preserved.
 
-Arrays replace entirely because partial overrides would be ambiguous. `layout: [experience, skills]` means exactly those sections in that order, not "add to whatever was below."
+For `sections`, each sub-field replaces independently. Setting `sections: { pin: [skills] }` in a child view replaces only `pin`, the parent's `hide` is preserved. Setting `sections: { hide: [] }` in a child view means "un-hide everything" without affecting `pin`.
 
 ## Batch Rendering
 

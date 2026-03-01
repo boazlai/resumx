@@ -13,6 +13,12 @@ import { markdownRenderer } from './markdown.js'
 import { runPipeline } from './dom-processors/index.js'
 import type { PipelineContext } from './dom-processors/index.js'
 import type { VarsEnv } from '../lib/mdit-plugins/variable-substitution/index.js'
+import type { SectionType } from './section-types.js'
+
+export interface HtmlSectionsConfig {
+	hide?: SectionType[]
+	pin?: SectionType[]
+}
 
 /**
  * Options for HTML generation
@@ -28,6 +34,8 @@ export interface HtmlGeneratorOptions {
 	activeLang?: string
 	/** Tag composition map from frontmatter (composed tag name -> constituent tags) */
 	tagMap?: Record<string, string[]>
+	/** Section hiding and pinning config */
+	sections?: HtmlSectionsConfig
 	/** Custom icon overrides from frontmatter (slug -> SVG/URL/base64) */
 	icons?: Record<string, string>
 	/** Template variables for {{ key }} substitution */
@@ -99,6 +107,7 @@ export async function generateHtml(
 	// Build pipeline context
 	const ctx: PipelineContext = {
 		config: {
+			sections: options.sections,
 			activeTag: options.activeTag,
 			activeLang: options.activeLang,
 			variables: options.variables,
