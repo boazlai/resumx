@@ -112,6 +112,10 @@
  * Component: Navbar
  * -------------------------------------------------------------------------- */
 
+.VPNavBarTitle {
+	background-color: var(--vp-c-bg);
+}
+
 .VPNavBarTitle .logo {
 	height: 14px;
 	width: auto;
