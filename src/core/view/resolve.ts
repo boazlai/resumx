@@ -1,8 +1,13 @@
-import type { ViewLayer, ResolvedView } from './types.js'
+import type { ViewLayer, ResolvedView, SectionsConfig } from './types.js'
+
+const DEFAULT_SECTIONS: Required<SectionsConfig> = {
+	hide: [],
+	pin: [],
+}
 
 const DEFAULTS: ResolvedView = {
 	selects: null,
-	layout: null,
+	sections: { ...DEFAULT_SECTIONS },
 	pages: null,
 	bulletOrder: 'source',
 	vars: {},
@@ -18,10 +23,16 @@ const DEFAULTS: ResolvedView = {
  * Merge semantics per field shape:
  * - Scalars (pages, bulletOrder, format, output): later layer replaces
  * - Records (vars, style): shallow merge ({ ...lower, ...upper })
- * - Arrays (selects, layout, css): later layer replaces (no concat)
+ * - Namespace (sections): each sub-field replaces independently
+ * - Arrays (selects, css): later layer replaces (no concat)
  */
 export function resolveView(layers: ViewLayer[]): ResolvedView {
-	let result: ResolvedView = { ...DEFAULTS, vars: {}, style: {} }
+	let result: ResolvedView = {
+		...DEFAULTS,
+		sections: { ...DEFAULT_SECTIONS },
+		vars: {},
+		style: {},
+	}
 
 	for (const layer of layers) {
 		if (layer.pages !== undefined) result.pages = layer.pages
@@ -34,8 +45,14 @@ export function resolveView(layers: ViewLayer[]): ResolvedView {
 		if (layer.style !== undefined)
 			result.style = { ...result.style, ...layer.style }
 
+		if (layer.sections !== undefined) {
+			if (layer.sections.hide !== undefined)
+				result.sections.hide = layer.sections.hide
+			if (layer.sections.pin !== undefined)
+				result.sections.pin = layer.sections.pin
+		}
+
 		if (layer.selects !== undefined) result.selects = layer.selects
-		if (layer.layout !== undefined) result.layout = layer.layout
 		if (layer.css !== undefined) result.css = layer.css
 	}
 

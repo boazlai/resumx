@@ -138,6 +138,38 @@ pages: 2
 
 See [Fit to Page](/guide/fit-to-page) for the full guide.
 
+### `sections`
+
+Controls which sections appear and how they're ordered. Contains two sub-fields: `hide` and `pin`.
+
+| Property      | Value                                                                        |
+| ------------- | ---------------------------------------------------------------------------- |
+| **Type**      | `{ hide?: string[], pin?: string[] }`                                        |
+| **Default**   | All sections in source order                                                 |
+| **CLI flags** | `--hide <sections>`, `--pin <sections>` (comma-separated)                    |
+| **Values**    | [`data-section`](/guide/semantic-selectors#sections) types (see table below) |
+
+- **`hide`** removes listed sections from the output. Everything not hidden renders in source order by default. Adding a new section to your resume means it appears everywhere unless you explicitly hide it.
+- **`pin`** moves listed sections to the top of the document, in the specified order. Non-pinned sections follow in their original source order. The header always renders regardless.
+
+```yaml
+sections:
+  hide: [publications, volunteer]
+  pin: [skills, work]
+```
+
+**Valid section types:**
+
+`basics`, `work`, `volunteer`, `education`, `awards`, `certificates`, `publications`, `skills`, `languages`, `interests`, `references`, `projects`
+
+If you use a common synonym (e.g. `experience` instead of `work`), the error message suggests the canonical name.
+
+A section cannot appear in both `hide` and `pin`. If it does, Resumx raises an error.
+
+**Priority:** CLI > view > frontmatter. In the cascade, each sub-field replaces independently: setting `sections: { pin: [skills] }` in a child view replaces only `pin`, the parent's `hide` is preserved.
+
+See [Views: Sections](/guide/views#sections) for the full guide.
+
 ### `bullet-order`
 
 Controls how bullets are ordered within each section when rendering with tags or views.
@@ -185,12 +217,15 @@ tags:
 ```yaml
 tags:
   frontend:
-    layout: [experience, skills, projects]
+    sections:
+      hide: [publications]
+      pin: [skills, projects]
     pages: 1
 
   fullstack:
     extends: [frontend, backend]
-    layout: [experience, skills, projects, education]
+    sections:
+      pin: [work, skills]
     pages: 2
 ```
 
@@ -393,7 +428,7 @@ For fields that can be set in multiple places, the resolution order is:
 
 ## Unknown Fields
 
-Any top-level frontmatter key not in the known set (`css`, `output`, `pages`, `bullet-order`, `style`, `icons`, `tags`, `vars`, `validate`, `extra`) produces an error:
+Any top-level frontmatter key not in the known set (`css`, `output`, `pages`, `sections`, `bullet-order`, `style`, `icons`, `tags`, `vars`, `validate`, `extra`) produces an error:
 
 ```
 Unknown frontmatter field 'foo'. Use 'extra' for custom fields.

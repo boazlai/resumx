@@ -3,6 +3,7 @@ import { closest, distance } from 'fastest-levenshtein'
 import matter from 'gray-matter'
 import * as TOML from 'smol-toml'
 import { z } from 'zod'
+import { parseSectionList } from './section-types.js'
 
 const FrontmatterSchema = z.object({
 	css: z
@@ -59,6 +60,40 @@ const FrontmatterSchema = z.object({
 			),
 			{ error: "'vars' must be an object mapping variable names to values" },
 		)
+		.optional(),
+	sections: z
+		.object({
+			hide: z
+				.array(z.string())
+				.optional()
+				.transform((val, ctx) => {
+					if (!val) return val
+					const result = parseSectionList(val, 'sections.hide')
+					if (!result.ok) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: result.error,
+						})
+						return z.NEVER
+					}
+					return result.sections
+				}),
+			pin: z
+				.array(z.string())
+				.optional()
+				.transform((val, ctx) => {
+					if (!val) return val
+					const result = parseSectionList(val, 'sections.pin')
+					if (!result.ok) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: result.error,
+						})
+						return z.NEVER
+					}
+					return result.sections
+				}),
+		})
 		.optional(),
 	tags: z
 		.record(

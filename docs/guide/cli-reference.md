@@ -35,23 +35,24 @@ When reading from stdin, the output filename is derived from:
 
 ### Options
 
-| Flag                       | Description                                                                                          |
-| -------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `--css <path>`             | Path to custom CSS file. Repeatable, comma-separated.                                                |
-| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{view}`/`{lang}`.                     |
-| `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.                         |
-| `-s, --style <name=value>` | Override style property. Repeatable.                                                                 |
-| `-l, --lang <tag>`         | Generate for specific language(s) only. Repeatable, comma-separated (BCP 47 tags).                   |
-| `-p, --pages <number>`     | Target page count. Shrinks to fit; for `1`, also fills remaining space.                              |
-| `--for <name-or-glob>`     | Tag view name, custom view name, glob pattern, or file path. See [Views](/guide/views).              |
-| `-v, --var <key=value>`    | Override a template variable. Repeatable.                                                            |
-| `--layout <list>`          | Section whitelist and ordering (comma-separated [`data-section`](/guide/semantic-selectors) values). |
-| `--bullet-order <value>`   | Bullet ordering: `source` (default) or `tag`. See [Views](/guide/views#bullet-order).                |
-| `-w, --watch`              | Watch for changes and auto-rebuild.                                                                  |
-| `--check`                  | Validate only, do not render. Exit code 1 if critical issues found.                                  |
-| `--no-check`               | Skip validation entirely.                                                                            |
-| `--strict`                 | Fail if validation has any errors. Blocks render (or exit 1 with `--check`).                         |
-| `--min-severity <level>`   | Minimum severity to display: `critical`, `warning`, `note`, `bonus`. Default: `bonus`.               |
+| Flag                       | Description                                                                                                      |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `--css <path>`             | Path to custom CSS file. Repeatable, comma-separated.                                                            |
+| `-o, --output <value>`     | Output path: name, directory (trailing `/`), or template with `{view}`/`{lang}`.                                 |
+| `-f, --format <name>`      | Output format(s): `pdf`, `html`, `docx`, `png`. Repeatable, comma-separated.                                     |
+| `-s, --style <name=value>` | Override style property. Repeatable.                                                                             |
+| `-l, --lang <tag>`         | Generate for specific language(s) only. Repeatable, comma-separated (BCP 47 tags).                               |
+| `-p, --pages <number>`     | Target page count. Shrinks to fit; for `1`, also fills remaining space.                                          |
+| `--for <name-or-glob>`     | Tag view name, custom view name, glob pattern, or file path. See [Views](/guide/views).                          |
+| `-v, --var <key=value>`    | Override a template variable. Repeatable.                                                                        |
+| `--hide <list>`            | Hide sections from output (comma-separated [`data-section`](/guide/semantic-selectors) values).                  |
+| `--pin <list>`             | Pin sections to the top in specified order (comma-separated [`data-section`](/guide/semantic-selectors) values). |
+| `--bullet-order <value>`   | Bullet ordering: `source` (default) or `tag`. See [Views](/guide/views#bullet-order).                            |
+| `-w, --watch`              | Watch for changes and auto-rebuild.                                                                              |
+| `--check`                  | Validate only, do not render. Exit code 1 if critical issues found.                                              |
+| `--no-check`               | Skip validation entirely.                                                                                        |
+| `--strict`                 | Fail if validation has any errors. Blocks render (or exit 1 with `--check`).                                     |
+| `--min-severity <level>`   | Minimum severity to display: `critical`, `warning`, `note`, `bonus`. Default: `bonus`.                           |
 
 ### Examples
 
@@ -95,11 +96,14 @@ resumx resume.md --for ./tmp/stripe.view.yaml
 # Override variables
 resumx resume.md --for stripe-swe -v tagline="Stream Processing, Go, Kafka"
 
-# Section whitelist and ordering
-resumx resume.md --layout experience,skills,projects
+# Hide specific sections
+resumx resume.md --hide publications,volunteer
+
+# Pin sections to the top
+resumx resume.md --pin skills,work
 
 # Ephemeral view (no file modification)
-resumx resume.md --for backend -v tagline="Stream Processing, Go" --layout experience,skills -o stripe.pdf
+resumx resume.md --for backend -v tagline="Stream Processing, Go" --pin skills,work -o stripe.pdf
 
 # Validate only (no render)
 resumx resume.md --check

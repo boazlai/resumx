@@ -7,7 +7,7 @@ Think of `resume.md` as a database of everything you've done. Each application i
 ```
 resume.md       (all your career data)
   × tags        (WHERE — filter what's relevant)
-  × layout      (SELECT — which sections, in what order)
+  × hide/pin    (SELECT — which sections, in what order)
   × vars        (SET — role-specific keywords, taglines)
   × style       (FORMAT — presentation adjustments)
   → output      (PDF, HTML, DOCX, or PNG)

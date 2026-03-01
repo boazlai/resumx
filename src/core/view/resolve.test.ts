@@ -9,7 +9,7 @@ describe('resolveView', () => {
 
 			expect(result).toEqual({
 				selects: null,
-				layout: null,
+				sections: { hide: [], pin: [] },
 				pages: null,
 				bulletOrder: 'source',
 				vars: {},
@@ -25,7 +25,7 @@ describe('resolveView', () => {
 
 			expect(result).toEqual({
 				selects: null,
-				layout: null,
+				sections: { hide: [], pin: [] },
 				pages: null,
 				bulletOrder: 'source',
 				vars: {},
@@ -116,15 +116,6 @@ describe('resolveView', () => {
 			expect(result.selects).toEqual(['devops'])
 		})
 
-		it('replaces layout from later layer', () => {
-			const result = resolveView([
-				{ layout: ['work', 'skills', 'education'] },
-				{ layout: ['skills', 'work'] },
-			])
-
-			expect(result.layout).toEqual(['skills', 'work'])
-		})
-
 		it('replaces css from later layer', () => {
 			const result = resolveView([
 				{ css: ['base.css', 'theme.css'] },
@@ -138,6 +129,70 @@ describe('resolveView', () => {
 			const result = resolveView([{ selects: ['frontend'] }, {}])
 
 			expect(result.selects).toEqual(['frontend'])
+		})
+	})
+
+	describe('sections namespace merge', () => {
+		it('replaces hide from later layer', () => {
+			const result = resolveView([
+				{ sections: { hide: ['publications', 'volunteer'] } },
+				{ sections: { hide: [] } },
+			])
+
+			expect(result.sections.hide).toEqual([])
+		})
+
+		it('replaces pin from later layer', () => {
+			const result = resolveView([
+				{ sections: { pin: ['skills', 'work'] } },
+				{ sections: { pin: ['education'] } },
+			])
+
+			expect(result.sections.pin).toEqual(['education'])
+		})
+
+		it('setting only hide preserves existing pin', () => {
+			const result = resolveView([
+				{ sections: { pin: ['skills', 'work'] } },
+				{ sections: { hide: ['publications'] } },
+			])
+
+			expect(result.sections.hide).toEqual(['publications'])
+			expect(result.sections.pin).toEqual(['skills', 'work'])
+		})
+
+		it('setting only pin preserves existing hide', () => {
+			const result = resolveView([
+				{ sections: { hide: ['publications'] } },
+				{ sections: { pin: ['skills'] } },
+			])
+
+			expect(result.sections.hide).toEqual(['publications'])
+			expect(result.sections.pin).toEqual(['skills'])
+		})
+
+		it('child view can un-hide by replacing with empty array', () => {
+			const result = resolveView([
+				{ sections: { hide: ['publications'] } },
+				{ sections: { hide: [] } },
+			])
+
+			expect(result.sections.hide).toEqual([])
+		})
+
+		it('hide and pin from same layer both resolve', () => {
+			const result = resolveView([
+				{ sections: { hide: ['publications'], pin: ['skills', 'work'] } },
+			])
+
+			expect(result.sections.hide).toEqual(['publications'])
+			expect(result.sections.pin).toEqual(['skills', 'work'])
+		})
+
+		it('undefined sections in later layer does not override earlier value', () => {
+			const result = resolveView([{ sections: { hide: ['publications'] } }, {}])
+
+			expect(result.sections.hide).toEqual(['publications'])
 		})
 	})
 

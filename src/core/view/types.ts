@@ -1,4 +1,10 @@
 import type { OutputFormat } from '../renderer.js'
+import type { SectionType } from '../section-types.js'
+
+export interface SectionsConfig {
+	hide?: SectionType[]
+	pin?: SectionType[]
+}
 
 /**
  * A single layer in the view cascade.
@@ -6,7 +12,7 @@ import type { OutputFormat } from '../renderer.js'
  */
 export interface ViewLayer {
 	selects?: string[]
-	layout?: string[]
+	sections?: SectionsConfig
 	pages?: number
 	bulletOrder?: 'source' | 'tag'
 	vars?: Record<string, string>
@@ -22,7 +28,7 @@ export interface ViewLayer {
  */
 export interface ResolvedView {
 	selects: string[] | null
-	layout: string[] | null
+	sections: Required<SectionsConfig>
 	pages: number | null
 	bulletOrder: 'source' | 'tag'
 	vars: Record<string, string>
