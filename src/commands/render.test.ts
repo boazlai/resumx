@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
 	existsSync,
 	mkdirSync,
@@ -12,7 +12,11 @@ import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
 import { DEFAULT_STYLESHEET } from '../core/styles.js'
-import { renderCommand } from './render.js'
+import {
+	renderCommand,
+	type RenderCommandOptions,
+	type WatchHandle,
+} from './render.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const CLI_PATH = join(__dirname, '../../dist/index.js')
@@ -1921,6 +1925,140 @@ tags:
 				'sample.md',
 				{ check: true, strict: true, minSeverity: 'warning' },
 				tempDir,
+			)
+		})
+	})
+
+	// =========================================================================
+	// --watch flag
+	// =========================================================================
+
+	describe('--watch flag', () => {
+		const WATCH_SETTLE_MS = 500
+		const CHANGE_DETECT_MS = 800
+
+		let watchHandle: WatchHandle | null = null
+
+		afterEach(async () => {
+			if (watchHandle) {
+				await watchHandle.close()
+				watchHandle = null
+			}
+			vi.restoreAllMocks()
+		})
+
+		async function startWatching(
+			file: string,
+			extraOptions: Partial<RenderCommandOptions> = {},
+		) {
+			const result = await renderCommand(
+				file,
+				{ watch: true, format: ['html'], check: false, ...extraOptions },
+				tempDir,
+			)
+			if (!result) throw new Error('Expected watch handle')
+			watchHandle = result
+		}
+
+		const sleep = (ms: number) =>
+			new Promise(resolve => setTimeout(resolve, ms))
+
+		it('returns a handle whose done promise stays pending until close', async () => {
+			await startWatching('sample.md')
+			let settled = false
+			watchHandle!.done.then(
+				() => {
+					settled = true
+				},
+				() => {
+					settled = true
+				},
+			)
+
+			await sleep(WATCH_SETTLE_MS)
+			expect(settled).toBe(false)
+		})
+
+		it('re-renders when the input file changes', async () => {
+			writeFileSync(
+				join(tempDir, 'live.md'),
+				'# Original\n\n## Skills\n\n- Skill 1\n',
+			)
+			await startWatching('live.md')
+
+			expect(readFileSync(join(tempDir, 'live.html'), 'utf-8')).toContain(
+				'Original',
+			)
+
+			writeFileSync(
+				join(tempDir, 'live.md'),
+				'# Updated\n\n## Skills\n\n- Skill 2\n',
+			)
+			await sleep(CHANGE_DETECT_MS)
+
+			expect(readFileSync(join(tempDir, 'live.html'), 'utf-8')).toContain(
+				'Updated',
+			)
+		})
+
+		it('handles rapid consecutive changes correctly', async () => {
+			writeFileSync(join(tempDir, 'rapid.md'), '# V1\n\n## Skills\n\n- A\n')
+			await startWatching('rapid.md')
+
+			writeFileSync(join(tempDir, 'rapid.md'), '# V2\n\n## Skills\n\n- B\n')
+			writeFileSync(join(tempDir, 'rapid.md'), '# V3\n\n## Skills\n\n- C\n')
+			writeFileSync(join(tempDir, 'rapid.md'), '# Final\n\n## Skills\n\n- D\n')
+			await sleep(CHANGE_DETECT_MS)
+
+			const html = readFileSync(join(tempDir, 'rapid.html'), 'utf-8')
+			expect(html).toContain('Final')
+		})
+
+		it('recovers from invalid frontmatter and continues watching', async () => {
+			writeFileSync(
+				join(tempDir, 'recover.md'),
+				'# Valid\n\n## Skills\n\n- A\n',
+			)
+			await startWatching('recover.md')
+
+			expect(readFileSync(join(tempDir, 'recover.html'), 'utf-8')).toContain(
+				'Valid',
+			)
+
+			writeFileSync(
+				join(tempDir, 'recover.md'),
+				'---\ninvalid: [\n---\n# Broken\n',
+			)
+			await sleep(CHANGE_DETECT_MS)
+
+			writeFileSync(
+				join(tempDir, 'recover.md'),
+				'# Recovered\n\n## Skills\n\n- B\n',
+			)
+			await sleep(CHANGE_DETECT_MS)
+
+			const html = readFileSync(join(tempDir, 'recover.html'), 'utf-8')
+			expect(html).toContain('Recovered')
+		})
+
+		it('re-renders when a watched CSS file changes', async () => {
+			const cssPath = join(tempDir, 'watch-style.css')
+			writeFileSync(cssPath, `:root { --font-family: 'OriginalFont'; }`)
+			writeFileSync(
+				join(tempDir, 'css-watch.md'),
+				'---\ncss: ./watch-style.css\n---\n# Person\n\n## Skills\n\n- A\n',
+			)
+			await startWatching('css-watch.md')
+
+			expect(readFileSync(join(tempDir, 'css-watch.html'), 'utf-8')).toContain(
+				'OriginalFont',
+			)
+
+			writeFileSync(cssPath, `:root { --font-family: 'UpdatedFont'; }`)
+			await sleep(CHANGE_DETECT_MS)
+
+			expect(readFileSync(join(tempDir, 'css-watch.html'), 'utf-8')).toContain(
+				'UpdatedFont',
 			)
 		})
 	})

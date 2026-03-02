@@ -222,7 +222,14 @@ program
 	)
 	.action(async (file: string | undefined, options: RenderCommandOptions) => {
 		try {
-			await renderCommand(file, options)
+			const result = await renderCommand(file, options)
+			if (result) {
+				process.on('SIGINT', () => {
+					console.log('\nStopped watching.')
+					void result.close()
+				})
+				await result.done
+			}
 			process.exit(0)
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error)

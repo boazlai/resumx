@@ -53,6 +53,11 @@ import {
 import type { ViewLayer, BulletOrder } from '../core/view/types.js'
 import type { Severity } from '../core/validator/types.js'
 
+export interface WatchHandle {
+	close(): Promise<void>
+	done: Promise<void>
+}
+
 export interface RenderCommandOptions {
 	css?: string[]
 	output?: string
@@ -338,7 +343,7 @@ export async function renderCommand(
 	inputFile: string | undefined,
 	options: RenderCommandOptions,
 	cwd: string = process.cwd(),
-): Promise<void> {
+): Promise<WatchHandle | void> {
 	const skipCheck = options.check === false
 
 	if (options.check && options.watch) {
@@ -430,15 +435,6 @@ export async function renderCommand(
 
 	const watchPaths = [inputPath, ...cssPaths.filter(p => existsSync(p))]
 
-	if (options.watch) {
-		const relativeWatchPaths = watchPaths.map(p => relative(cwd, p))
-		console.log(
-			chalk.blue(`Watching for changes...`)
-				+ ` (${relativeWatchPaths.join(', ')})`,
-		)
-		console.log('')
-	}
-
 	await runRender(parsed, options, cwd, context)
 
 	if (!options.watch) return
@@ -451,6 +447,20 @@ export async function renderCommand(
 			stabilityThreshold: 100,
 			pollInterval: 50,
 		},
+	})
+
+	// bridges Chokidar's ready event into something await-able.
+	await new Promise<void>((resolve, reject) => {
+		watcher.on('ready', () => {
+			const relativeWatchPaths = watchPaths.map(p => relative(cwd, p))
+			console.log(
+				chalk.blue(`\nWatching for changes...`)
+					+ ` (${relativeWatchPaths.join(', ')})`,
+			)
+			console.log('')
+			resolve()
+		})
+		watcher.on('error', reject)
 	})
 
 	watcher.on('change', () => {
@@ -485,10 +495,16 @@ export async function renderCommand(
 		}, 150)
 	})
 
-	process.on('SIGINT', async () => {
-		console.log('')
-		console.log('Stopped watching.')
-		await watcher.close()
-		process.exit(0)
+	let resolveDone: () => void
+	const done = new Promise<void>(resolve => {
+		resolveDone = resolve
 	})
+
+	const close = async () => {
+		if (debounceTimer) clearTimeout(debounceTimer)
+		await watcher.close()
+		resolveDone()
+	}
+
+	return { close, done }
 }
