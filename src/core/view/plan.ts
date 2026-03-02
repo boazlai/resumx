@@ -7,6 +7,7 @@ import { expandTemplate } from '../../lib/string-template/index.js'
 
 export interface RenderPlan {
 	view: ResolvedView
+	viewName: string | undefined
 	outputPath: string
 	format: OutputFormat
 	label: string
@@ -88,6 +89,7 @@ export function planRenders(
 			const ext = format === 'docx' ? 'docx' : format
 			plans.push({
 				view: resolved,
+				viewName,
 				outputPath: join(outputDir, `${outputName}.${ext}`),
 				format,
 				label,

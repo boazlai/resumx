@@ -2061,5 +2061,220 @@ tags:
 				'UpdatedFont',
 			)
 		})
+
+		it('re-renders when a .view.yaml file changes', async () => {
+			const mdContent = `# Test Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}\n- Common skill`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+			writeFileSync(
+				join(tempDir, 'views.view.yaml'),
+				`stripe-swe:\n  selects: [backend]\n`,
+			)
+
+			await startWatching('resume.md', { for: ['stripe-swe'] })
+
+			const initialHtml = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(initialHtml).toContain('Go')
+			expect(initialHtml).not.toContain('React')
+
+			writeFileSync(
+				join(tempDir, 'views.view.yaml'),
+				`stripe-swe:\n  selects: [frontend]\n`,
+			)
+			await sleep(CHANGE_DETECT_MS)
+
+			const updatedHtml = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(updatedHtml).toContain('React')
+			expect(updatedHtml).not.toContain('Go')
+		})
+
+		it('only re-renders the changed view from a .view.yaml, not others', async () => {
+			const mdContent = `# Test Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+			writeFileSync(
+				join(tempDir, 'a.view.yaml'),
+				`view-a:\n  selects: [frontend]\n`,
+			)
+			writeFileSync(
+				join(tempDir, 'b.view.yaml'),
+				`view-b:\n  selects: [backend]\n`,
+			)
+
+			await startWatching('resume.md', { for: ['view-a', 'view-b'] })
+
+			const viewAPath = join(tempDir, 'resume-view-a.html')
+			const viewBPath = join(tempDir, 'resume-view-b.html')
+			expect(existsSync(viewAPath)).toBe(true)
+			expect(existsSync(viewBPath)).toBe(true)
+
+			const viewBBefore = readFileSync(viewBPath, 'utf-8')
+
+			writeFileSync(
+				join(tempDir, 'a.view.yaml'),
+				`view-a:\n  selects: [frontend]\n  style:\n    font-size: "14pt"\n`,
+			)
+			await sleep(CHANGE_DETECT_MS)
+
+			const viewAAfter = readFileSync(viewAPath, 'utf-8')
+			expect(viewAAfter).toContain('--font-size: 14pt')
+
+			const viewBAfter = readFileSync(viewBPath, 'utf-8')
+			expect(viewBAfter).toBe(viewBBefore)
+		})
+
+		it('only re-renders the changed view within a single .view.yaml file', async () => {
+			const mdContent = `# Test Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+			writeFileSync(
+				join(tempDir, 'views.view.yaml'),
+				`view-fe:\n  selects: [frontend]\nview-be:\n  selects: [backend]\n`,
+			)
+
+			await startWatching('resume.md', { for: ['view-fe', 'view-be'] })
+
+			const fePath = join(tempDir, 'resume-view-fe.html')
+			const bePath = join(tempDir, 'resume-view-be.html')
+			expect(existsSync(fePath)).toBe(true)
+			expect(existsSync(bePath)).toBe(true)
+
+			writeFileSync(bePath, 'SENTINEL')
+
+			writeFileSync(
+				join(tempDir, 'views.view.yaml'),
+				`view-fe:\n  selects: [frontend]\n  style:\n    font-size: "14pt"\nview-be:\n  selects: [backend]\n`,
+			)
+			await sleep(CHANGE_DETECT_MS)
+
+			const feAfter = readFileSync(fePath, 'utf-8')
+			expect(feAfter).toContain('--font-size: 14pt')
+
+			expect(readFileSync(bePath, 'utf-8')).toBe('SENTINEL')
+		})
+
+		it('re-renders affected views when a tag composition changes in frontmatter', async () => {
+			const mdContent = `---\ntags:\n  fullstack: [frontend, backend]\n---\n# Test Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}\n- DevOps {.@devops}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await startWatching('resume.md', {
+				for: ['fullstack', 'frontend'],
+			})
+
+			const fullstackPath = join(tempDir, 'resume-fullstack.html')
+			const fullstackBefore = readFileSync(fullstackPath, 'utf-8')
+			expect(fullstackBefore).not.toContain('DevOps')
+
+			const updatedMd = `---\ntags:\n  fullstack: [frontend, backend, devops]\n---\n# Test Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}\n- DevOps {.@devops}`
+			writeFileSync(join(tempDir, 'resume.md'), updatedMd)
+			await sleep(CHANGE_DETECT_MS)
+
+			const fullstackAfter = readFileSync(fullstackPath, 'utf-8')
+			expect(fullstackAfter).toContain('DevOps')
+		})
+
+		it('does not re-render unrelated views on tag-only frontmatter change', async () => {
+			const mdContent = `---\ntags:\n  frontend:\n    pages: 1\n---\n# Test Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await startWatching('resume.md', {
+				for: ['frontend', 'backend'],
+			})
+
+			const backendPath = join(tempDir, 'resume-backend.html')
+			const backendBefore = readFileSync(backendPath, 'utf-8')
+
+			const updatedMd = `---\ntags:\n  frontend:\n    pages: 2\n---\n# Test Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), updatedMd)
+			await sleep(CHANGE_DETECT_MS)
+
+			const backendAfter = readFileSync(backendPath, 'utf-8')
+			expect(backendAfter).toBe(backendBefore)
+		})
+
+		it('does full re-render when markdown content changes', async () => {
+			const mdContent = `# Test Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await startWatching('resume.md', {
+				for: ['frontend', 'backend'],
+			})
+
+			const frontendPath = join(tempDir, 'resume-frontend.html')
+			const backendPath = join(tempDir, 'resume-backend.html')
+
+			const updatedMd = `# Updated Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), updatedMd)
+			await sleep(CHANGE_DETECT_MS)
+
+			expect(readFileSync(frontendPath, 'utf-8')).toContain('Updated Person')
+			expect(readFileSync(backendPath, 'utf-8')).toContain('Updated Person')
+		})
+
+		it('does not re-render or log when file is saved without changes', async () => {
+			const mdContent = `# Test Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await startWatching('resume.md', {
+				for: ['frontend', 'backend'],
+			})
+
+			const frontendPath = join(tempDir, 'resume-frontend.html')
+			const backendPath = join(tempDir, 'resume-backend.html')
+			expect(existsSync(frontendPath)).toBe(true)
+			expect(existsSync(backendPath)).toBe(true)
+
+			writeFileSync(frontendPath, 'SENTINEL_FE')
+			writeFileSync(backendPath, 'SENTINEL_BE')
+
+			const logSpy = vi.spyOn(console, 'log')
+			try {
+				writeFileSync(join(tempDir, 'resume.md'), mdContent)
+				await sleep(CHANGE_DETECT_MS)
+
+				expect(readFileSync(frontendPath, 'utf-8')).toBe('SENTINEL_FE')
+				expect(readFileSync(backendPath, 'utf-8')).toBe('SENTINEL_BE')
+
+				const calls = logSpy.mock.calls.map(c => c.join(' '))
+				expect(calls).not.toContainEqual(
+					expect.stringContaining('Change detected'),
+				)
+			} finally {
+				logSpy.mockRestore()
+			}
+		})
+
+		it('renders new views when a .view.yaml file is created', async () => {
+			const mdContent = `# Test Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await startWatching('resume.md', { for: ['*'] })
+
+			const newViewPath = join(tempDir, 'new.view.yaml')
+			const outPath = join(tempDir, 'resume-view-new.html')
+			expect(existsSync(outPath)).toBe(false)
+
+			writeFileSync(newViewPath, `view-new:\n  selects: [frontend]\n`)
+			await sleep(CHANGE_DETECT_MS)
+
+			expect(existsSync(outPath)).toBe(true)
+			expect(readFileSync(outPath, 'utf-8')).toContain('React')
+		})
+
+		it('does full re-render when global frontmatter changes', async () => {
+			const mdContent = `---\nstyle:\n  font-size: "11pt"\n---\n# Test Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await startWatching('resume.md', {
+				for: ['frontend', 'backend'],
+			})
+
+			const frontendPath = join(tempDir, 'resume-frontend.html')
+			const backendPath = join(tempDir, 'resume-backend.html')
+
+			const updatedMd = `---\nstyle:\n  font-size: "14pt"\n---\n# Test Person\n\n## Skills\n\n- React {.@frontend}\n- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), updatedMd)
+			await sleep(CHANGE_DETECT_MS)
+
+			expect(readFileSync(frontendPath, 'utf-8')).toContain('--font-size: 14pt')
+			expect(readFileSync(backendPath, 'utf-8')).toContain('--font-size: 14pt')
+		})
 	})
 })

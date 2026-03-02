@@ -45,13 +45,22 @@ import {
 	resolveForValue,
 	validateTagComposition,
 } from '../core/view/resolve-for.js'
-import { loadAllViews } from '../core/view/load.js'
+import {
+	loadAllViews,
+	discoverViewFiles,
+	loadViewFile,
+} from '../core/view/load.js'
 import {
 	validateHidePinOverlap,
 	type SectionType,
 } from '../core/section-types.js'
 import type { ViewLayer, BulletOrder } from '../core/view/types.js'
 import type { Severity } from '../core/validator/types.js'
+import { DEFAULT_STYLESHEET } from '../core/styles.js'
+import {
+	computeAffectedViews,
+	type RenderScope,
+} from '../core/view/affected-views.js'
 
 export interface WatchHandle {
 	close(): Promise<void>
@@ -114,6 +123,7 @@ async function runRender(
 	options: RenderCommandOptions,
 	cwd: string,
 	context: RenderContext,
+	renderScope: RenderScope = { type: 'full' },
 ): Promise<void> {
 	const renderStart = performance.now()
 
@@ -268,6 +278,21 @@ async function runRender(
 		outputStrategy,
 	)
 
+	let plansToExecute = plans
+
+	if (renderScope?.type === 'views') {
+		plansToExecute = plans.filter(
+			p => p.viewName !== undefined && renderScope.names.has(p.viewName),
+		)
+	} else if (renderScope?.type === 'changedTags') {
+		const affected = computeAffectedViews(renderScope.names, tagMap, namedViews)
+		plansToExecute = plans.filter(
+			p => p.viewName !== undefined && affected.has(p.viewName),
+		)
+	}
+
+	if (plansToExecute.length === 0) return
+
 	const hasTagMap = Object.keys(tagMap).length > 0
 	const doc: DocumentContext = {
 		content,
@@ -277,7 +302,7 @@ async function runRender(
 	}
 
 	const plansByLabel = new Map<string, RenderPlan[]>()
-	for (const plan of plans) {
+	for (const plan of plansToExecute) {
 		const group = plansByLabel.get(plan.label) ?? []
 		group.push(plan)
 		plansByLabel.set(plan.label, group)
@@ -337,6 +362,80 @@ async function handleCheck(
 		console.log()
 	}
 	return true
+}
+
+function diffTags(
+	oldTags: FrontmatterConfig['tags'],
+	newTags: FrontmatterConfig['tags'],
+): string[] {
+	const allNames = new Set([
+		...Object.keys(oldTags ?? {}),
+		...Object.keys(newTags ?? {}),
+	])
+	const changed: string[] = []
+	for (const name of allNames) {
+		if (JSON.stringify(oldTags?.[name]) !== JSON.stringify(newTags?.[name])) {
+			changed.push(name)
+		}
+	}
+	return changed
+}
+
+function globalConfigChanged(
+	oldConfig: FrontmatterConfig | null | undefined,
+	newConfig: FrontmatterConfig | null | undefined,
+): boolean {
+	const fields = [
+		'css',
+		'output',
+		'pages',
+		'style',
+		'icons',
+		'validate',
+		'vars',
+		'sections',
+		'bullet-order',
+		'extra',
+	] as const
+
+	for (const field of fields) {
+		const oldVal = oldConfig?.[field]
+		const newVal = newConfig?.[field]
+		if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) return true
+	}
+	return false
+}
+
+function diffViewFile(
+	oldViews: Record<string, ViewLayer>,
+	newViews: Record<string, ViewLayer>,
+): string[] {
+	const allKeys = new Set([...Object.keys(oldViews), ...Object.keys(newViews)])
+	const changed: string[] = []
+	for (const key of allKeys) {
+		if (JSON.stringify(oldViews[key]) !== JSON.stringify(newViews[key])) {
+			changed.push(key)
+		}
+	}
+	return changed
+}
+
+function computeMarkdownChangeScope(
+	prevContent: string,
+	prevConfig: FrontmatterConfig | null | undefined,
+	newContent: string,
+	newConfig: FrontmatterConfig | null | undefined,
+): RenderScope {
+	if (prevContent !== newContent) return { type: 'full' }
+
+	if (globalConfigChanged(prevConfig, newConfig)) return { type: 'full' }
+
+	const changedTags = diffTags(prevConfig?.tags, newConfig?.tags)
+	if (changedTags.length > 0) {
+		return { type: 'changedTags', names: changedTags }
+	}
+
+	return { type: 'skip' }
 }
 
 export async function renderCommand(
@@ -433,13 +532,29 @@ export async function renderCommand(
 		// Will error during render
 	}
 
-	const watchPaths = [inputPath, ...cssPaths.filter(p => existsSync(p))]
+	const userCssPaths = cssPaths.filter(
+		p => p !== DEFAULT_STYLESHEET && existsSync(p),
+	)
+	const viewFiles = discoverViewFiles(mdDir)
+	const viewGlob = join(mdDir, '*.view.yaml')
+	const watchPaths = [inputPath, ...userCssPaths, viewGlob]
 
 	await runRender(parsed, options, cwd, context)
 
 	if (!options.watch) return
 
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null
+	let prevContent = parsed.content
+	let prevConfig = parsed.config
+
+	const prevViewFiles = new Map<string, Record<string, ViewLayer>>()
+	for (const vf of viewFiles) {
+		try {
+			prevViewFiles.set(vf, loadViewFile(vf))
+		} catch {
+			// will handle on change
+		}
+	}
 
 	const watcher = chokidar.watch(watchPaths, {
 		ignoreInitial: true,
@@ -449,13 +564,14 @@ export async function renderCommand(
 		},
 	})
 
-	// bridges Chokidar's ready event into something await-able.
 	await new Promise<void>((resolve, reject) => {
 		watcher.on('ready', () => {
-			const relativeWatchPaths = watchPaths.map(p => relative(cwd, p))
+			const displayPaths = [inputPath, ...userCssPaths, ...viewFiles].map(p =>
+				relative(cwd, p),
+			)
 			console.log(
 				chalk.blue(`\nWatching for changes...`)
-					+ ` (${relativeWatchPaths.join(', ')})`,
+					+ ` (${displayPaths.join(', ')})`,
 			)
 			console.log('')
 			resolve()
@@ -463,19 +579,29 @@ export async function renderCommand(
 		watcher.on('error', reject)
 	})
 
-	watcher.on('change', () => {
-		if (debounceTimer) {
-			clearTimeout(debounceTimer)
-		}
+	type ScopeFn = (
+		freshParsed: Extract<ParseResult, { ok: true }>,
+	) => RenderScope
+
+	function scheduleRender(getScope: ScopeFn) {
+		if (debounceTimer) clearTimeout(debounceTimer)
 
 		debounceTimer = setTimeout(async () => {
 			try {
-				console.log(chalk.blue('\nChange detected, rebuilding...'))
 				const freshContent = readFileSync(inputPath, 'utf-8')
 				const freshParsed = parseFrontmatterFromString(freshContent)
 				if (!freshParsed.ok) {
 					throw new Error(freshParsed.error)
 				}
+
+				const renderScope = getScope(freshParsed)
+
+				prevContent = freshParsed.content
+				prevConfig = freshParsed.config
+
+				if (renderScope.type === 'skip') return
+
+				console.log(chalk.blue('\nChange detected, rebuilding...'))
 
 				if (!skipCheck) {
 					const proceed = await handleCheck(
@@ -487,12 +613,56 @@ export async function renderCommand(
 					if (!proceed) return
 				}
 
-				await runRender(freshParsed, options, cwd, context)
+				await runRender(freshParsed, options, cwd, context, renderScope)
 			} catch (error) {
 				console.log(chalk.yellow((error as Error).message ?? 'Unknown error'))
 				console.log(chalk.yellow('Fix issues and save again.'))
 			}
 		}, 150)
+	}
+
+	watcher.on('change', (changedPath: string) => {
+		scheduleRender(freshParsed => {
+			if (changedPath.endsWith('.view.yaml')) {
+				try {
+					const newViews = loadViewFile(changedPath)
+					const oldViews = prevViewFiles.get(changedPath) ?? {}
+					const changed = diffViewFile(oldViews, newViews)
+					prevViewFiles.set(changedPath, newViews)
+					return changed.length > 0 ?
+							{ type: 'views', names: new Set(changed) }
+						:	{ type: 'skip' }
+				} catch {
+					return { type: 'full' }
+				}
+			} else if (resolve(changedPath) === inputPath) {
+				return computeMarkdownChangeScope(
+					prevContent,
+					prevConfig,
+					freshParsed.content,
+					freshParsed.config,
+				)
+			}
+			return { type: 'full' }
+		})
+	})
+
+	watcher.on('add', (addedPath: string) => {
+		if (!addedPath.endsWith('.view.yaml')) return
+		watcher.add(addedPath)
+
+		let newViews: Record<string, ViewLayer>
+		try {
+			newViews = loadViewFile(addedPath)
+		} catch {
+			return
+		}
+		prevViewFiles.set(addedPath, newViews)
+
+		const viewNames = Object.keys(newViews)
+		if (viewNames.length === 0) return
+
+		scheduleRender(() => ({ type: 'views', names: new Set(viewNames) }))
 	})
 
 	let resolveDone: () => void
