@@ -7,6 +7,35 @@ const BASE_VIEW: ResolvedView = resolveView([])
 const OUTPUT = { dir: '/out', name: 'resume' }
 
 describe('planRenders', () => {
+	describe('viewName', () => {
+		it('carries the named view name through to each plan', () => {
+			const feView = resolveView([{ selects: ['frontend'] }])
+			const namedViews: NamedView[] = [{ name: 'frontend', view: feView }]
+
+			const plans = planRenders(namedViews, [], ['pdf'], OUTPUT)
+
+			expect(plans[0]!.viewName).toBe('frontend')
+		})
+
+		it('is undefined when the named view has no name', () => {
+			const namedViews: NamedView[] = [{ name: undefined, view: BASE_VIEW }]
+
+			const plans = planRenders(namedViews, [], ['pdf'], OUTPUT)
+
+			expect(plans[0]!.viewName).toBeUndefined()
+		})
+
+		it('is consistent across formats for the same named view', () => {
+			const feView = resolveView([{ selects: ['frontend'] }])
+			const namedViews: NamedView[] = [{ name: 'frontend', view: feView }]
+
+			const plans = planRenders(namedViews, [], ['pdf', 'html'], OUTPUT)
+
+			expect(plans[0]!.viewName).toBe('frontend')
+			expect(plans[1]!.viewName).toBe('frontend')
+		})
+	})
+
 	describe('no --for (base render)', () => {
 		it('produces a single plan with no view suffix', () => {
 			const namedViews: NamedView[] = [{ name: undefined, view: BASE_VIEW }]
