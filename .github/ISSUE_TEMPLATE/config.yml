@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://resumx.dev/guide/
+    about: Check the docs before opening an issue
