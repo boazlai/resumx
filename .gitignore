@@ -154,3 +154,4 @@ deps.svg
 .cursor/
 .cursorignore
 TODO.md
+private/
