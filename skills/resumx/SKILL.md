@@ -203,24 +203,24 @@ Resumx uses Playwright with Chromium for PDF rendering. Chromium cannot launch i
 
 ### Render Options
 
-| Flag                       | Description                                                          |
-| -------------------------- | -------------------------------------------------------------------- |
-| `--css <path>`             | Path to custom CSS file, repeatable, comma-separated                 |
-| `-o, --output <value>`     | Output path (name, directory, or template)                           |
-| `-f, --format <name>`      | `pdf`, `html`, `docx`, `png`, repeatable, comma-separated            |
-| `-s, --style <name=value>` | Override style property, repeatable                                  |
-| `--for <name-or-glob>`     | Tag view name, custom view name, glob pattern, or `.view.yaml` path  |
-| `-v, --var <key=value>`    | Override a template variable, repeatable                             |
-| `--hide <list>`            | Hide sections (comma-separated `data-section` values)                |
-| `--pin <list>`             | Pin sections to top in order (comma-separated `data-section` values) |
-| `--bullet-order <value>`   | Bullet ordering: `none` (default) or `tag`                           |
-| `-l, --lang <tag>`         | Language filter (BCP 47), repeatable, comma-separated                |
-| `-p, --pages <number>`     | Target page count                                                    |
-| `-w, --watch`              | Auto-rebuild on changes                                              |
-| `--check`                  | Validate only, no render                                             |
-| `--no-check`               | Skip validation                                                      |
-| `--strict`                 | Fail on any validation error                                         |
-| `--min-severity <level>`   | Filter validation output                                             |
+| Flag                       | Description                                                                      |
+| -------------------------- | -------------------------------------------------------------------------------- |
+| `--css <path>`             | Path to custom CSS file, repeatable, comma-separated                             |
+| `-o, --output <value>`     | Output path (name, directory, or template)                                       |
+| `-f, --format <name>`      | `pdf`, `html`, `docx`, `png`, repeatable, comma-separated                        |
+| `-s, --style <name=value>` | Override style property, repeatable                                              |
+| `--for <name-or-glob>`     | Tag view name, custom view name, glob pattern, or `default` for the default view |
+| `-v, --var <key=value>`    | Override a template variable, repeatable                                         |
+| `--hide <list>`            | Hide sections (comma-separated `data-section` values)                            |
+| `--pin <list>`             | Pin sections to top in order (comma-separated `data-section` values)             |
+| `--bullet-order <value>`   | Bullet ordering: `none` (default) or `tag`                                       |
+| `-l, --lang <tag>`         | Language filter (BCP 47), repeatable, comma-separated                            |
+| `-p, --pages <number>`     | Target page count                                                                |
+| `-w, --watch`              | Auto-rebuild on changes                                                          |
+| `--check`                  | Validate only, no render                                                         |
+| `--no-check`               | Skip validation                                                                  |
+| `--strict`                 | Fail on any validation error                                                     |
+| `--min-severity <level>`   | Filter validation output                                                         |
 
 ### Stdin
 
@@ -424,7 +424,7 @@ stripe-swe:
     tagline: 'Stream Processing, Event-Driven Architecture, Go, Kafka'
 ```
 
-Render with `--for stripe-swe`. Batch with `--for '*'` or `--for 'stripe-*'`.
+Render with `--for stripe-swe`. Batch with `--for '*'` or `--for 'stripe-*'`. Use `--for default` to target the default view (no tag filtering); combine with named views, e.g. `--for default,frontend`, to render both. Do not name a view `default` (reserved).
 
 Custom view fields: `selects` (content tags to include), `sections`, `pages`, `bullet-order`, `vars`, `style`, `format`, `output`.
 

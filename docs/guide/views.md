@@ -265,4 +265,6 @@ resumx resume.md --for '*'
 resumx resume.md --for 'stripe-*'
 ```
 
+To include the default view (no tag filtering) together with specific views, use `--for default` and list the named views. The name `default` is reserved; do not use it for a tag or custom view. Example: `resumx resume.md --for default,frontend` produces both `resume.pdf` (all content) and `resume-frontend.pdf` (frontend-filtered).
+
 Glob patterns match against all named views (both tag views and custom views). The pattern must match at least one view, otherwise Resumx raises an error listing available names.

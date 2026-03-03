@@ -128,6 +128,16 @@ export async function runRender(
 	const namedViews: NamedView[] = []
 
 	if (forFlags.length > 0) {
+		if (forFlags.includes('*')) {
+			const view = resolveView([defaultView, ephemeralView])
+			const overlapError = validateHidePinOverlap(
+				view.sections.hide,
+				view.sections.pin,
+			)
+			if (overlapError) throw new Error(overlapError)
+			namedViews.push({ name: undefined, view })
+		}
+
 		for (const forValue of forFlags) {
 			const resolved = resolveForValue(
 				forValue,
@@ -144,6 +154,12 @@ export async function runRender(
 				)
 				if (overlapError) throw new Error(overlapError)
 
+				if (
+					name === undefined
+					&& namedViews.some(nv => nv.name === undefined)
+				) {
+					continue
+				}
 				namedViews.push({ name, view })
 			}
 		}
