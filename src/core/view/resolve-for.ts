@@ -42,8 +42,12 @@ export function extractTagViews(
 	return views
 }
 
+/** Value for `--for` that means the default view (no tag filtering). Reserved; do not name a view "default". */
+export const DEFAULT_VIEW_FOR_VALUE = 'default'
+
 export interface NamedViewLayer {
-	name: string
+	/** View name, or undefined for the default view. */
+	name: string | undefined
 	layer: ViewLayer
 }
 
@@ -129,6 +133,7 @@ function matchGlob(pattern: string, name: string): boolean {
  * 1. **File path** (`./stripe.view.yaml`) → load all views from file
  * 2. **Glob** (`stripe-*`, `*`) → match against all named views (tag + custom)
  * 3. **Exact name** → resolve via resolveForFlag
+ * 4. **`default`** → default view (no tag filtering)
  */
 export function resolveForValue(
 	value: string,
@@ -136,6 +141,10 @@ export function resolveForValue(
 	customViews: Record<string, ViewLayer>,
 	contentTags: string[],
 ): NamedViewLayer[] {
+	if (value === DEFAULT_VIEW_FOR_VALUE) {
+		return [{ name: undefined, layer: {} }]
+	}
+
 	if (isViewFilePath(value)) {
 		const views = loadViewFile(value)
 		const entries = Object.entries(views)
@@ -155,6 +164,7 @@ export function resolveForValue(
 		const matches = allNames.filter(n => matchGlob(value, n))
 
 		if (matches.length === 0) {
+			if (value === '*') return []
 			if (allNames.length === 0) {
 				throw new Error(
 					`No views match pattern '${value}'. No views found. Create a .view.yaml file or define tag views in frontmatter.`,

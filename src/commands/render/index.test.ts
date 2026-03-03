@@ -1551,6 +1551,115 @@ tags:
 			expect(frontendHtml).not.toContain('Go')
 		})
 
+		it('--for * also renders the base view', async () => {
+			const mdContent = `---
+tags:
+  general: [frontend, backend]
+---
+# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}
+- Common skill`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['*'] },
+				tempDir,
+			)
+
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-general.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+
+			const baseHtml = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(baseHtml).toContain('React')
+			expect(baseHtml).toContain('Go')
+			expect(baseHtml).toContain('Common skill')
+		})
+
+		it('--for default renders only the default view (no tag filtering)', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}
+- Common skill`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['default'] },
+				tempDir,
+			)
+
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
+			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(false)
+
+			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(html).toContain('React')
+			expect(html).toContain('Go')
+			expect(html).toContain('Common skill')
+		})
+
+		it('--for default --for frontend renders default view and frontend view', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}
+- Common skill`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['default', 'frontend'] },
+				tempDir,
+			)
+
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(false)
+
+			const defaultHtml = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			expect(defaultHtml).toContain('React')
+			expect(defaultHtml).toContain('Go')
+			expect(defaultHtml).toContain('Common skill')
+
+			const frontendHtml = readFileSync(
+				join(tempDir, 'resume-frontend.html'),
+				'utf-8',
+			)
+			expect(frontendHtml).toContain('React')
+			expect(frontendHtml).toContain('Common skill')
+			expect(frontendHtml).not.toContain('Go')
+		})
+
+		it('--for default --for default --for frontend dedupes default view to one', async () => {
+			const mdContent = `# Test Person
+
+## Skills
+
+- React {.@frontend}
+- Go {.@backend}`
+			writeFileSync(join(tempDir, 'resume.md'), mdContent)
+
+			await renderCommand(
+				'resume.md',
+				{ format: ['html'], for: ['default', 'default', 'frontend'] },
+				tempDir,
+			)
+
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+		})
+
 		it('--for glob matches custom view names', async () => {
 			const mdContent = `# Test Person
 

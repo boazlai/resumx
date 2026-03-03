@@ -43,7 +43,7 @@ When reading from stdin, the output filename is derived from:
 | `-s, --style <name=value>` | Override style property. Repeatable.                                                                             |
 | `-l, --lang <tag>`         | Generate for specific language(s) only. Repeatable, comma-separated (BCP 47 tags).                               |
 | `-p, --pages <number>`     | Target page count. Shrinks to fit; for `1`, also fills remaining space.                                          |
-| `--for <name-or-glob>`     | Tag view name, custom view name, glob pattern, or file path. See [Views](/guide/views).                          |
+| `--for <name-or-glob>`     | Tag view name, custom view name, glob pattern, or `default` for the default view. See [Views](/guide/views).     |
 | `-v, --var <key=value>`    | Override a template variable. Repeatable.                                                                        |
 | `--hide <list>`            | Hide sections from output (comma-separated [`data-section`](/guide/semantic-selectors) values).                  |
 | `--pin <list>`             | Pin sections to the top in specified order (comma-separated [`data-section`](/guide/semantic-selectors) values). |

@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
+import type { FrontmatterConfig } from '../frontmatter.js'
 import {
+	DEFAULT_VIEW_FOR_VALUE,
 	extractTagViews,
 	resolveForFlag,
 	resolveForValue,
@@ -29,13 +31,13 @@ describe('extractTagViews', () => {
 		const views = extractTagViews({
 			frontend: {
 				extends: ['backend'],
-				sections: { hide: ['publications'] },
+				sections: { hide: ['publications'], pin: [] },
 				pages: 1,
 			},
 		})
 		expect(views.frontend).toEqual({
 			selects: ['frontend', 'backend'],
-			sections: { hide: ['publications'] },
+			sections: { hide: ['publications'], pin: [] },
 			pages: 1,
 		})
 	})
@@ -54,7 +56,7 @@ describe('extractTagViews', () => {
 		const views = extractTagViews({
 			fullstack: ['frontend', 'backend'],
 			frontend: {
-				sections: { pin: ['skills'] },
+				sections: { hide: [], pin: ['skills'] },
 				pages: 1,
 			},
 		})
@@ -64,7 +66,7 @@ describe('extractTagViews', () => {
 		})
 		expect(views.frontend).toEqual({
 			selects: ['frontend'],
-			sections: { pin: ['skills'] },
+			sections: { hide: [], pin: ['skills'] },
 			pages: 1,
 		})
 	})
@@ -176,6 +178,18 @@ describe('resolveForFlag', () => {
 })
 
 describe('resolveForValue', () => {
+	describe('default view', () => {
+		it('returns single entry with name undefined and empty layer for --for default', () => {
+			const result = resolveForValue(DEFAULT_VIEW_FOR_VALUE, {}, {}, [
+				'frontend',
+				'backend',
+			])
+			expect(result).toHaveLength(1)
+			expect(result[0]!.name).toBeUndefined()
+			expect(result[0]!.layer).toEqual({})
+		})
+	})
+
 	describe('exact name resolution', () => {
 		it('resolves single tag view', () => {
 			const tagViews = { frontend: { selects: ['frontend'], pages: 1 } }
@@ -303,10 +317,9 @@ describe('resolveForValue', () => {
 			).toThrow("No views match pattern 'nonexistent-*'")
 		})
 
-		it('throws when glob used with zero views', () => {
-			expect(() => resolveForValue('*', {}, {}, [])).toThrow(
-				'No views found. Create a .view.yaml file or define tag views in frontmatter.',
-			)
+		it('returns empty array when * glob matches zero views', () => {
+			const result = resolveForValue('*', {}, {}, [])
+			expect(result).toHaveLength(0)
 		})
 
 		it('matches with ? wildcard', () => {
@@ -486,11 +499,11 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 	})
 
 	it('--for frontend with expanded tag uses tag view sections, pages, etc.', () => {
-		const tags = {
+		const tags: FrontmatterConfig['tags'] = {
 			frontend: {
 				sections: {
-					hide: ['publications'] as string[],
-					pin: ['skills', 'projects'] as string[],
+					hide: ['publications'],
+					pin: ['skills', 'projects'],
 				},
 				pages: 1,
 			},
@@ -564,12 +577,12 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 	})
 
 	it('expanded tag view with all fields propagates through cascade', () => {
-		const tags = {
+		const tags: FrontmatterConfig['tags'] = {
 			frontend: {
 				extends: ['backend'],
 				sections: {
-					hide: ['publications'] as string[],
-					pin: ['skills'] as string[],
+					hide: ['publications'],
+					pin: ['skills'],
 				},
 				pages: 1,
 				'bullet-order': 'tag' as const,
