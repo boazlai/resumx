@@ -629,8 +629,10 @@ Test content`
 				tempDir,
 			)
 
-			// Single target → no suffix
-			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			const htmlContent = readFileSync(
+				join(tempDir, 'resume-frontend.html'),
+				'utf-8',
+			)
 			expect(htmlContent).toContain('React')
 			expect(htmlContent).not.toContain('Node.js')
 			expect(htmlContent).toContain('Common skill')
@@ -687,7 +689,7 @@ Test content`
 			expect(htmlContent).toContain('Node.js')
 		})
 
-		it('generates single file with explicit --for flag', async () => {
+		it('generates suffixed file with explicit --for flag', async () => {
 			const mdContent = `# Test Person
 
 ## Skills
@@ -702,9 +704,8 @@ Test content`
 				tempDir,
 			)
 
-			// Single target selected → no suffix needed
-			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
-			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
+			expect(existsSync(join(tempDir, 'resume.html'))).toBe(false)
 			expect(existsSync(join(tempDir, 'resume-backend.html'))).toBe(false)
 		})
 
@@ -753,8 +754,10 @@ Test content`
 				tempDir,
 			)
 
-			// Single target → no suffix
-			const htmlContent = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			const htmlContent = readFileSync(
+				join(tempDir, 'resume-backend.html'),
+				'utf-8',
+			)
 			expect(htmlContent).not.toContain('Frontend Skills')
 			expect(htmlContent).not.toContain('React')
 			expect(htmlContent).toContain('Backend Skills')
@@ -1025,11 +1028,8 @@ Test content`
 				tempDir,
 			)
 
-			// Single target after trimming → no suffix
-			expect(existsSync(join(tempDir, 'resume.html'))).toBe(true)
-			// Should not create an empty-named or suffixed file
+			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(true)
 			expect(existsSync(join(tempDir, 'resume-.html'))).toBe(false)
-			expect(existsSync(join(tempDir, 'resume-frontend.html'))).toBe(false)
 		})
 	})
 
@@ -1410,7 +1410,7 @@ tags:
 				tempDir,
 			)
 
-			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			const html = readFileSync(join(tempDir, 'resume-frontend.html'), 'utf-8')
 			expect(html).toContain('React')
 			expect(html).not.toContain('Node.js')
 			expect(html).not.toContain('data-section="education"')
@@ -1441,7 +1441,7 @@ tags:
 				tempDir,
 			)
 
-			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			const html = readFileSync(join(tempDir, 'resume-frontend.html'), 'utf-8')
 			expect(html).toContain('Frontend specialist')
 			expect(html).not.toContain('Default tagline')
 		})
@@ -1474,7 +1474,7 @@ tags:
 				tempDir,
 			)
 
-			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			const html = readFileSync(join(tempDir, 'resume-frontend.html'), 'utf-8')
 			expect(html).toContain('CLI override')
 			expect(html).not.toContain('Tag view tagline')
 			expect(html).not.toContain('Default tagline')
@@ -1503,7 +1503,10 @@ tags:
 				tempDir,
 			)
 
-			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			const html = readFileSync(
+				join(tempDir, 'resume-stripe-swe.html'),
+				'utf-8',
+			)
 			expect(html).toContain('Go')
 			expect(html).toContain('Common skill')
 			expect(html).not.toContain('React')
@@ -1646,7 +1649,10 @@ adhoc-be:
 				tempDir,
 			)
 
-			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			const html = readFileSync(
+				join(tempDir, 'resume-styled-view.html'),
+				'utf-8',
+			)
 			expect(html).toContain('React')
 			expect(html).toContain('--font-family: CustomFont, sans-serif')
 		})
@@ -1674,7 +1680,7 @@ adhoc-be:
 				tempDir,
 			)
 
-			const html = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			const html = readFileSync(join(tempDir, 'resume-nested-fe.html'), 'utf-8')
 			expect(html).toContain('React')
 			expect(html).not.toContain('Go')
 		})
@@ -2072,7 +2078,10 @@ tags:
 
 			await startWatching('resume.md', { for: ['stripe-swe'] })
 
-			const initialHtml = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			const initialHtml = readFileSync(
+				join(tempDir, 'resume-stripe-swe.html'),
+				'utf-8',
+			)
 			expect(initialHtml).toContain('Go')
 			expect(initialHtml).not.toContain('React')
 
@@ -2082,7 +2091,10 @@ tags:
 			)
 			await sleep(CHANGE_DETECT_MS)
 
-			const updatedHtml = readFileSync(join(tempDir, 'resume.html'), 'utf-8')
+			const updatedHtml = readFileSync(
+				join(tempDir, 'resume-stripe-swe.html'),
+				'utf-8',
+			)
 			expect(updatedHtml).toContain('React')
 			expect(updatedHtml).not.toContain('Go')
 		})

@@ -60,15 +60,15 @@ describe('planRenders', () => {
 	})
 
 	describe('--for with single tag', () => {
-		it('produces a plan with the tag view config', () => {
+		it('includes the view name suffix even with a single named view', () => {
 			const tagView = resolveView([{ selects: ['frontend'], pages: 1 }])
 			const namedViews: NamedView[] = [{ name: 'frontend', view: tagView }]
 
 			const plans = planRenders(namedViews, [], ['pdf'], OUTPUT)
 
 			expect(plans).toHaveLength(1)
-			expect(plans[0]!.outputPath).toBe('/out/resume.pdf')
-			expect(plans[0]!.label).toBe('')
+			expect(plans[0]!.outputPath).toBe('/out/resume-frontend.pdf')
+			expect(plans[0]!.label).toBe('[frontend]')
 			expect(plans[0]!.view.selects).toEqual(['frontend'])
 			expect(plans[0]!.view.pages).toBe(1)
 		})
