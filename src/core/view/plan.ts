@@ -39,7 +39,6 @@ export function planRenders(
 ): RenderPlan[] {
 	const plans: RenderPlan[] = []
 	const isTemplate = 'template' in output
-	const hasMultipleViews = namedViews.length > 1
 	const hasMultipleLangs = langs.length > 1
 
 	const effectiveLangs: Array<string | undefined> =
@@ -47,7 +46,7 @@ export function planRenders(
 
 	for (const [namedView, lang] of cartesian(namedViews, effectiveLangs)) {
 		const viewName = namedView.name
-		const showView = isTemplate ? !!viewName : hasMultipleViews && !!viewName
+		const showView = !!viewName
 		const showLang = isTemplate ? !!lang : hasMultipleLangs && !!lang
 
 		const labelParts = [showView && viewName, showLang && lang].filter(
@@ -75,10 +74,9 @@ export function planRenders(
 			outputName = stripDocExtension(basename(resolvedPath))
 		} else {
 			outputDir = output.dir
-			const suffixParts = [
-				hasMultipleViews && viewName,
-				hasMultipleLangs && lang,
-			].filter(Boolean) as string[]
+			const suffixParts = [viewName, hasMultipleLangs && lang].filter(
+				Boolean,
+			) as string[]
 			outputName =
 				suffixParts.length > 0 ?
 					`${output.name}-${suffixParts.join('-')}`
