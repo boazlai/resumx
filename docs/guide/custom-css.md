@@ -63,10 +63,10 @@ css: [base-company.css, role-specific.css]
 
 If you need to build a stylesheet from scratch, your CSS file can `@import` any of the bundled common modules. They resolve automatically regardless of where your CSS file lives.
 
-| Module                 | Purpose                                     |
-| ---------------------- | ------------------------------------------- |
-| `common/base.css`      | Reset, typography, spacing, page layout     |
-| `common/icons.css`     | Icon sizing and alignment                   |
-| `common/utilities.css` | Utility classes (`.small-caps`, `.sr-only`) |
+| Module                 | Purpose                                               |
+| ---------------------- | ----------------------------------------------------- |
+| `common/base.css`      | Reset, typography, spacing, page layout               |
+| `common/icons.css`     | Icon sizing and alignment                             |
+| `common/utilities.css` | Utility classes (`.small-caps`, `.sr-only`, `.max-N`) |
 
 To target specific sections, entries, and header fields, see [Semantic Selectors](/guide/semantic-selectors).

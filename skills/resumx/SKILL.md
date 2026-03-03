@@ -275,7 +275,7 @@ h2 {
 
 Reference by path: `css: my-styles.css` or `--css my-styles.css`.
 
-For building a stylesheet from scratch, `@import` bundled modules: `common/base.css` (reset, typography, layout), `common/icons.css` (icon sizing), `common/utilities.css` (`.small-caps`, `.sr-only`).
+For building a stylesheet from scratch, `@import` bundled modules: `common/base.css` (reset, typography, layout), `common/icons.css` (icon sizing), `common/utilities.css` (`.small-caps`, `.sr-only`, `.max-N`).
 
 ## Fit to Page
 
@@ -326,7 +326,7 @@ Resumx compiles Tailwind CSS v4 on-the-fly. Apply via `{.class}` syntax:
 
 Works with bracketed spans, element attributes, and fenced divs. Supports arbitrary values: `.text-[#ff6600]`.
 
-Built-in utilities: `.small-caps`, `.sr-only`.
+Built-in utilities: `.small-caps`, `.sr-only`, `.max-1` – `.max-16` (hide children beyond the Nth).
 
 ## Tags
 

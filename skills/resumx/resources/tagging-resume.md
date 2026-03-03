@@ -147,6 +147,27 @@ Wait for the user's response before proceeding.
 
 After the user approves (with any modifications), apply the tags:
 
+### Ordering and Capping
+
+**Arrange bullets from most important to least important** within each entry. This ordering matters for two reasons: recruiters scan top-down, and when you cap display (see below), only the first N bullets remain visible.
+
+When a composite view (e.g. `fullstack`, `node-fullstack`) combines many tags and produces too many bullets, use the `max-N` utilities from `styles/common/utilities.css` to cap the display. Classes `max-1` through `max-16` hide children beyond the Nth. Apply via an unnamed fenced div so attributes fall through to the `<ul>` (single child):
+
+```markdown
+### Google || Jan 2020 - Present
+
+_Senior Engineer_
+
+::: {.max-8}
+
+- Reduced API latency by 60% through query optimization
+- Led migration to event-driven architecture
+- ...
+  :::
+```
+
+Because bullets are ordered by importance, the cap shows only the strongest content.
+
 ### 1. Tag Content
 
 Add `{.@tagname}` to each classified bullet:
