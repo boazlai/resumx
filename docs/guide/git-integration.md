@@ -1,8 +1,14 @@
-# Git Superpowers
+# Git Integration
 
-A single branch works well for most resume projects. Use [tags and views](/guide/tailoring) to tailor each application, and `git tag` to snapshot submissions.
+Use [tags and views](/guide/tailoring) to tailor each application, and `git tag` to snapshot submissions.
 
 ## Render Past Version
+
+Run this once to create the `git resumx` alias:
+
+```bash
+git config alias.resumx '!f() { ref="HEAD"; for arg in "$@"; do case "$arg" in -*) break ;; *) ref="$arg"; shift; break ;; esac; done; git show "$ref":resume.md | resumx "$@"; }; f'
+```
 
 With a one-time alias setup, you can render your resume from past commits, tags, or refs:
 
@@ -12,12 +18,6 @@ git resumx a3f1c2d --for backend              # specific commit, filtered by tag
 git resumx HEAD~3 --css my-styles.css -o stripe  # 3 commits ago, custom CSS + output
 git resumx --for frontend                    # HEAD with tag filter (ref is optional)
 git resumx HEAD@{3 months ago} --format png     # 3 months ago, as PNG
-```
-
-Run this once to create the `git resumx` alias:
-
-```bash
-git config alias.resumx '!f() { ref="HEAD"; for arg in "$@"; do case "$arg" in -*) break ;; *) ref="$arg"; shift; break ;; esac; done; git show "$ref":resume.md | resumx "$@"; }; f'
 ```
 
 ### Preview Staged Changes
