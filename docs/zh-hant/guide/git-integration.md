@@ -7,17 +7,17 @@
 只需執行一次以下指令，即可建立 `git resumx` 別名：
 
 ```bash
-git config alias.resumx '!f() { ref="HEAD"; for arg in "$@"; do case "$arg" in -*) break ;; *) ref="$arg"; shift; break ;; esac; done; git show "$ref":resume.md | resumx "$@"; }; f'
+git config alias.resumx '!f() { spec="$1"; shift; case "$spec" in *:*) ;; *) spec="$spec:resume.md";; esac; git show "$spec" | resumx "$@"; }; f'
 ```
 
 透過一次性設定別名，您就能從過去的 commit、標籤 (tag) 或參照 (ref) 渲染您的履歷：
 
 ```bash
-git resumx sent/stripe-2026-02                  # 渲染一個標籤
-git resumx a3f1c2d --for backend              # 特定的 commit，以標籤過濾
-git resumx HEAD~3 --css my-styles.css -o stripe  # 3 個 commit 前，自訂 CSS + 輸出路徑
-git resumx --for frontend                    # HEAD 使用標籤過濾 (ref 是可選的)
-git resumx HEAD@{3 months ago} --format png     # 3 個月前，轉成 PNG 格式
+git resumx sent/stripe-2026-02                             # 渲染標籤（預設 resume.md）
+git resumx sent/stripe-2026-02:cv.md                       # 明確指定該標籤下的檔案路徑
+git resumx a3f1c2d:resume.md --for backend                 # 特定 commit，以標籤過濾
+git resumx HEAD~3:resume.md --css my-styles.css -o stripe  # 3 個 commit 前，自訂 CSS + 輸出路徑
+git resumx "HEAD@{3 months ago}:resume.md" --format png    # 3 個月前，轉成 PNG 格式
 ```
 
 ### 預覽已暫存的更改 (Preview Staged Changes)

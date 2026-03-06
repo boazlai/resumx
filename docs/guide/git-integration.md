@@ -7,17 +7,17 @@ Use [tags and views](/guide/tailoring) to tailor each application, and `git tag`
 Run this once to create the `git resumx` alias:
 
 ```bash
-git config alias.resumx '!f() { ref="HEAD"; for arg in "$@"; do case "$arg" in -*) break ;; *) ref="$arg"; shift; break ;; esac; done; git show "$ref":resume.md | resumx "$@"; }; f'
+git config alias.resumx '!f() { spec="$1"; shift; case "$spec" in *:*) ;; *) spec="$spec:resume.md";; esac; git show "$spec" | resumx "$@"; }; f'
 ```
 
 With a one-time alias setup, you can render your resume from past commits, tags, or refs:
 
 ```bash
-git resumx sent/stripe-2026-02                  # render a tag
-git resumx a3f1c2d --for backend              # specific commit, filtered by tag
-git resumx HEAD~3 --css my-styles.css -o stripe  # 3 commits ago, custom CSS + output
-git resumx --for frontend                    # HEAD with tag filter (ref is optional)
-git resumx HEAD@{3 months ago} --format png     # 3 months ago, as PNG
+git resumx sent/stripe-2026-02                             # render a tag (defaults to resume.md)
+git resumx sent/stripe-2026-02:cv.md                       # explicit path at that tag
+git resumx a3f1c2d:resume.md --for backend                 # specific commit, filtered by tag
+git resumx HEAD~3:resume.md --css my-styles.css -o stripe  # 3 commits ago, custom CSS + output
+git resumx "HEAD@{3 months ago}:resume.md" --format png    # 3 months ago, as PNG
 ```
 
 ### Preview Staged Changes

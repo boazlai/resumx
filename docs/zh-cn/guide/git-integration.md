@@ -7,17 +7,17 @@
 运行此命令一次以创建 `git resumx` 别名：
 
 ```bash
-git config alias.resumx '!f() { ref="HEAD"; for arg in "$@"; do case "$arg" in -*) break ;; *) ref="$arg"; shift; break ;; esac; done; git show "$ref":resume.md | resumx "$@"; }; f'
+git config alias.resumx '!f() { spec="$1"; shift; case "$spec" in *:*) ;; *) spec="$spec:resume.md";; esac; git show "$spec" | resumx "$@"; }; f'
 ```
 
 通过一次性别名设置，你可以从过去的提交、标签或引用渲染简历：
 
 ```bash
-git resumx sent/stripe-2026-02                  # 渲染标签
-git resumx a3f1c2d --for backend              # 特定提交，按标签过滤
-git resumx HEAD~3 --css my-styles.css -o stripe  # 3 个提交之前，自定义 CSS + 输出
-git resumx --for frontend                    # 使用标签过滤的 HEAD（引用是可选的）
-git resumx HEAD@{3 months ago} --format png     # 3 个月前，保存为 PNG
+git resumx sent/stripe-2026-02                             # 渲染标签（默认 resume.md）
+git resumx sent/stripe-2026-02:cv.md                       # 明确指定该标签下的文件路径
+git resumx a3f1c2d:resume.md --for backend                 # 特定提交，按标签过滤
+git resumx HEAD~3:resume.md --css my-styles.css -o stripe  # 3 个提交之前，自定义 CSS + 输出
+git resumx "HEAD@{3 months ago}:resume.md" --format png    # 3 个月前，保存为 PNG
 ```
 
 ### 预览暂存区更改

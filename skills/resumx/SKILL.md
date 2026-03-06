@@ -515,9 +515,17 @@ Headings are classified by fuzzy keyword matching.
 
 ## Git Integration
 
+If the user hasn't set up the `git resumx` alias yet, run this first:
+
 ```bash
-git resumx sent/stripe-2026-02              # render from tag
-git resumx HEAD~3 --css my-styles.css -o stripe  # past commit
+git config alias.resumx '!f() { spec="$1"; shift; case "$spec" in *:*) ;; *) spec="$spec:resume.md";; esac; git show "$spec" | resumx "$@"; }; f'
+```
+
+Then render from git history:
+
+```bash
+git resumx sent/stripe-2026-02:resume.md              # render from tag
+git resumx HEAD~3:resume.md --css my-styles.css -o stripe  # past commit
 git show :resume.md | resumx -o staged      # staged changes
 ```
 
