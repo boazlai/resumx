@@ -84,23 +84,13 @@ npx skills add resumx/resumx
 
 This enables AI assistants like Cursor, Claude Code, and Copilot to understand and work with your Resumx files.
 
-## CLI
-
-| Command                                | Description             |
-| -------------------------------------- | ----------------------- |
-| `resumx [file]`                        | Render to PDF (default) |
-| `resumx [file] --watch`                | Live preview            |
-| `resumx [file] --css my-styles.css`    | Custom CSS file         |
-| `resumx [file] --target frontend`      | Target-specific output  |
-| `resumx [file] --format pdf,html,docx` | PDF + HTML + DOCX       |
-| `resumx [file] --pages 1`              | Fit to 1 page           |
-| `resumx init`                          | Create from template    |
-
-See the full [CLI Reference](https://resumx.dev/guide/cli-reference.html).
-
 ## Documentation
 
 For full documentation, visit [resumx.dev](https://resumx.dev).
+
+## CLI
+
+See the full [CLI Reference](https://resumx.dev/guide/cli-reference.html).
 
 ## License
 
