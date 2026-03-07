@@ -21,7 +21,25 @@ Resumx is a resume builder that automates the parts you shouldn't be spending ti
 
   <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/cli-demo.gif" alt="Multiple Role Demo" width="600px" />
 
-- **30+ style options, built-in <img src=".github/tailwindcss-logo.svg" alt="Tailwind CSS Logo" width="15" height="11"> Tailwind CSS, 200k+ icon shortcodes.**
+- **30+ style options, built-in <img src=".github/tailwindcss-logo.svg" alt="Tailwind CSS Logo" width="15" height="11"> Tailwind CSS, 200k+ icon shortcodes.** Mix and match to create your own look.
+
+  <table>
+    <tr>
+      <td align="center">
+        <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/gallery/png/seattle.png" alt="Seattle" width="200" />
+        <br /><sub><b>Seattle</b></sub>
+      </td>
+      <td align="center">
+        <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/gallery/png/oxford.png" alt="Oxford" width="200" />
+        <br /><sub><b>Oxford</b></sub>
+      </td>
+      <td align="center">
+        <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/gallery/png/zurich.png" alt="Zurich" width="200" />
+        <br /><sub><b>Zurich</b></sub>
+      </td>
+    </tr>
+  </table>
+
 - **PDF, HTML, DOCX, and PNG** from a single source.
 - **Render from any commit or tag**
 
