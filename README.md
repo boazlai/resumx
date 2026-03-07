@@ -1,4 +1,4 @@
-![Resumx OG Image](https://raw.githubusercontent.com/resumx/resumx/HEAD/.github/resumx-og-image.png)
+![Resumx OG Image](https://github.com/resumx/resumx/blob/HEAD/.github/resumx-og-image.png?raw=true)
 
 ---
 
@@ -26,16 +26,19 @@ Resumx is a resume builder that automates the parts you shouldn't be spending ti
   <table>
     <tr>
       <td align="center">
-        <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/gallery/png/seattle.png" alt="Seattle" width="200" />
-        <br /><sub><b>Seattle</b></sub>
+        <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/seattle.pdf">
+          <img src="https://github.com/resumx/resumx/blob/HEAD/gallery/png/seattle.png?raw=true" alt="Seattle" width="200" />
+        </a>
       </td>
       <td align="center">
-        <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/gallery/png/oxford.png" alt="Oxford" width="200" />
-        <br /><sub><b>Oxford</b></sub>
+        <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/oxford.pdf">
+          <img src="https://github.com/resumx/resumx/blob/HEAD/gallery/png/oxford.png?raw=true" alt="Oxford" width="200" />
+        </a>
       </td>
       <td align="center">
-        <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/gallery/png/zurich.png" alt="Zurich" width="200" />
-        <br /><sub><b>Zurich</b></sub>
+        <a href="https://github.com/resumx/resumx/blob/HEAD/gallery/pdf/zurich.pdf">
+          <img src="https://github.com/resumx/resumx/blob/HEAD/gallery/png/zurich.png?raw=true" alt="Zurich" width="200" />
+        </a>
       </td>
     </tr>
   </table>
