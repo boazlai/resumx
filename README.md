@@ -14,74 +14,47 @@
 
 Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic.html), but most people skip it because it means managing multiple files and re-fitting everything to one page. Resumx lets you tailor for every role in a single file, and auto-fits your content to the page count you set
 
-- **Always fits the page:** Set `pages: 1` and add or remove content freely, Resumx scales typography and spacing so it always lands on exactly one page.
-- **Target multiple role in one file**
+- **Add or remove content freely, it always fits number of pages you set**
+  ![Page Fit Demo](https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/page-fit-demo.gif)
+- **Tailor for every role in one file**
   ![Multiple Role Demo](https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/cli-demo.gif)
-- **AI agent skills included:** Ships with [agent skills](https://resumx.dev) so OpenClaw, Claude Code, and any other AIs understand Resumx syntax, and write in best practices.
-- **30+ style options:** Tweak colors, fonts, spacing, bullet styles, etc. from frontmatter. No CSS required.
-- **Catch mistakes before recruiters do:** Built-in validation flags weak bullets, missing info, and formatting issues before you hit send.
+- **30+ style options, built-in <img src=".github/tailwindcss-logo.svg" alt="Tailwind CSS Logo" width="15" height="11"> Tailwind CSS, 200k+ icon shortcodes.**
+- **PDF, HTML, DOCX, and PNG** from a single source.
+- **Render from any commit or tag**
+- **Plain Markdown.** One `.md` file, works with Git, any editor, any AI.
+  <!-- prettier-ignore-start -->
 
-<!-- prettier-ignore-start -->
-```markdown
----
-pages: 1
-tags:
-  fullstack: [frontend, backend]
-style:
-  section-title-color: "#c43218"
----
-# Jane Doe
+  ```markdown
+  ---
+  pages: 1
+  ---
 
-jane@example.com | github.com/jane | linkedin.com/in/jane
+  # Jane Doe
 
-{{ tagline }}
+  jane@example.com | github.com/jane | linkedin.com/in/jane
 
-## Experience
+  ## Experience
 
-### :meta: Meta || June 2022 - Present
-_Senior Software Engineer_
+  ### :meta: Meta || June 2022 - Present
 
-- Built distributed systems serving 1M requests/day {.@backend}
-- Built interactive dashboards using :ts: TypeScript {.@frontend}
+  _Senior Software Engineer_
 
-## Technical Skills
-::: {.@backend .grid .grid-cols-2}
-- Go
-- Kafka
-- PostgreSQL
-- Redis
-:::
+  - Built distributed systems serving 1M requests/day {.@backend}
+  - Built interactive dashboards using :ts: TypeScript {.@frontend}
+  ```
 
-::: {.@frontend .grid .grid-cols-2}
-- TypeScript
-- React
-- Vue
-- PostgreSQL
-:::
-```
-<!-- prettier-ignore-end -->
+  <!-- prettier-ignore-end -->
 
 Render with:
 
 ```bash
-resumx resume.md --for backend,frontend,fullstack
+resumx resume.md --for backend,frontend
 ```
 
 <img
   src="https://raw.githubusercontent.com/resumx/resumx/HEAD/.github/resumx-snippet-zurich-frontend.png"
   alt="Rendered sample of the snippet above, frontend targetted"
 />
-
-### Also included
-
-- **200k+ icons, zero config:** Add any of 200k+ icons with `:icon-name:` syntax.
-- **Tailwind CSS built in:** Apply utility classes directly in Markdown with `{.class}` syntax, compiled on-the-fly with Tailwind v4.
-- **Live preview:** `resumx --watch` rebuilds on every save so you see changes instantly.
-- **PDF, HTML, DOCX, and PNG:** One source, four output formats.
-- **Per-application views:** Create `.view.yaml` files with custom taglines, section order, and tag selections for each company, then batch-render with `--for '*'`.
-- **Multi-language output:** Tag content with `{lang=en}` / `{lang=fr}` to produce localized resumes from a single file.
-- **Template variables:** Swap in per-application text like `{{ tagline }}` without touching the resume itself.
-- **Git-native workflow:** Render from any previous commit or tag.
 
 ## Quick Start
 
