@@ -17,7 +17,7 @@ Most resume effort goes to layout and styling, the factors that matter least for
 
   <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/page-fit-demo.gif" alt="Page Fit Demo" width="600px" />
 
-- **Your resume is a database. Each application is a query.** Tailoring becomes trivial when it's a filter, not a new file.
+- **Your resume is a database. Each application is a query.** Tailoring is selecting from what exists, not creating a new file.
 
   <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/cli-demo.gif" alt="Multiple Role Demo" width="600px" />
 
