@@ -16,7 +16,7 @@
   <a href="https://resumx.dev/playbook/resume-length.html"><strong>The Resume Playbook</strong></a>
 </p>
 
-A Markdown resume renderer that handles layout and page fitting for you.
+Resumx is a resume builder that automates the parts you shouldn't be spending time on. You write in Markdown, set a target page count, and the renderer handles layout, page fitting, and styling automatically so you can focus on content and tailoring.
 
 - **Add or remove content freely, it always fits the page count you set**
 
