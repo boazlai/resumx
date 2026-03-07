@@ -45,17 +45,6 @@ Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-
 
   <!-- prettier-ignore-end -->
 
-Render with:
-
-```bash
-resumx resume.md --for backend,frontend
-```
-
-<img
-  src="https://raw.githubusercontent.com/resumx/resumx/HEAD/.github/resumx-snippet-zurich-frontend.png"
-  alt="Rendered sample of the snippet above, frontend targetted"
-/>
-
 ## Quick Start
 
 **Install:**
