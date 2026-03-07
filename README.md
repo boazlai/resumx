@@ -44,12 +44,6 @@ For **DOCX export** (`--format docx`), install pdf2docx:
 ```bash
 # Using pip
 pip install pdf2docx
-
-# Using pipx
-pipx install pdf2docx
-
-# Using uv
-uv tool install pdf2docx
 ```
 
 **Run:**
