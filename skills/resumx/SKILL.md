@@ -514,7 +514,20 @@ Headings are classified by fuzzy keyword matching.
 If the user hasn't set up the `git resumx` alias yet, run this first:
 
 ```bash
-git config alias.resumx '!f() { spec="$1"; shift; case "$spec" in *:*) ;; *) spec="$spec:resume.md";; esac; git show "$spec" | resumx "$@"; }; f'
+git config alias.resumx '!f() { spec="$1"; shift; case "$spec" in *:*) ;; *) spec="$spec:resume.md";; esac; tag="${spec%%:*}"; header=$(git tag -l --format="%(refname:short)" "$tag" 2>/dev/null); subject=$(git tag -l --format="%(contents:subject)" "$tag" 2>/dev/null); [ -n "$header" ] && printf "\033[2m%s\033[0m\n\033[1m%s\033[0m\n\n" "$header" "$subject"; git show "$spec" | resumx "$@"; }; f'
+```
+
+Tag with a note when submitting an application:
+
+```bash
+git tag -a sent/stripe-2026-02 -m "Tailored for L5 infra, emphasized Kafka + distributed systems"
+```
+
+When the ref is an annotated tag, the alias prints the tag name and note before rendering:
+
+```
+sent/stripe-2026-02
+Tailored for L5 infra, emphasized Kafka + distributed systems
 ```
 
 Then render from git history:

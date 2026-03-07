@@ -7,7 +7,20 @@
 运行此命令一次以创建 `git resumx` 别名：
 
 ```bash
-git config alias.resumx '!f() { spec="$1"; shift; case "$spec" in *:*) ;; *) spec="$spec:resume.md";; esac; git show "$spec" | resumx "$@"; }; f'
+git config alias.resumx '!f() { spec="$1"; shift; case "$spec" in *:*) ;; *) spec="$spec:resume.md";; esac; tag="${spec%%:*}"; header=$(git tag -l --format="%(refname:short)" "$tag" 2>/dev/null); subject=$(git tag -l --format="%(contents:subject)" "$tag" 2>/dev/null); [ -n "$header" ] && printf "\033[2m%s\033[0m\n\033[1m%s\033[0m\n\n" "$header" "$subject"; git show "$spec" | resumx "$@"; }; f'
+```
+
+当引用是一个附注标签时，别名会在渲染前打印标签名和你的投递备注：
+
+```
+sent/stripe-2026-02
+Tailored for L5 infra, emphasized Kafka + distributed systems
+```
+
+投递申请时附上备注：
+
+```bash
+git tag -a sent/stripe-2026-02 -m "Tailored for L5 infra, emphasized Kafka + distributed systems"
 ```
 
 通过一次性别名设置，你可以从过去的提交、标签或引用渲染简历：

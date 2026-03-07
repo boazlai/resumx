@@ -7,7 +7,20 @@ Use [tags and views](/guide/tailoring) to tailor each application, and `git tag`
 Run this once to create the `git resumx` alias:
 
 ```bash
-git config alias.resumx '!f() { spec="$1"; shift; case "$spec" in *:*) ;; *) spec="$spec:resume.md";; esac; git show "$spec" | resumx "$@"; }; f'
+git config alias.resumx '!f() { spec="$1"; shift; case "$spec" in *:*) ;; *) spec="$spec:resume.md";; esac; tag="${spec%%:*}"; header=$(git tag -l --format="%(refname:short)" "$tag" 2>/dev/null); subject=$(git tag -l --format="%(contents:subject)" "$tag" 2>/dev/null); [ -n "$header" ] && printf "\033[2m%s\033[0m\n\033[1m%s\033[0m\n\n" "$header" "$subject"; git show "$spec" | resumx "$@"; }; f'
+```
+
+When the ref is an annotated tag, the alias prints the tag name and your submission note before rendering:
+
+```
+sent/stripe-2026-02
+Tailored for L5 infra, emphasized Kafka + distributed systems
+```
+
+Tag with a note when you submit an application:
+
+```bash
+git tag -a sent/stripe-2026-02 -m "Tailored for L5 infra, emphasized Kafka + distributed systems"
 ```
 
 With a one-time alias setup, you can render your resume from past commits, tags, or refs:

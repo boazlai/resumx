@@ -25,29 +25,8 @@ A Markdown resume renderer that handles layout and page fitting for you.
 - **30+ style options, built-in <img src=".github/tailwindcss-logo.svg" alt="Tailwind CSS Logo" width="15" height="11"> Tailwind CSS, 200k+ icon shortcodes.**
 - **PDF, HTML, DOCX, and PNG** from a single source.
 - **Render from any commit or tag**
-- **Plain Markdown.** One `.md` file, works with Git, any editor, any AI.
-  <!-- prettier-ignore-start -->
 
-  ```markdown
-  ---
-  pages: 1
-  ---
-
-  # Jane Doe
-
-  jane@example.com | github.com/jane | linkedin.com/in/jane
-
-  ## Experience
-
-  ### :meta: Meta || June 2022 - Present
-
-  _Senior Software Engineer_
-
-  - Built distributed systems serving 1M requests/day {.@backend}
-  - Built interactive dashboards using :ts: TypeScript {.@frontend}
-  ```
-
-  <!-- prettier-ignore-end -->
+  <img src="https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/git-version-demo.gif" alt="Git Version Demo" width="700px" />
 
 ## Quick Start
 
