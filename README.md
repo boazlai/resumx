@@ -15,7 +15,8 @@
 Tailored resumes get [10x more interviews](https://resumx.dev/playbook/tailored-vs-generic.html), but most people skip it because it means managing multiple files and re-fitting everything to one page. Resumx lets you tailor for every role in a single file, and auto-fits your content to the page count you set
 
 - **Always fits the page:** Set `pages: 1` and add or remove content freely, Resumx scales typography and spacing so it always lands on exactly one page.
-- **Tailoring without the overhead:** Target variants in one file (`{.@frontend}`, `{.@backend}`).
+- **Target multiple role in one file**
+  ![Multiple Role Demo](https://raw.githubusercontent.com/resumx/resumx/HEAD/vhs/cli-demo.gif)
 - **AI agent skills included:** Ships with [agent skills](https://resumx.dev) so OpenClaw, Claude Code, and any other AIs understand Resumx syntax, and write in best practices.
 - **30+ style options:** Tweak colors, fonts, spacing, bullet styles, etc. from frontmatter. No CSS required.
 - **Catch mistakes before recruiters do:** Built-in validation flags weak bullets, missing info, and formatting issues before you hit send.
