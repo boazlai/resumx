@@ -47,7 +47,7 @@ style:
 /* my-styles.css */
 :root {
 	--font-family: 'Inter', sans-serif;
-	--accent-color: #2563eb;
+	--section-title-color: #2563eb;
 }
 
 h2 {

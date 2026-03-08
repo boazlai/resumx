@@ -10,7 +10,7 @@ Set `style:` in frontmatter to override any option:
 ---
 style:
   font-family: 'Inter, sans-serif'
-  accent-color: '#2563eb'
+  section-title-color: '#2563eb'
   section-title-border: none
 ---
 ```
@@ -29,36 +29,36 @@ You can also override via `--style` on the CLI. See the [CLI Reference](/guide/c
 | `title-font-family`   | `var(--font-family)` | Font for name (h1) and section headings (h2)             |
 | `content-font-family` | `var(--font-family)` | Font for body text, entry titles (h3), bullets, etc.     |
 | `font-size`           | `11pt`               | Base font size (10–12pt recommended)                     |
-| `line-height`         | `1.35`               | Line height ratio                                        |
+| `line-height`         | `1.4`                | Line height ratio                                        |
 
 ### Colors
 
-| Variable           | Default   | Description          |
-| ------------------ | --------- | -------------------- |
-| `text-color`       | `#333`    | Main text color      |
-| `muted-color`      | `#555`    | Secondary text color |
-| `accent-color`     | `inherit` | Accent color         |
-| `link-color`       | `#0563bb` | Link color           |
-| `background-color` | `#fff`    | Page background      |
+| Variable           | Default   | Description     |
+| ------------------ | --------- | --------------- |
+| `text-color`       | `#333`    | Main text color |
+| `link-color`       | `#0563bb` | Link color      |
+| `background-color` | `#fff`    | Page background |
 
 ### Headings
 
-| Variable               | Default                                | Description                                                    |
-| ---------------------- | -------------------------------------- | -------------------------------------------------------------- |
-| `name-size`            | `1.85rem`                              | Name (h1) font size                                            |
-| `name-caps`            | `normal`                               | Name capitalization (`small-caps`, `all-small-caps`, `normal`) |
-| `name-weight`          | `normal`                               | Name font weight                                               |
-| `name-italic`          | `normal`                               | Name italic (`normal`, `italic`)                               |
-| `name-color`           | `var(--text-color)`                    | Name (h1) color                                                |
-| `section-title-size`   | `1.25rem`                              | Section (h2) font size                                         |
-| `section-title-caps`   | `normal`                               | Section title capitalization                                   |
-| `section-title-weight` | `bold`                                 | Section title font weight                                      |
-| `section-title-color`  | `var(--text-color)`                    | Section title color                                            |
-| `section-title-border` | `1px solid var(--section-title-color)` | Section title underline border                                 |
-| `header-align`         | `center`                               | Header alignment (`left`, `center`, `right`)                   |
-| `section-title-align`  | `left`                                 | Section title alignment                                        |
-| `entry-title-size`     | `1.05rem`                              | Entry (h3) font size                                           |
-| `entry-title-weight`   | `bold`                                 | Entry title font weight                                        |
+| Variable               | Default                                  | Description                                                    |
+| ---------------------- | ---------------------------------------- | -------------------------------------------------------------- |
+| `name-size`            | `1.85rem`                                | Name (h1) font size                                            |
+| `name-caps`            | `small-caps`                             | Name capitalization (`small-caps`, `all-small-caps`, `normal`) |
+| `name-weight`          | `normal`                                 | Name font weight                                               |
+| `name-italic`          | `normal`                                 | Name italic (`normal`, `italic`)                               |
+| `name-color`           | `var(--text-color)`                      | Name (h1) color                                                |
+| `section-title-size`   | `1.25rem`                                | Section (h2) font size                                         |
+| `section-title-caps`   | `normal`                                 | Section title capitalization                                   |
+| `section-title-weight` | `bold`                                   | Section title font weight                                      |
+| `section-title-italic` | `normal`                                 | Section title italic (`normal`, `italic`)                      |
+| `section-title-color`  | `var(--text-color)`                      | Section title color                                            |
+| `section-title-border` | `1.5px solid var(--section-title-color)` | Section title underline border                                 |
+| `header-align`         | `center`                                 | Header alignment (`left`, `center`, `right`)                   |
+| `section-title-align`  | `left`                                   | Section title alignment                                        |
+| `entry-title-size`     | `1.05rem`                                | Entry (h3) font size                                           |
+| `entry-title-weight`   | `bold`                                   | Entry title font weight                                        |
+| `entry-title-italic`   | `normal`                                 | Entry title italic (`normal`, `italic`)                        |
 
 ### Links
 
@@ -87,9 +87,9 @@ You can also override via `--style` on the CLI. See the [CLI Reference](/guide/c
 
 ### Features
 
-| Variable | Default  | Description                     |
-| -------- | -------- | ------------------------------- |
-| `icons`  | `inline` | Icon display (`inline`, `none`) |
+| Variable     | Default  | Description                     |
+| ------------ | -------- | ------------------------------- |
+| `auto-icons` | `inline` | Icon display (`inline`, `none`) |
 
 ## Style Recipes
 
@@ -108,14 +108,13 @@ No overrides needed, this is what you get out of the box.
 
 ### Zurich
 
-Warm serif with small-caps name and accent-colored section headers.
+Warm serif with small-caps name and colored section headers.
 
 ```yaml
 style:
   font-family: "'Palatino Linotype', Palatino, Georgia, serif"
-  accent-color: '#c43218'
   name-caps: small-caps
-  section-title-color: var(--accent-color)
+  section-title-color: '#c43218'
   section-title-border: 1.5px solid var(--section-title-color)
 ```
 
@@ -146,13 +145,12 @@ style:
 
 ### Bold Modern
 
-Strong contrast with a vibrant accent color.
+Strong contrast with a vibrant blue theme.
 
 ```yaml
 style:
   font-family: "'Inter', 'Segoe UI', sans-serif"
-  accent-color: '#2563eb'
   name-weight: bold
-  section-title-color: var(--accent-color)
-  link-color: var(--accent-color)
+  section-title-color: '#2563eb'
+  link-color: '#2563eb'
 ```

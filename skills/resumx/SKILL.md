@@ -173,7 +173,7 @@ pages: 1
 output: ./out/Jane_Smith-{view}
 bullet-order: tag
 style:
-  accent-color: '#0ea5e9'
+  link-color: '#0ea5e9'
 tags:
   fullstack: [frontend, backend]
   leadership: false
@@ -244,11 +244,11 @@ Template variables: `{view}`, `{lang}`, `{format}`.
 
 Override via frontmatter `style:` or CLI `--style`.
 
-**Typography:** `font-family`, `title-font-family`, `content-font-family`, `font-size` (default `11pt`), `line-height` (default `1.35`).
+**Typography:** `font-family`, `title-font-family`, `content-font-family`, `font-size` (default `11pt`), `line-height` (default `1.4`).
 
-**Colors:** `text-color`, `muted-color`, `accent-color`, `link-color`, `background-color`.
+**Colors:** `text-color`, `link-color`, `background-color`.
 
-**Headings:** `name-size`, `name-caps` (`normal`, `small-caps`, `all-small-caps`), `name-weight`, `name-italic`, `name-color`, `section-title-size`, `section-title-caps`, `section-title-weight`, `section-title-color`, `section-title-border`, `header-align`, `section-title-align`, `entry-title-size`, `entry-title-weight`.
+**Headings:** `name-size`, `name-caps` (`small-caps`, `all-small-caps`, `petite-caps`, `unicase`, `normal`), `name-weight`, `name-italic`, `name-color`, `section-title-size`, `section-title-caps`, `section-title-weight`, `section-title-italic`, `section-title-color`, `section-title-border`, `header-align`, `section-title-align`, `entry-title-size`, `entry-title-weight`, `entry-title-italic`.
 
 **Links:** `link-underline` (`underline`, `none`).
 
@@ -256,7 +256,7 @@ Override via frontmatter `style:` or CLI `--style`.
 
 **Lists:** `bullet-style` (`disc`, `circle`, `square`, `none`).
 
-**Features:** `icons` (`inline`, `none`).
+**Features:** `auto-icons` (`inline`, `none`).
 
 ### Custom CSS
 
@@ -265,7 +265,7 @@ Your CSS cascades on top of the default stylesheet, so you only write overrides:
 ```css
 :root {
 	--font-family: 'Inter', sans-serif;
-	--accent-color: #2563eb;
+	--section-title-color: #2563eb;
 }
 
 h2 {
@@ -318,7 +318,7 @@ Links to recognized domains get icons automatically:
 
 `mailto:` (Email), `tel:` (Phone), `linkedin.com`, `github.com`, `gitlab.com`, `bitbucket.org`, `stackoverflow.com`, `x.com`/`twitter.com`, `youtube.com`/`youtu.be`, `dribbble.com`, `behance.net`, `medium.com`, `dev.to`, `codepen.io`, `marketplace.visualstudio.com`.
 
-Disable with `style: { icons: none }`.
+Disable with `style: { auto-icons: none }`.
 
 ### Custom Icons (Frontmatter)
 

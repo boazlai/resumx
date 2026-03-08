@@ -120,17 +120,17 @@ icons:
 
 ### 停用自動圖示
 
-將樣式屬性 `icons` 設為 `none` 即可隱藏所有自動圖示：
+將樣式屬性 `auto-icons` 設為 `none` 即可隱藏所有自動圖示：
 
 ```markdown
 ---
 style:
-  icons: none # inline (預設) | none
+  auto-icons: none # inline (預設) | none
 ---
 ```
 
 或透過 CLI：
 
 ```bash
-resumx resume.md --style icons=none
+resumx resume.md --style auto-icons=none
 ```

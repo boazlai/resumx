@@ -1,0 +1,205 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"description": "Style options for Resumx frontmatter. Auto-generated from styles/common/base.css.",
+	"type": "object",
+	"properties": {
+		"font-family": {
+			"type": "string"
+		},
+		"title-font-family": {
+			"type": "string"
+		},
+		"content-font-family": {
+			"type": "string"
+		},
+		"font-size": {
+			"type": "string"
+		},
+		"line-height": {
+			"type": [
+				"string",
+				"number"
+			]
+		},
+		"text-color": {
+			"type": "string"
+		},
+		"link-color": {
+			"type": "string"
+		},
+		"background-color": {
+			"type": "string"
+		},
+		"header-align": {
+			"type": "string",
+			"enum": [
+				"left",
+				"center",
+				"right"
+			]
+		},
+		"name-size": {
+			"type": "string"
+		},
+		"name-caps": {
+			"type": "string",
+			"enum": [
+				"small-caps",
+				"all-small-caps",
+				"petite-caps",
+				"unicase",
+				"normal"
+			]
+		},
+		"name-weight": {
+			"enum": [
+				"normal",
+				"bold",
+				100,
+				200,
+				300,
+				400,
+				500,
+				600,
+				700,
+				800,
+				900
+			]
+		},
+		"name-italic": {
+			"type": "string",
+			"enum": [
+				"normal",
+				"italic"
+			]
+		},
+		"name-color": {
+			"type": "string"
+		},
+		"section-title-size": {
+			"type": "string"
+		},
+		"section-title-caps": {
+			"type": "string",
+			"enum": [
+				"small-caps",
+				"all-small-caps",
+				"petite-caps",
+				"unicase",
+				"normal"
+			]
+		},
+		"section-title-weight": {
+			"enum": [
+				"normal",
+				"bold",
+				100,
+				200,
+				300,
+				400,
+				500,
+				600,
+				700,
+				800,
+				900
+			]
+		},
+		"section-title-italic": {
+			"type": "string",
+			"enum": [
+				"normal",
+				"italic"
+			]
+		},
+		"section-title-color": {
+			"type": "string"
+		},
+		"section-title-align": {
+			"type": "string",
+			"enum": [
+				"left",
+				"center",
+				"right"
+			]
+		},
+		"section-title-border": {
+			"type": "string"
+		},
+		"entry-title-size": {
+			"type": "string"
+		},
+		"entry-title-weight": {
+			"enum": [
+				"normal",
+				"bold",
+				100,
+				200,
+				300,
+				400,
+				500,
+				600,
+				700,
+				800,
+				900
+			]
+		},
+		"entry-title-italic": {
+			"type": "string",
+			"enum": [
+				"normal",
+				"italic"
+			]
+		},
+		"link-underline": {
+			"type": "string",
+			"enum": [
+				"underline",
+				"none"
+			]
+		},
+		"page-margin-x": {
+			"type": "string"
+		},
+		"page-margin-y": {
+			"type": "string"
+		},
+		"gap": {
+			"type": [
+				"string",
+				"number"
+			]
+		},
+		"section-gap": {
+			"type": "string"
+		},
+		"entry-gap": {
+			"type": "string"
+		},
+		"row-gap": {
+			"type": "string"
+		},
+		"col-gap": {
+			"type": "string"
+		},
+		"list-indent": {
+			"type": "string"
+		},
+		"bullet-style": {
+			"type": "string",
+			"enum": [
+				"disc",
+				"circle",
+				"square",
+				"none"
+			]
+		},
+		"auto-icons": {
+			"type": "string",
+			"enum": [
+				"inline",
+				"none"
+			]
+		}
+	},
+	"additionalProperties": false
+}

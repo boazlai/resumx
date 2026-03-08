@@ -1,0 +1,105 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://resumx.dev/schemas/view.schema.json",
+	"title": "Resumx custom view",
+	"description": "Schema for Resumx custom view configuration in .view.yaml files. Top-level keys are view names; each value is a view layer with optional selects, sections, pages, and other render overrides.",
+	"type": "object",
+	"additionalProperties": {
+		"$ref": "#/$defs/ViewLayer"
+	},
+	"$defs": {
+		"ViewLayer": {
+			"type": "object",
+			"description": "A single view layer. All properties are optional; only set what you want to override.",
+			"additionalProperties": false,
+			"properties": {
+				"selects": {
+					"oneOf": [
+						{ "type": "string" },
+						{
+							"type": "array",
+							"items": { "type": "string" },
+							"minItems": 1
+						}
+					],
+					"description": "Content tags to include. Omit to show all content; use [] for untagged only."
+				},
+				"sections": {
+					"$ref": "#/$defs/SectionsConfig",
+					"description": "Section visibility and ordering."
+				},
+				"pages": {
+					"type": "integer",
+					"minimum": 1,
+					"description": "Target page count; layout auto-fits to this value."
+				},
+				"bullet-order": {
+					"enum": ["none", "tag"],
+					"description": "Bullet ordering: none (source order) or tag (grouped by tag)."
+				},
+				"vars": {
+					"type": "object",
+					"additionalProperties": {
+						"oneOf": [{ "type": "string" }, { "type": "number" }]
+					},
+					"description": "Template variables for {{ name }} placeholders."
+				},
+				"style": {
+					"$ref": "style-options.schema.json",
+					"description": "Style option overrides (e.g. font-size, section-title-color)."
+				},
+				"format": {
+					"enum": ["pdf", "html", "docx", "png"],
+					"description": "Default output format for this view."
+				},
+				"output": {
+					"type": "string",
+					"description": "Output path template; may use {view}, {lang}, {format}."
+				},
+				"css": {
+					"oneOf": [
+						{ "type": "string" },
+						{
+							"type": "array",
+							"items": { "type": "string" }
+						}
+					],
+					"description": "CSS file path(s) or inline CSS string(s)."
+				}
+			}
+		},
+		"SectionsConfig": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"hide": {
+					"type": "array",
+					"items": { "$ref": "#/$defs/SectionType" },
+					"description": "Sections to hide from output."
+				},
+				"pin": {
+					"type": "array",
+					"items": { "$ref": "#/$defs/SectionType" },
+					"description": "Sections to pin to the top in this order."
+				}
+			}
+		},
+		"SectionType": {
+			"type": "string",
+			"enum": [
+				"basics",
+				"work",
+				"volunteer",
+				"education",
+				"awards",
+				"certificates",
+				"publications",
+				"skills",
+				"languages",
+				"interests",
+				"references",
+				"projects"
+			]
+		}
+	}
+}

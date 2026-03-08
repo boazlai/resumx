@@ -39,10 +39,12 @@
 		"format:check": "prettier --check .",
 		"prepublishOnly": "rm -rf dist && pnpm run build",
 		"prepare": "husky",
-		"docs:dev": "vitepress dev docs",
-		"docs:build": "vitepress build docs",
+		"docs:codegen": "mkdir -p docs/public/schemas && cp schemas/*.schema.json docs/public/schemas/",
+		"docs:dev": "pnpm run docs:codegen && vitepress dev docs",
+		"docs:build": "pnpm run docs:codegen && vitepress build docs",
 		"docs:preview": "vitepress preview docs",
 		"deps": "madge --extensions ts,tsx --exclude '\\.(d\\.ts|test\\.(ts|tsx)|spec\\.(ts|tsx))$' --image deps.svg src/ && madge --extensions ts,tsx --exclude '\\.(d\\.ts|test\\.(ts|tsx)|spec\\.(ts|tsx))$' --json src/ > deps.json",
+		"generate:style-options": "pnpm exec tsx scripts/generate-style-options.ts",
 		"optimize-icons": "pnpm exec tsx scripts/optimize-icons.ts",
 		"changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
 	},
@@ -114,6 +116,7 @@
 		"madge": "^8.0.0",
 		"prettier": "^3.8.1",
 		"tmp-promise": "^3.0.3",
+		"tsx": "^4.21.0",
 		"typescript": "^5.7.0",
 		"vitepress": "^2.0.0-alpha.15",
 		"vitest": "^2.1.0"
@@ -124,6 +127,10 @@
 		],
 		"assets/icons/*.svg": [
 			"svgo --config svgo.config.mjs"
+		],
+		"styles/common/base.css": [
+			"pnpm run generate:style-options",
+			"git add src/core/style-options.generated.ts schemas/style-options.schema.json"
 		]
 	},
 	"pnpm": {

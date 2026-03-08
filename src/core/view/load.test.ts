@@ -121,7 +121,7 @@ stripe-pm:
   vars:
     tagline: Stream Processing
   style:
-    accent-color: '#2563eb'
+    link-color: '#2563eb'
   format: html
   output: ./dist/full
   css:
@@ -137,7 +137,7 @@ stripe-pm:
 				pages: 1,
 				bulletOrder: 'tag',
 				vars: { tagline: 'Stream Processing' },
-				style: { 'accent-color': '#2563eb' },
+				style: { 'link-color': '#2563eb' },
 				format: 'html',
 				output: './dist/full',
 				css: ['custom.css'],

@@ -25,7 +25,7 @@ pages: 1
 sections:
   hide: [publications]
 style:
-  accent-color: '#2563eb'
+  section-title-color: '#2563eb'
 vars:
   tagline: '擁有 8 年經驗的全端工程師'
 ---

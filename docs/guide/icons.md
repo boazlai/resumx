@@ -120,17 +120,17 @@ Each link above will be prefixed with the appropriate icon (email, LinkedIn, Git
 
 ### Disabling Auto-Icons
 
-Set the `icons` style property to `none` to hide all auto-icons:
+Set the `auto-icons` style property to `none` to hide all auto-icons:
 
 ```markdown
 ---
 style:
-  icons: none # inline (default) | none
+  auto-icons: none # inline (default) | none
 ---
 ```
 
 Or via CLI:
 
 ```bash
-resumx resume.md --style icons=none
+resumx resume.md --style auto-icons=none
 ```

@@ -67,7 +67,7 @@ resumx resume.md --css my-styles.css
 resumx resume.md --output John_Doe_Resume
 
 # Override style properties
-resumx resume.md --style font-family="Inter, sans-serif" --style accent-color="#2563eb"
+resumx resume.md --style font-family="Inter, sans-serif" --style section-title-color="#2563eb"
 
 # Multiple formats
 resumx resume.md --format pdf,html,docx
@@ -163,7 +163,7 @@ pages: 1
 output: ./dist/John_Doe-{view}
 style:
   font-family: 'Inter, sans-serif'
-  accent-color: '#2563eb'
+  section-title-color: '#2563eb'
 ---
 ```
 

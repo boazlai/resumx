@@ -326,7 +326,7 @@ resumx resume.md --css my-styles.css
 resumx resume.md -o john-doe
 
 # Override style options
-resumx resume.md --style accent-color=#2563eb --style font-size=11pt
+resumx resume.md --style section-title-color=#2563eb --style font-size=11pt
 
 # Watch mode (auto-rebuild on changes)
 resumx resume.md --watch

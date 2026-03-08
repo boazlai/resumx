@@ -25,7 +25,7 @@ pages: 1
 sections:
   hide: [publications]
 style:
-  accent-color: '#2563eb'
+  section-title-color: '#2563eb'
 vars:
   tagline: 'Full-stack engineer with 8 years of experience'
 ---
@@ -115,6 +115,10 @@ resumx resume.md --for stripe-swe
 | `output`       | `string`                 | Output path (same as frontmatter `output`).                  |
 
 Base defaults (pages, style, bullet-order) live in frontmatter. Custom view fields are overrides.
+
+### JSON Schema
+
+A [JSON Schema](https://json-schema.org/) for custom view files lives at `schemas/view.schema.json` in the repo. Point your editor at it for validation and completion in `.view.yaml` files (e.g. VS Code: add `"yaml.schemas": { "https://resumx.dev/schemas/view.schema.json": "*.view.yaml" }` to your workspace or user settings, or use a path relative to the project).
 
 ### Content Filtering
 

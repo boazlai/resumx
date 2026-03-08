@@ -12,7 +12,7 @@ pages: 1
 output: ./dist/John_Doe-{view}
 style:
   font-family: 'Inter, sans-serif'
-  accent-color: '#2563eb'
+  section-title-color: '#2563eb'
 ---
 ```
 
@@ -25,7 +25,7 @@ output = "./dist/John_Doe-{view}"
 
 [style]
 font-family = "Inter, sans-serif"
-accent-color = "#2563eb"
+section-title-color = "#2563eb"
 +++
 ```
 
@@ -359,7 +359,7 @@ Style overrides applied on top of the defaults. Keys map to `--key` in the gener
 ```yaml
 style:
   font-family: 'Inter, sans-serif'
-  accent-color: '#2563eb'
+  section-title-color: '#2563eb'
   font-size: '10pt'
 ```
 
@@ -426,7 +426,7 @@ pages: 1
 output: ./out/Jane_Smith-{view}
 bullet-order: tag
 style:
-  accent-color: '#0ea5e9'
+  link-color: '#0ea5e9'
 tags:
   fullstack: [frontend, backend]
   leadership: false

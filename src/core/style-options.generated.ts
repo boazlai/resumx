@@ -1,0 +1,60 @@
+// Auto-generated from styles/common/base.css — do not edit manually.
+// Run: pnpm run generate:style-options
+
+export const STYLE_OPTIONS = [
+	'font-family',
+	'title-font-family',
+	'content-font-family',
+	'font-size',
+	'line-height',
+	'text-color',
+	'link-color',
+	'background-color',
+	'header-align',
+	'name-size',
+	'name-caps',
+	'name-weight',
+	'name-italic',
+	'name-color',
+	'section-title-size',
+	'section-title-caps',
+	'section-title-weight',
+	'section-title-italic',
+	'section-title-color',
+	'section-title-align',
+	'section-title-border',
+	'entry-title-size',
+	'entry-title-weight',
+	'entry-title-italic',
+	'link-underline',
+	'page-margin-x',
+	'page-margin-y',
+	'gap',
+	'section-gap',
+	'entry-gap',
+	'row-gap',
+	'col-gap',
+	'list-indent',
+	'bullet-style',
+	'auto-icons',
+] as const
+
+export type StyleOption = (typeof STYLE_OPTIONS)[number]
+
+export const STYLE_ENUM_VALUES: Partial<
+	Record<StyleOption, readonly string[]>
+> = {
+	'header-align': ['left', 'center', 'right'],
+	'name-caps': ['small-caps', 'all-small-caps', 'petite-caps', 'unicase', 'normal'],
+	'name-weight': ['normal', 'bold', '100', '200', '300', '400', '500', '600', '700', '800', '900'],
+	'name-italic': ['normal', 'italic'],
+	'section-title-caps': ['small-caps', 'all-small-caps', 'petite-caps', 'unicase', 'normal'],
+	'section-title-weight': ['normal', 'bold', '100', '200', '300', '400', '500', '600', '700', '800', '900'],
+	'section-title-italic': ['normal', 'italic'],
+	'section-title-align': ['left', 'center', 'right'],
+	'entry-title-weight': ['normal', 'bold', '100', '200', '300', '400', '500', '600', '700', '800', '900'],
+	'entry-title-italic': ['normal', 'italic'],
+	'link-underline': ['underline', 'none'],
+	'bullet-style': ['disc', 'circle', 'square', 'none'],
+	'auto-icons': ['inline', 'none'],
+}

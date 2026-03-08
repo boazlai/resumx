@@ -39,7 +39,7 @@
 			--font-family
 		); /* any font stack — overrides --font-family for body text */
 		--font-size: 11pt; /* any font-size, 10-12pt recommended */
-		--line-height: 1.4; /* any unitless ratio */
+		--line-height: 1.4; /* @number, any unitless ratio */
 
 		/* ---- Colors ---- */
 		--text-color: #333; /* any color */
@@ -50,18 +50,18 @@
 		--header-align: center; /* left | center | right */
 		--name-size: 1.85rem; /* any font-size */
 		--name-caps: small-caps; /* small-caps | all-small-caps | petite-caps | unicase | normal */
-		--name-weight: normal; /* any font-weight: bold | normal | 100–900 */
+		--name-weight: normal; /* normal | bold | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 */
 		--name-italic: normal; /* normal | italic */
 		--name-color: var(--text-color); /* any color */
 		--section-title-size: 1.25rem; /* any font-size */
 		--section-title-caps: normal; /* small-caps | all-small-caps | petite-caps | unicase | normal */
-		--section-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
+		--section-title-weight: bold; /* normal | bold | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 */
 		--section-title-italic: normal; /* normal | italic */
 		--section-title-color: var(--text-color); /* any color */
 		--section-title-align: left; /* left | center | right */
 		--section-title-border: 1.5px solid var(--section-title-color); /* any border shorthand | none */
 		--entry-title-size: 1.05rem; /* any font-size */
-		--entry-title-weight: bold; /* any font-weight: bold | normal | 100–900 */
+		--entry-title-weight: bold; /* normal | bold | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 */
 		--entry-title-italic: normal; /* normal | italic */
 
 		/* ---- Links ---- */
@@ -70,7 +70,7 @@
 		/* ---- Spacing ---- */
 		--page-margin-x: 0.5in; /* any length */
 		--page-margin-y: 0.5in; /* any length */
-		--gap: 1; /* unitless scale factor for all vertical gaps */
+		--gap: 1; /* @number, unitless scale factor for all vertical gaps */
 		--section-gap: 10px; /* any length */
 		--entry-gap: 5px; /* any length */
 		--row-gap: 2px; /* any length */
@@ -82,7 +82,7 @@
 
 		/* ---- Features ---- */
 		--auto-icons: inline; /* inline | none */
-		--icon-size: 0.8em; /* any length */
+		--icon-size: 0.8em; /* @internal any length */
 	}
 
 	/*

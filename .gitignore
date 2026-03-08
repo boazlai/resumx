@@ -157,3 +157,6 @@ TODO.md
 private/
 vhs/output/
 vhs/page-fit/.tmp/
+
+# Generated docs assets
+docs/public/schemas/

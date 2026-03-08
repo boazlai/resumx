@@ -79,7 +79,7 @@ describe('extractTagViews', () => {
 				pages: 1,
 				'bullet-order': 'tag',
 				vars: { tagline: 'Frontend' },
-				style: { 'accent-color': '#2563eb' },
+				style: { 'link-color': '#2563eb' },
 				format: 'html',
 				output: './dist/frontend',
 				css: ['custom.css'],
@@ -92,7 +92,7 @@ describe('extractTagViews', () => {
 			pages: 1,
 			bulletOrder: 'tag',
 			vars: { tagline: 'Frontend' },
-			style: { 'accent-color': '#2563eb' },
+			style: { 'link-color': '#2563eb' },
 			format: 'html',
 			output: './dist/frontend',
 			css: ['custom.css'],
@@ -587,7 +587,7 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 				pages: 1,
 				'bullet-order': 'tag' as const,
 				vars: { tagline: 'Frontend expert' },
-				style: { 'accent-color': '#2563eb' },
+				style: { 'link-color': '#2563eb' },
 				format: 'html' as const,
 				output: './dist/frontend',
 				css: ['custom.css'],
@@ -612,7 +612,7 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 		expect(resolved.vars).toEqual({ tagline: 'Frontend expert' })
 		expect(resolved.style).toEqual({
 			'font-family': 'Arial',
-			'accent-color': '#2563eb',
+			'link-color': '#2563eb',
 		})
 		expect(resolved.format).toBe('html')
 		expect(resolved.output).toBe('./dist/frontend')
@@ -637,7 +637,7 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 	it('ephemeral style merges with tag view style (not replaces)', () => {
 		const tags = {
 			frontend: {
-				style: { 'accent-color': '#2563eb', 'font-size': '10pt' },
+				style: { 'link-color': '#2563eb', 'font-size': '10pt' },
 			},
 		}
 		const tagViews = extractTagViews(tags)
@@ -645,14 +645,14 @@ describe('end-to-end: 3-layer cascade (default → tag view → ephemeral)', () 
 
 		const defaultView: ViewLayer = { style: { 'font-family': 'Arial' } }
 		const ephemeral: ViewLayer = {
-			style: { 'accent-color': '#ef4444' },
+			style: { 'link-color': '#ef4444' },
 		}
 
 		const resolved = resolveView([defaultView, tagLayer, ephemeral])
 
 		expect(resolved.style).toEqual({
 			'font-family': 'Arial',
-			'accent-color': '#ef4444',
+			'link-color': '#ef4444',
 			'font-size': '10pt',
 		})
 	})

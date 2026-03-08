@@ -31,8 +31,8 @@
 /* my-styles.css */
 :root {
 	--font-family: 'Inter', sans-serif;
-	--accent-color: #2563eb;
-	--section-title-border: 2px solid var(--accent-color);
+	--section-title-color: #2563eb;
+	--section-title-border: 2px solid var(--section-title-color);
 	--header-align: left;
 }
 

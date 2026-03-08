@@ -47,7 +47,7 @@ When you need complete control, create a CSS file. It cascades on top of the def
 /* my-styles.css */
 :root {
 	--font-family: 'Inter', sans-serif;
-	--accent-color: #2563eb;
+	--section-title-color: #2563eb;
 }
 
 h2 {

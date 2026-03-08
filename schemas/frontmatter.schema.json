@@ -1,0 +1,188 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://resumx.dev/schemas/frontmatter.schema.json",
+	"title": "Resumx frontmatter",
+	"description": "Schema for the YAML/TOML frontmatter block in a Resumx resume Markdown file.",
+	"type": "object",
+	"additionalProperties": false,
+	"properties": {
+		"css": {
+			"$ref": "#/$defs/Css",
+			"description": "CSS file path(s) or inline CSS string(s). Ends with .css = file, otherwise = inline."
+		},
+		"output": {
+			"type": "string",
+			"description": "Output path (name, directory with /, or template with {view}/{lang}/{format})."
+		},
+		"pages": {
+			"type": "integer",
+			"minimum": 1,
+			"description": "Target page count; layout auto-fits to this value."
+		},
+		"style": {
+			"$ref": "#/$defs/Style",
+			"description": "Style option overrides."
+		},
+		"icons": {
+			"type": "object",
+			"additionalProperties": { "type": "string" },
+			"description": "Custom icon definitions mapping slugs to SVG, URL, or base64 strings."
+		},
+		"validate": {
+			"$ref": "#/$defs/Validate",
+			"description": "Validation configuration."
+		},
+		"vars": {
+			"$ref": "#/$defs/Vars",
+			"description": "Template variables for {{ name }} placeholders."
+		},
+		"sections": {
+			"$ref": "#/$defs/SectionsConfig",
+			"description": "Section visibility and ordering."
+		},
+		"bullet-order": {
+			"enum": ["none", "tag"],
+			"default": "none",
+			"description": "Bullet ordering: none (source order) or tag (grouped by tag)."
+		},
+		"tags": {
+			"type": "object",
+			"additionalProperties": {
+				"$ref": "#/$defs/TagEntry"
+			},
+			"description": "Tag composition and tag view configuration."
+		},
+		"extra": {
+			"type": "object",
+			"additionalProperties": true,
+			"description": "Arbitrary user-defined data for custom fields (name, target role, company, etc.)."
+		}
+	},
+	"$defs": {
+		"Css": {
+			"oneOf": [
+				{ "type": "string" },
+				{
+					"type": "array",
+					"items": { "type": "string" }
+				}
+			]
+		},
+		"Style": { "$ref": "style-options.schema.json" },
+		"Vars": {
+			"type": "object",
+			"additionalProperties": {
+				"oneOf": [{ "type": "string" }, { "type": "number" }]
+			}
+		},
+		"SectionsConfig": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"hide": {
+					"type": "array",
+					"items": { "$ref": "#/$defs/SectionType" },
+					"description": "Sections to remove from output."
+				},
+				"pin": {
+					"type": "array",
+					"items": { "$ref": "#/$defs/SectionType" },
+					"description": "Sections to pin to the top in this order."
+				}
+			}
+		},
+		"SectionType": {
+			"type": "string",
+			"enum": [
+				"basics",
+				"work",
+				"volunteer",
+				"education",
+				"awards",
+				"certificates",
+				"publications",
+				"skills",
+				"languages",
+				"interests",
+				"references",
+				"projects"
+			]
+		},
+		"Validate": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"extends": {
+					"enum": ["recommended", "minimal", "strict", "none"],
+					"default": "recommended",
+					"description": "Validation preset to extend."
+				},
+				"rules": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"missing-name": { "$ref": "#/$defs/Severity" },
+						"missing-contact": { "$ref": "#/$defs/Severity" },
+						"no-sections": { "$ref": "#/$defs/Severity" },
+						"no-entries": { "$ref": "#/$defs/Severity" },
+						"empty-bullet": { "$ref": "#/$defs/Severity" },
+						"long-bullet": { "$ref": "#/$defs/Severity" },
+						"single-bullet-section": { "$ref": "#/$defs/Severity" },
+						"unknown-fenced-div-tag": { "$ref": "#/$defs/Severity" },
+						"non-pt-font-size": { "$ref": "#/$defs/Severity" }
+					},
+					"description": "Per-rule severity overrides."
+				}
+			}
+		},
+		"Severity": {
+			"enum": ["critical", "warning", "note", "bonus", "off"]
+		},
+		"TagEntry": {
+			"oneOf": [
+				{
+					"type": "array",
+					"items": { "type": "string" },
+					"description": "Shorthand: list of constituent tag names."
+				},
+				{ "$ref": "#/$defs/TagExpanded" },
+				{
+					"const": false,
+					"description": "Disable tag composition (tag exists only as content tag)."
+				}
+			]
+		},
+		"TagExpanded": {
+			"type": "object",
+			"additionalProperties": false,
+			"description": "Expanded tag view with optional render overrides.",
+			"properties": {
+				"extends": {
+					"oneOf": [
+						{ "type": "string" },
+						{
+							"type": "array",
+							"items": { "type": "string" }
+						}
+					],
+					"description": "Constituent tags this composed tag extends."
+				},
+				"sections": { "$ref": "#/$defs/SectionsConfig" },
+				"pages": {
+					"type": "integer",
+					"minimum": 1
+				},
+				"bullet-order": {
+					"enum": ["none", "tag"]
+				},
+				"vars": { "$ref": "#/$defs/Vars" },
+				"style": { "$ref": "#/$defs/Style" },
+				"format": {
+					"enum": ["pdf", "html", "docx", "png"]
+				},
+				"output": { "type": "string" },
+				"css": { "$ref": "#/$defs/Css" }
+			}
+		}
+	}
+}

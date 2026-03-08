@@ -25,7 +25,7 @@ pages: 1
 sections:
   hide: [publications]
 style:
-  accent-color: '#2563eb'
+  section-title-color: '#2563eb'
 vars:
   tagline: 'Full-stack engineer with 8 years of experience'
 ---

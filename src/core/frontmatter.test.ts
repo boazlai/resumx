@@ -116,7 +116,7 @@ output: "build/John_Doe-{view}-{lang}"
 			it('parses YAML frontmatter with only style', () => {
 				const input = `---
 style:
-  primary-color: "#ff0000"
+  link-color: "#ff0000"
 ---
 # Resume`
 
@@ -125,7 +125,7 @@ style:
 
 				expect(result.config).toEqual({
 					'bullet-order': 'none',
-					style: { 'primary-color': '#ff0000' },
+					style: { 'link-color': '#ff0000' },
 				})
 			})
 
@@ -209,7 +209,7 @@ css = ["formal", "minimal"]
 			it('parses TOML frontmatter with only style', () => {
 				const input = `+++
 [style]
-primary-color = "#ff0000"
+link-color = "#ff0000"
 +++
 # Resume`
 
@@ -218,7 +218,7 @@ primary-color = "#ff0000"
 
 				expect(result.config).toEqual({
 					'bullet-order': 'none',
-					style: { 'primary-color': '#ff0000' },
+					style: { 'link-color': '#ff0000' },
 				})
 			})
 		})
@@ -403,6 +403,82 @@ style:
 				assert(result.ok)
 
 				expect(result.config?.style?.['line-height']).toBe('1.35')
+			})
+
+			it('rejects unknown style option with typo suggestion', () => {
+				const input = `---
+style:
+  font-siz: 10pt
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error: "Unknown style option 'font-siz'. Did you mean 'font-size'?",
+				})
+			})
+
+			it('rejects unknown style option with full list when no close match', () => {
+				const input = `---
+style:
+  zzz-nonexistent: value
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				expect(result.ok).toBe(false)
+				if (!result.ok) {
+					expect(result.error).toContain(
+						"Unknown style option 'zzz-nonexistent'",
+					)
+					expect(result.error).toContain('Valid options:')
+				}
+			})
+
+			it('rejects invalid enum value for constrained style option', () => {
+				const input = `---
+style:
+  header-align: middle
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+
+				expect(result).toEqual({
+					ok: false,
+					error:
+						"Invalid value 'middle' for style option 'header-align'. Must be one of: left, center, right",
+				})
+			})
+
+			it('accepts valid enum value for constrained style option', () => {
+				const input = `---
+style:
+  bullet-style: circle
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config?.style?.['bullet-style']).toBe('circle')
+			})
+
+			it('accepts freeform value for unconstrained style option', () => {
+				const input = `---
+style:
+  font-family: "'Inter', sans-serif"
+---
+# Resume`
+
+				const result = parseFrontmatterFromString(input)
+				assert(result.ok)
+
+				expect(result.config?.style?.['font-family']).toBe(
+					"'Inter', sans-serif",
+				)
 			})
 
 			it('rejects unknown fields with suggestion to use extra', () => {
@@ -893,7 +969,7 @@ tags:
     vars:
       tagline: Frontend specialist
     style:
-      accent-color: "#2563eb"
+      link-color: "#2563eb"
     format: html
     output: ./dist/frontend
     css: custom.css
@@ -911,7 +987,7 @@ tags:
 					expect(tag?.pages).toBe(1)
 					expect(tag?.['bullet-order']).toBe('tag')
 					expect(tag?.vars).toEqual({ tagline: 'Frontend specialist' })
-					expect(tag?.style).toEqual({ 'accent-color': '#2563eb' })
+					expect(tag?.style).toEqual({ 'link-color': '#2563eb' })
 					expect(tag?.format).toBe('html')
 					expect(tag?.output).toBe('./dist/frontend')
 					expect(tag?.css).toEqual(['custom.css'])
@@ -1428,7 +1504,7 @@ No frontmatter here.`
 				fullstack: ['frontend', 'backend'],
 				frontend: {
 					extends: ['design'],
-					sections: { hide: ['publications'] },
+					sections: { hide: ['publications'], pin: undefined },
 				},
 			})
 			expect(result).toEqual({

@@ -4,6 +4,11 @@ import matter from 'gray-matter'
 import * as TOML from 'smol-toml'
 import { z } from 'zod'
 import { parseSectionList } from './section-types.js'
+import {
+	STYLE_OPTIONS,
+	STYLE_ENUM_VALUES,
+	type StyleOption,
+} from './style-options.generated.js'
 
 export const SectionsSchema = z.object({
 	hide: z
@@ -52,14 +57,68 @@ export const VarsSchema = z.record(
 	{ error: "'vars' must be an object mapping variable names to values" },
 )
 
+const MAX_STYLE_TYPO_DISTANCE = 2
+
+type StyleInput = string | number | null
+
+function parseStyleRecord(
+	input: Record<string, StyleInput>,
+): { ok: true; style: Record<string, string> } | { ok: false; error: string } {
+	const result: Record<string, string> = {}
+	const knownKeys: readonly string[] = STYLE_OPTIONS
+
+	for (const [key, rawValue] of Object.entries(input)) {
+		if (!knownKeys.includes(key)) {
+			const match = closest(key, knownKeys as string[])
+			if (distance(key, match) <= MAX_STYLE_TYPO_DISTANCE) {
+				return {
+					ok: false,
+					error: `Unknown style option '${key}'. Did you mean '${match}'?`,
+				}
+			}
+			return {
+				ok: false,
+				error: `Unknown style option '${key}'. Valid options: ${knownKeys.join(', ')}`,
+			}
+		}
+
+		const value = rawValue === null ? '' : String(rawValue)
+
+		const allowed = STYLE_ENUM_VALUES[key as StyleOption]
+		if (allowed && !allowed.includes(value)) {
+			return {
+				ok: false,
+				error: `Invalid value '${value}' for style option '${key}'. Must be one of: ${allowed.join(', ')}`,
+			}
+		}
+
+		result[key] = value
+	}
+
+	return { ok: true, style: result }
+}
+
+const StyleValue = z.union([z.string(), z.number(), z.null()], {
+	error: "'style' values must be strings or numbers",
+})
+
 export const StyleSchema = z.preprocess(
 	val => (val === null ? undefined : val),
 	z
-		.record(
-			z.string(),
-			z.coerce.string({ error: "'style' values must be strings or numbers" }),
-			{ error: "'style' must be an object" },
-		)
+		.record(z.string(), StyleValue, {
+			error: "'style' must be an object",
+		})
+		.transform((val, ctx) => {
+			const parsed = parseStyleRecord(val)
+			if (!parsed.ok) {
+				ctx.addIssue({
+					code: 'custom',
+					message: parsed.error,
+				})
+				return z.NEVER
+			}
+			return parsed.style
+		})
 		.optional(),
 )
 
