@@ -1,54 +1,54 @@
-![Resumx OG Image](/og-image.png)
+# What is Resumx?
 
----
+Resumx is a CLI that renders resumes from Markdown to PDF, HTML, and DOCX.
 
-Tailored resumes get [10x more interviews](/playbook/tailored-vs-generic), but most people skip it because it means managing multiple files and re-fitting everything to one page. Resumx lets you tailor for every role in a single file, and auto-fits your content to the page count you set
+<ResumeDemo />
 
-- **Tailoring without the overhead:** Tag content for different audiences in one file (`{.@frontend}`, `{.@backend}`), each auto-fitted to your page limit.
-- **Always fits the page:** Set `pages: 1` and add or remove content freely, Resumx scales typography and spacing so it always lands on exactly one page.
-- **AI-friendly by default:** Plain Markdown in a single file, so AI tools can read, edit, and tailor with full context.
-- **More writing, fewer decisions:** Sensible defaults for layout and structure so you focus on substance.
+## How It Works
+
+Your resume is a single Markdown file. Headings become sections, list items become bullet points, and YAML frontmatter controls rendering. A plain `cat resume.md` reads like a resume.
 
 <!-- prettier-ignore-start -->
 ```markdown
 ---
 pages: 1
-tags:
-  fullstack: [frontend, backend]
-style:
-  section-title-color: "#c43218"
 ---
 # Jane Doe
 
 jane@example.com | github.com/jane | linkedin.com/in/jane
 
-{{ tagline }}
-
 ## Experience
 
-### :meta: Meta || June 2022 - Present
+### Meta || June 2022 - Present
 _Senior Software Engineer_
 
-- Built distributed systems serving 1M requests/day {.@backend}
-- Built interactive dashboards using :ts: TypeScript {.@frontend}
-
-## Technical Skills
-::: {.@backend .grid .grid-cols-2}
-- Go
-- Kafka
-- PostgreSQL
-- Redis
-:::
-
-::: {.@frontend .grid .grid-cols-2}
-- TypeScript
-- React
-- Vue
-- PostgreSQL
-:::
+- Built distributed systems serving 1M requests/day
+- Built interactive dashboards using TypeScript and React
 ```
 <!-- prettier-ignore-end -->
 
-<ResumeDemo />
+Run `resumx resume.md` and you get a PDF.
 
-[Get started in under a minute →](/guide/quick-start) Edit with [AI](/guide/using-ai). Render from [any commit](/guide/git-integration). [Multi-language](/guide/multi-language) from one source.
+## One File, Every Application
+
+Most people keep one generic resume because tailoring means duplicating files and re-fighting layout for each version. Resumx treats your Markdown as a database of everything you've done. Each job application is a query against it.
+
+Tag content for specific audiences, and Resumx includes or excludes it per render:
+
+```markdown
+- Built distributed systems serving 1M requests/day {.@backend}
+- Built interactive dashboards using TypeScript {.@frontend}
+```
+
+`resumx resume.md --tag backend` produces a backend-focused PDF. `--tag frontend` produces a frontend one. Same file, different output, no copy-paste.
+
+## Auto Page Fitting
+
+Set `pages: 1` in frontmatter and add or remove content freely. Resumx scales spacing, margins, and typography so your resume always lands on exactly the page count you set, without you touching layout.
+
+## Next Steps
+
+- **New here?** [Quick Start](/guide/quick-start) gets you rendering in under a minute.
+- **Want to understand the syntax?** [Syntax](/guide/syntax) covers headings, entries, and contact info.
+- **Ready to tailor?** [How Tailoring Works](/guide/tailoring) explains tags, views, and variables.
+- **Styling?** [Customizing Your Resume](/guide/customizing-your-resume) covers style options, Tailwind CSS, and custom CSS.

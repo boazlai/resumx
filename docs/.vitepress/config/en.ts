@@ -47,26 +47,14 @@ export const en = defineConfig({
 					items: [
 						{ text: 'What is Resumx?', link: '/' },
 						{ text: 'Quick Start', link: '/guide/quick-start' },
-						{
-							text: `${sparkleIcon}Using AI`,
-							link: '/guide/using-ai',
-						},
-						{
-							text: `${gitIcon}Git Integration`,
-							link: '/guide/git-integration',
-						},
 					],
 				},
 				{
 					text: 'Writing Your Resume',
 					items: [
 						{
-							text: 'Markdown Syntax',
-							link: '/guide/markdown-syntax',
-						},
-						{
-							text: 'Classes & IDs',
-							link: '/guide/classes-and-ids',
+							text: 'Syntax',
+							link: '/guide/syntax',
 						},
 						{ text: 'Icons', link: '/guide/icons' },
 						{ text: 'Fit to Page', link: '/guide/fit-to-page' },

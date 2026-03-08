@@ -42,7 +42,7 @@ Unlike tags, `lang` is a [standard HTML global attribute](https://developer.mozi
 
 ## Tagging Content
 
-The `lang` attribute works everywhere attributes work in Resumx — [bracketed spans, element attributes, and fenced divs](/guide/classes-and-ids). Bracketed spans handle most cases:
+The `lang` attribute works everywhere attributes work in Resumx — [bracketed spans, element attributes, and fenced divs](/guide/syntax#attributes). Bracketed spans handle most cases:
 
 ```markdown
 ## [Experience]{lang=en} [Expérience professionnelle]{lang=fr}
@@ -54,7 +54,7 @@ The `lang` attribute works everywhere attributes work in Resumx — [bracketed s
 - React, Node.js, PostgreSQL, Redis, Docker
 ```
 
-For large blocks where everything differs, use [fenced divs](/guide/classes-and-ids#fenced-divs):
+For large blocks where everything differs, use [fenced divs](/guide/syntax#on-a-group-of-elements):
 
 <!-- prettier-ignore -->
 ```markdown
@@ -66,7 +66,7 @@ For large blocks where everything differs, use [fenced divs](/guide/classes-and-
 
 ## Combining with Tags
 
-`{lang=xx}` and `{.@name}` work independently. Here, `[text]{lang=en}` and `[text]{lang=fr}` each scope to their span, while `{.@backend}` without brackets is an [element attribute](/guide/classes-and-ids#element-attributes) that applies to the whole bullet.
+`{lang=xx}` and `{.@name}` work independently. Here, `[text]{lang=en}` and `[text]{lang=fr}` each scope to their span, while `{.@backend}` without brackets is an [element attribute](/guide/syntax#on-a-whole-element) that applies to the whole bullet.
 
 ```markdown
 - [Designed REST APIs with OpenAPI spec]{lang=en} [Conception d'API REST avec OpenAPI]{lang=fr} {.@backend}

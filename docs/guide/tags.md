@@ -35,7 +35,7 @@ Use multiple classes to include an element in several tags:
 - Implemented GraphQL API layer with TypeScript {.@backend .@frontend}
 ```
 
-You can also tag inline text with [bracketed spans](/guide/classes-and-ids#bracketed-spans) or wrap entire sections with [fenced divs](/guide/classes-and-ids#fenced-divs).
+You can also tag inline text with [bracketed spans](/guide/syntax#on-inline-text) or wrap entire sections with [fenced divs](/guide/syntax#on-a-group-of-elements).
 
 <!-- Every tag is renderable with `--for`: -->
 
