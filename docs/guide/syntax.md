@@ -77,17 +77,18 @@ element itself, not a span inside it:
 
 Wrap content in `:::` fences when you need attributes on a group:
 
+<!-- prettier-ignore-start -->
 ```markdown
 ::: {.grid .grid-cols-3}
-
 - JavaScript
 - TypeScript
 - Python
 - React
 - Node.js
 - PostgreSQL
-  :::
+:::
 ```
+<!-- prettier-ignore-end -->
 
 ![Grid skills layout](/images/grid-bullet-with-fence.png)
 
