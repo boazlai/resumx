@@ -1,13 +1,14 @@
 <script setup lang="ts">
 /// <reference types="vite/client" />
 import { ref, computed } from 'vue'
+import emojiData from 'markdown-it-emoji/lib/data/full.mjs'
 
 const icons = import.meta.glob('../../../assets/icons/*.svg', {
 	eager: true,
 	import: 'default',
 }) as Record<string, string>
 
-const entries = Object.entries(icons)
+const iconEntries = Object.entries(icons)
 	.map(([path, url]) => {
 		const slug = path
 			.split('/')
@@ -17,17 +18,36 @@ const entries = Object.entries(icons)
 	})
 	.sort((a, b) => a.slug.localeCompare(b.slug))
 
+const iconSlugs = new Set(iconEntries.map(e => e.slug))
+
+const emojiEntries = Object.entries(emojiData as Record<string, string>)
+	.filter(([name]) => !iconSlugs.has(name))
+	.map(([name, char]) => ({ slug: name, char }))
+	.sort((a, b) => a.slug.localeCompare(b.slug))
+
+type Tab = 'icons' | 'emoji'
+const tab = ref<Tab>('icons')
 const search = ref('')
 const copied = ref<string | null>(null)
 
-const filtered = computed(() => {
+const filteredIcons = computed(() => {
 	const q = search.value.toLowerCase().trim()
-	if (!q) return entries
-	return entries.filter(e => e.slug.includes(q))
+	if (!q) return iconEntries
+	return iconEntries.filter(e => e.slug.includes(q))
 })
 
+const filteredEmoji = computed(() => {
+	const q = search.value.toLowerCase().trim()
+	if (!q) return emojiEntries
+	return emojiEntries.filter(e => e.slug.includes(q))
+})
+
+const resultCount = computed(() =>
+	tab.value === 'icons' ? filteredIcons.value.length : filteredEmoji.value.length,
+)
+
 function copy(slug: string) {
-	navigator.clipboard.writeText(`::${slug}::`)
+	navigator.clipboard.writeText(`:${slug}:`)
 	copied.value = slug
 	setTimeout(() => {
 		if (copied.value === slug) copied.value = null
@@ -41,28 +61,57 @@ function copy(slug: string) {
 			<input
 				v-model="search"
 				type="text"
-				placeholder="Search built-in icons..."
+				:placeholder="tab === 'icons' ? 'Search icons...' : 'Search emoji...'"
 				class="icon-gallery-input"
 			/>
-			<span class="icon-gallery-count">{{ filtered.length }} icons</span>
+			<div class="icon-gallery-toggle">
+				<button
+					class="icon-gallery-toggle-btn"
+					:class="{ active: tab === 'icons' }"
+					@click="tab = 'icons'"
+				>
+					Icons
+				</button>
+				<button
+					class="icon-gallery-toggle-btn"
+					:class="{ active: tab === 'emoji' }"
+					@click="tab = 'emoji'"
+				>
+					Emoji
+				</button>
+			</div>
+			<span class="icon-gallery-count">{{ resultCount }} {{ tab === 'icons' ? 'icons' : 'emoji' }}</span>
 		</div>
-		<div class="icon-gallery-grid">
+		<div v-if="tab === 'icons'" class="icon-gallery-grid">
 			<button
-				v-for="icon in filtered"
+				v-for="icon in filteredIcons"
 				:key="icon.slug"
 				class="icon-gallery-item"
-				:title="`::${icon.slug}:: — click to copy`"
+				:title="`:${icon.slug}: — click to copy`"
 				@click="copy(icon.slug)"
 			>
 				<img :src="icon.url" :alt="icon.slug" class="icon-gallery-img" />
 				<span class="icon-gallery-slug">
-					{{ copied === icon.slug ? 'Copied!' : icon.slug }}
+					{{ copied === icon.slug ? 'Copied!' : `:${icon.slug}:` }}
 				</span>
 			</button>
 		</div>
-		<p v-if="filtered.length === 0" class="icon-gallery-empty">
-			No icons match "<strong>{{ search }}</strong
-			>"
+		<div v-else class="icon-gallery-grid">
+			<button
+				v-for="emoji in filteredEmoji"
+				:key="emoji.slug"
+				class="icon-gallery-item"
+				:title="`:${emoji.slug}: — click to copy`"
+				@click="copy(emoji.slug)"
+			>
+				<span class="icon-gallery-emoji">{{ emoji.char }}</span>
+				<span class="icon-gallery-slug">
+					{{ copied === emoji.slug ? 'Copied!' : `:${emoji.slug}:` }}
+				</span>
+			</button>
+		</div>
+		<p v-if="resultCount === 0" class="icon-gallery-empty">
+			No {{ tab === 'icons' ? 'icons' : 'emoji' }} match "<strong>{{ search }}</strong>"
 		</p>
 	</div>
 </template>
@@ -103,6 +152,40 @@ function copy(slug: string) {
 	font-size: 13px;
 	color: var(--vp-c-text-3);
 	white-space: nowrap;
+	min-width: 8ch;
+	text-align: right;
+}
+
+.icon-gallery-toggle {
+	display: flex;
+	border: 1px solid var(--vp-c-divider);
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+.icon-gallery-toggle-btn {
+	padding: 4px 10px;
+	border: none;
+	background: none;
+	color: var(--vp-c-text-3);
+	opacity: 0.5;
+	font-size: 12px;
+	cursor: pointer;
+	transition: all 0.15s;
+}
+
+.icon-gallery-toggle-btn:not(:last-child) {
+	border-right: 1px solid var(--vp-c-divider);
+}
+
+.icon-gallery-toggle-btn:hover {
+	color: var(--vp-c-text-1);
+	opacity: 0.8;
+}
+
+.icon-gallery-toggle-btn.active {
+	color: var(--vp-c-text-1);
+	opacity: 1;
 }
 
 .icon-gallery-grid {
@@ -147,6 +230,12 @@ function copy(slug: string) {
 	text-align: center;
 	word-break: break-all;
 	line-height: 1.3;
+}
+
+.icon-gallery-emoji {
+	font-size: 24px;
+	line-height: 28px;
+	height: 28px;
 }
 
 .icon-gallery-empty {
