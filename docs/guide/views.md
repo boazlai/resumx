@@ -63,7 +63,7 @@ Configuring a tag view doesn't change the tag. Other tags can still compose it, 
 Custom views live in `.view.yaml` files. Top-level keys are view names:
 
 ```yaml
-# stripe.view.yaml
+# yaml-language-server: $schema=https://resumx.dev/schemas/view.schema.json
 stripe-swe:
   selects: [backend/node, distributed-systems, leadership]
   sections:
@@ -118,7 +118,23 @@ Base defaults (pages, style, bullet-order) live in frontmatter. Custom view fiel
 
 ### JSON Schema
 
-A [JSON Schema](https://json-schema.org/) for custom view files lives at `schemas/view.schema.json` in the repo. Point your editor at it for validation and completion in `.view.yaml` files (e.g. VS Code: add `"yaml.schemas": { "https://resumx.dev/schemas/view.schema.json": "*.view.yaml" }` to your workspace or user settings, or use a path relative to the project).
+A [JSON Schema](https://json-schema.org/) is available for view files (and for [frontmatter](/guide/frontmatter-reference#json-schema)). Add a comment at the top of any `.view.yaml` to get validation, autocompletion, and hover docs:
+
+```yaml
+# yaml-language-server: $schema=https://resumx.dev/schemas/view.schema.json
+```
+
+This works in any editor that uses the [YAML Language Server](https://github.com/redhat-developer/yaml-language-server) (VS Code, Cursor, Neovim, etc.), no settings file required.
+
+To enable it project-wide without adding a comment to each file, add this to `.vscode/settings.json`:
+
+```json
+{
+	"yaml.schemas": {
+		"https://resumx.dev/schemas/view.schema.json": "**/*.view.yaml"
+	}
+}
+```
 
 ### Content Filtering
 

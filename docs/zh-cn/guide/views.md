@@ -63,7 +63,7 @@ tags:
 自定义视图存放在 `.view.yaml` 文件中。顶层键是视图名称：
 
 ```yaml
-# stripe.view.yaml
+# yaml-language-server: $schema=https://resumx.dev/schemas/view.schema.json
 stripe-swe:
   selects: [backend/node, distributed-systems, leadership]
   sections:
@@ -115,6 +115,20 @@ resumx resume.md --for stripe-swe
 | `output`       | `string`                 | 输出路径（同 frontmatter 中的 `output`）。         |
 
 基础默认值（pages、style、bullet-order）位于 frontmatter 中。自定义视图字段是覆盖项。
+
+### JSON Schema
+
+自定义视图文件提供了 JSON Schema，让你的编辑器提供验证和自动补全功能。
+
+**VS Code / Cursor** — 添加到 `.vscode/settings.json`：
+
+```json
+{
+	"yaml.schemas": {
+		"https://resumx.dev/schemas/view.schema.json": "**/*.view.yaml"
+	}
+}
+```
 
 ### 内容过滤
 
