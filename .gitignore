@@ -160,3 +160,6 @@ vhs/page-fit/.tmp/
 
 # Generated docs assets
 docs/public/schemas/
+
+# V8 CPU profile
+*.cpuprofile
