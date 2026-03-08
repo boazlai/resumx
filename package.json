@@ -131,6 +131,9 @@
 		"styles/common/base.css": [
 			"pnpm run generate:style-options",
 			"git add src/core/style-options.generated.ts schemas/style-options.schema.json"
+		],
+		"docs/**": [
+			"pnpm run docs:build"
 		]
 	},
 	"pnpm": {
