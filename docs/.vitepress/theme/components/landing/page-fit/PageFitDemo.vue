@@ -17,18 +17,76 @@ const codeBody = ref<HTMLDivElement>()
 const sliderTrack = ref<HTMLDivElement>()
 const isDragging = ref(false)
 const hoverStep = ref<number | null>(null)
+const userHasEngaged = ref(false)
+let autoIntervalId: ReturnType<typeof setInterval> | null = null
+
+const AUTO_STEP_MS = 1800
+const CODE_SCROLL_DURATION_MS = 1200
+
+function animateScroll(
+	el: HTMLElement,
+	toTop: number,
+	durationMs: number,
+): void {
+	const startTop = el.scrollTop
+	const start = performance.now()
+
+	function tick(now: number) {
+		const t = Math.min((now - start) / durationMs, 1)
+		const eased = 1 - (1 - t) ** 3
+		el.scrollTop = startTop + (toTop - startTop) * eased
+		if (t < 1) requestAnimationFrame(tick)
+	}
+	requestAnimationFrame(tick)
+}
 
 onMounted(async () => {
 	const res = await fetch('/demos/page-fit/manifest.json')
 	manifest.value = (await res.json()) as Manifest
 	document.addEventListener('pointermove', onPointerMove)
 	document.addEventListener('pointerup', onPointerUp)
+	startAutoPlay()
 })
 
 onUnmounted(() => {
 	document.removeEventListener('pointermove', onPointerMove)
 	document.removeEventListener('pointerup', onPointerUp)
+	stopAutoPlay()
 })
+
+function startAutoPlay() {
+	if (!manifest.value || userHasEngaged.value) return
+	stopAutoPlay()
+	const maxStep = manifest.value.steps.length - 1
+	if (maxStep <= 0) return
+	let goingForward = true
+	autoIntervalId = setInterval(() => {
+		if (!manifest.value) return
+		const max = manifest.value.steps.length - 1
+		if (goingForward) {
+			if (step.value >= max) {
+				goingForward = false
+				step.value = Math.max(0, max - 1)
+			} else {
+				step.value += 1
+			}
+		} else {
+			if (step.value <= 0) {
+				goingForward = true
+				step.value = Math.min(1, max)
+			} else {
+				step.value -= 1
+			}
+		}
+	}, AUTO_STEP_MS)
+}
+
+function stopAutoPlay() {
+	if (autoIntervalId != null) {
+		clearInterval(autoIntervalId)
+		autoIntervalId = null
+	}
+}
 
 function stepFromPointer(e: PointerEvent): number {
 	const track = sliderTrack.value!
@@ -40,6 +98,8 @@ function stepFromPointer(e: PointerEvent): number {
 
 function onPointerDown(e: PointerEvent) {
 	e.preventDefault()
+	userHasEngaged.value = true
+	stopAutoPlay()
 	isDragging.value = true
 	step.value = stepFromPointer(e)
 }
@@ -97,9 +157,9 @@ watch(step, async (newVal, oldVal) => {
 		const lineRect = (firstDiff as HTMLElement).getBoundingClientRect()
 		const scrollOffset =
 			lineRect.top - containerRect.top + container.scrollTop - 40
-		container.scrollTo({ top: scrollOffset, behavior: 'smooth' })
+		animateScroll(container, scrollOffset, CODE_SCROLL_DURATION_MS)
 	} else {
-		codeBody.value.scrollTo({ top: 0, behavior: 'smooth' })
+		animateScroll(codeBody.value, 0, CODE_SCROLL_DURATION_MS)
 	}
 })
 
@@ -149,9 +209,7 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 
 		<div class="slider-row">
 			<span class="slider-label">
-				<Transition
-					:name="direction === 'forward' ? 'label-down' : 'label-up'"
-				>
+				<Transition :name="direction === 'forward' ? 'label-down' : 'label-up'">
 					<span :key="step" class="slider-label-text">{{
 						stepLabels[step]
 					}}</span>
@@ -318,6 +376,12 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 	overflow-y: auto;
 	flex: 1;
 	min-height: 0;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.code-body::-webkit-scrollbar {
+	display: none;
 }
 
 .code-body :deep(.code-line) {
@@ -449,7 +513,9 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 /* Forward: new label slides down in, old slides down out */
 .label-down-enter-active,
 .label-down-leave-active {
-	transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+	transition:
+		transform 0.3s ease-out,
+		opacity 0.3s ease-out;
 }
 .label-down-enter-from {
 	position: absolute;
@@ -465,7 +531,9 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 /* Backward: new label slides up in, old slides up out */
 .label-up-enter-active,
 .label-up-leave-active {
-	transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+	transition:
+		transform 0.3s ease-out,
+		opacity 0.3s ease-out;
 }
 .label-up-enter-from {
 	position: absolute;
