@@ -140,7 +140,7 @@ const tools = [
 
 				<!-- Heading -->
 				<h1 class="hero-heading">
-					Stop Tweaking Themes. <br />
+					Stop Tweaking Themes.<br class="hero-heading-br" />
 					Start Getting Interviews.
 				</h1>
 
@@ -440,24 +440,60 @@ const tools = [
 	display: flex;
 	width: fit-content;
 	align-items: center;
-	gap: 0.75rem;
+	gap: 0.375rem;
 	border-radius: 9999px;
 	border: 1px solid var(--vp-c-divider);
 	background-color: var(--vp-c-bg-soft);
-	padding: 0.25rem 0.75rem;
+	padding: 0.1875rem 0.375rem 0.1875rem 0.5rem;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 	transition: all 0.15s ease-out;
 	animation: fade-slide-in 0.5s ease-out 0.5s backwards;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+	.hero-badge {
+		gap: 0.75rem;
+		padding: 0.25rem 0.75rem;
+	}
 }
 
 .hero-badge-text {
-	font-size: 0.75rem;
+	font-size: 0.625rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+	.hero-badge-text {
+		font-size: 0.75rem;
+	}
 }
 
 .hero-badge-divider {
 	display: block;
-	height: 1.25rem;
+	height: 1rem;
 	border-left: 1px solid var(--vp-c-divider);
+}
+
+@media (min-width: 640px) {
+	.hero-badge-divider {
+		height: 1.25rem;
+	}
+}
+
+.hero-badge .hero-icon {
+	width: 10px;
+	height: 10px;
+}
+
+@media (min-width: 640px) {
+	.hero-badge .hero-icon {
+		width: 12px;
+		height: 12px;
+	}
 }
 
 .hero-badge-arrow {
@@ -482,10 +518,17 @@ const tools = [
 	animation: fade-slide-in 0.5s ease-out 0.1s backwards;
 }
 
+.hero-heading-br {
+	display: none;
+}
+
 @media (min-width: 640px) {
 	.hero-heading {
 		font-size: 2.25rem;
 		padding: 0;
+	}
+	.hero-heading-br {
+		display: block;
 	}
 }
 
