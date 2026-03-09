@@ -9,6 +9,7 @@ import DocActions from './DocActions.vue'
 import IconGallery from './IconGallery.vue'
 import ResumeDemo from './ResumeDemo.vue'
 import TagLineage from './TagLineage.vue'
+import HeroLanding from './components/ui/HeroLanding.vue'
 
 export default {
 	extends: DefaultTheme,
@@ -23,5 +24,6 @@ export default {
 		app.component('IconGallery', IconGallery)
 		app.component('ResumeDemo', ResumeDemo)
 		app.component('TagLineage', TagLineage)
+		app.component('HeroLanding', HeroLanding)
 	},
 } satisfies Theme

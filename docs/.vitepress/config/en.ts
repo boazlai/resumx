@@ -45,7 +45,7 @@ export const en = defineConfig({
 				{
 					text: 'Getting Started',
 					items: [
-						{ text: 'What is Resumx?', link: '/' },
+						{ text: 'What is Resumx?', link: '/guide/what-is-resumx' },
 						{ text: 'Quick Start', link: '/guide/quick-start' },
 					],
 				},

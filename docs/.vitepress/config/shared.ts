@@ -43,9 +43,6 @@ export const shared = defineConfig({
 			{ name: 'twitter:image', content: 'https://resumx.dev/og-image.png' },
 		],
 	],
-	rewrites: {
-		'guide/what-is-resumx.md': 'index.md',
-	},
 	markdown: {
 		codeTransformers: [
 			transformerNotationWordHighlight(),
