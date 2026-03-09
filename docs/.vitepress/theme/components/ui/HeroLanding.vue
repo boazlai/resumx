@@ -1,9 +1,27 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useData } from 'vitepress'
 import InfiniteSlider from './InfiniteSlider.vue'
 import FooterLanding from './FooterLanding.vue'
 
 const { isDark } = useData()
+
+const GITHUB_RELEASES_API =
+	'https://api.github.com/repos/resumx/resumx/releases/latest'
+const badgeText = ref<string>('v0.1.1 released — see what\'s new')
+
+onMounted(() => {
+	fetch(GITHUB_RELEASES_API)
+		.then((res) => (res.ok ? res.json() : Promise.reject(res)))
+		.then((data: { tag_name?: string }) => {
+			if (data?.tag_name) {
+				badgeText.value = `${data.tag_name} released — see what's new`
+			}
+		})
+		.catch(() => {
+			// Keep fallback on network error or no releases
+		})
+})
 
 const tools = [
 	{ name: 'Cursor', icon: '/images/logos/cursor.svg', invert: true },
@@ -100,7 +118,7 @@ const tools = [
 						<path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
 						<path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
 					</svg>
-					<span class="hero-badge-text">v1.x released — see what's new</span>
+					<span class="hero-badge-text">{{ badgeText }}</span>
 					<span class="hero-badge-divider" />
 					<!-- Arrow right icon -->
 					<svg
