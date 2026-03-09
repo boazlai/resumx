@@ -98,9 +98,9 @@ function onMediaChange() {
 	if (active) breakpoint.value = active.bp
 }
 
-const FADE_MS = 350
-const SWAP_INTERVAL_MS = 2800
-const INITIAL_DELAY_MS = 2000
+const FADE_MS = 500
+const SWAP_INTERVAL_MS = 2300
+const INITIAL_DELAY_MS = 0
 let swapTimer: ReturnType<typeof setInterval> | undefined
 
 function pickSwapCount(): number {

@@ -6,6 +6,8 @@ import DemoCard from '../landing/DemoCard.vue'
 import IconRevealDemo from '../landing/IconRevealDemo.vue'
 import TagFilterDemo from '../landing/tag-filter/TagFilterDemo.vue'
 import PageFitDemo from '../landing/page-fit/PageFitDemo.vue'
+import GitVersionDemo from '../landing/GitVersionDemo.vue'
+import StyleCarousel from '../landing/StyleCarousel.vue'
 
 const GITHUB_RELEASES_API =
 	'https://api.github.com/repos/resumx/resumx/releases/latest'
@@ -245,12 +247,27 @@ const tools = [
 				<DemoCard
 					label="Icons"
 					heading="Icons, typed"
-					subtitle="200+ built-in shortcodes render into crisp SVGs automatically."
+					subtitle="200k+ built-in shortcodes render into crisp SVGs automatically."
 					header-align="right"
 				>
 					<IconRevealDemo />
 				</DemoCard>
 			</div>
+
+			<DemoCard
+				label="Version Control"
+				heading="Every version you sent, recoverable."
+				subtitle="Each submission lives on its own Git branch. Check out any past version and rebuild it in one command."
+			>
+				<GitVersionDemo />
+			</DemoCard>
+			<DemoCard
+				label="Typography"
+				heading="Every knob. No friction."
+				subtitle="Fonts, colors, spacing, layout. All configurable from your Markdown file."
+			>
+				<StyleCarousel />
+			</DemoCard>
 		</section>
 
 		<FooterLanding />

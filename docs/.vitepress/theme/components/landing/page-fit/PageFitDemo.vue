@@ -448,7 +448,7 @@ const stepLabels = ['Minimal', 'Standard', 'Detailed', 'Extended', 'Maximum']
 	height: 100%;
 	object-fit: contain;
 	opacity: 0;
-	transition: opacity 0.25s ease;
+	transition: opacity 0.25s ease 0.17s;
 	pointer-events: none;
 }
 
