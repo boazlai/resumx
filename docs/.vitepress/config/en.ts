@@ -11,8 +11,12 @@ export const en = defineConfig({
 	description: 'Markdown-first resume builder for developers',
 	themeConfig: {
 		nav: [
-			{ text: 'Guide', link: '/guide/quick-start' },
-			{ text: 'Playbook', link: '/playbook/resume-length' },
+			{ text: 'Guide', link: '/guide/quick-start', activeMatch: '^/guide/' },
+			{
+				text: 'Playbook',
+				link: '/playbook/resume-length',
+				activeMatch: '^/playbook/',
+			},
 		],
 		sidebar: {
 			'/playbook/': [

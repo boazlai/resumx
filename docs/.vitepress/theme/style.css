@@ -383,3 +383,18 @@ figcaption {
 		font-weight: 500 !important;
 	}
 }
+
+a.VPLink.link.active {
+	position: relative !important;
+}
+
+a.VPLink.link.active::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 2.5px;
+	background: var(--vp-c-brand-1);
+	border-radius: 6px 6px 0 0;
+}
