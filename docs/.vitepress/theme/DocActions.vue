@@ -147,6 +147,12 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 	margin-top: 4px;
 }
 
+@media (max-width: 640px) {
+	.doc-actions {
+		display: none;
+	}
+}
+
 .action-btn {
 	display: inline-flex;
 	align-items: center;
