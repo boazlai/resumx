@@ -8,7 +8,7 @@ import TagFilterDemo from '../landing/tag-filter/TagFilterDemo.vue'
 import MultiTargetDemo from '../landing/MultiTargetDemo.vue'
 import PageFitDemo from '../landing/page-fit/PageFitDemo.vue'
 import GitVersionDemo from '../landing/GitVersionDemo.vue'
-import StyleCarousel from '../landing/StyleCarousel.vue'
+import StylePlaygroundDemo from '../landing/StylePlaygroundDemo.vue'
 
 const GLYPH_CHARS = [
 	'#',
@@ -361,19 +361,18 @@ const tools = [
 					header-align="right"
 				>
 					<template #subtitle>
-						Your resume lives in Git. Render any past commit in one
-						command.
+						Your resume lives in Git. Render any past commit in one command.
 					</template>
 					<GitVersionDemo />
 				</DemoCard>
 			</div>
 
 			<DemoCard
-				label="Typography"
-				heading="Every knob. No friction."
-				subtitle="Fonts, colors, spacing, layout. All configurable from your Markdown file."
+				label="Styling"
+				heading="Style it in place."
+				subtitle="30+ style options. Tailwind classes supported. No CSS needed."
 			>
-				<StyleCarousel />
+				<StylePlaygroundDemo />
 			</DemoCard>
 		</section>
 
