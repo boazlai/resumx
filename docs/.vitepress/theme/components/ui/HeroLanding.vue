@@ -434,16 +434,22 @@ const tools = [
 	filter: brightness(0) invert(1);
 }
 
+/* Match VitePress dark mode: class is on html. Use html selectors so correct
+   logo shows when page loads in dark mode. */
 .tool-icon--dark-only {
 	display: none;
 }
 
-.dark .tool-icon--light-only {
-	display: none;
+html:not(.dark) .tool-icon--dark-only {
+	display: none !important;
 }
 
-.dark .tool-icon--dark-only {
-	display: inline;
+html.dark .tool-icon--light-only {
+	display: none !important;
+}
+
+html.dark .tool-icon--dark-only {
+	display: inline !important;
 }
 </style>
 
@@ -904,7 +910,7 @@ const tools = [
 	padding: 1.5rem 0.5rem 2rem;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
 	.features-section {
 		margin: 4rem 4rem 0;
 		padding: 2rem 1.5rem 3rem;

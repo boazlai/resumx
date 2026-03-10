@@ -8,28 +8,27 @@ interface Bullet {
 
 const bullets: Bullet[] = [
 	{
-		text: 'Built real-time analytics pipeline processing 2M events/day',
+		text: 'Data pipeline',
 		tags: ['backend'],
 	},
 	{
-		text: 'Redesigned dashboard UI with React, improving load time by 60%',
+		text: 'Dashboard redesign',
 		tags: ['frontend'],
 	},
 	{
-		text: 'Built RAG-powered search reducing support tickets by 73%',
+		text: 'RAG search',
 		tags: ['ai', 'backend'],
 	},
 	{
-		text: 'Implemented design system used across 12 internal tools',
+		text: 'Design system',
 		tags: ['frontend'],
 	},
 	{
-		text: 'Fine-tuned ranking model improving recommendation CTR by 35%',
+		text: 'Ranking model',
 		tags: ['ai'],
 	},
 ]
 
-/** Filter cycle: single tags, combos (frontend+ai, backend+ai, frontend+backend), only-X; never all three. */
 const FILTER_CYCLE: { id: string; dwellMs: number }[] = [
 	{ id: 'all', dwellMs: 1_200 },
 	{ id: 'frontend', dwellMs: 900 },
@@ -38,9 +37,6 @@ const FILTER_CYCLE: { id: string; dwellMs: number }[] = [
 	{ id: 'frontend+ai', dwellMs: 1_100 },
 	{ id: 'backend+ai', dwellMs: 1_100 },
 	{ id: 'frontend+backend', dwellMs: 1_100 },
-	{ id: 'only-frontend', dwellMs: 1_000 },
-	{ id: 'only-backend', dwellMs: 1_000 },
-	{ id: 'only-ai', dwellMs: 1_000 },
 ]
 
 const activeFilter = ref('all')
@@ -62,9 +58,9 @@ function startAutoAdvance() {
 const activeTags = computed((): string[] => {
 	const v = activeFilter.value
 	if (v === 'all') return []
-	if (v === 'frontend' || v === 'only-frontend') return ['frontend']
-	if (v === 'backend' || v === 'only-backend') return ['backend']
-	if (v === 'ai' || v === 'only-ai') return ['ai']
+	if (v === 'frontend') return ['frontend']
+	if (v === 'backend') return ['backend']
+	if (v === 'ai') return ['ai']
 	if (v === 'frontend+ai') return ['frontend', 'ai']
 	if (v === 'backend+ai') return ['backend', 'ai']
 	if (v === 'frontend+backend') return ['frontend', 'backend']
@@ -83,12 +79,6 @@ function matches(bullet: Bullet): boolean {
 		return bullet.tags.includes('backend') || bullet.tags.includes('ai')
 	if (v === 'frontend+backend')
 		return bullet.tags.includes('frontend') || bullet.tags.includes('backend')
-	if (v === 'only-frontend')
-		return bullet.tags.length === 1 && bullet.tags[0] === 'frontend'
-	if (v === 'only-backend')
-		return bullet.tags.length === 1 && bullet.tags[0] === 'backend'
-	if (v === 'only-ai')
-		return bullet.tags.length === 1 && bullet.tags[0] === 'ai'
 	return true
 }
 
@@ -235,7 +225,7 @@ onUnmounted(() => {
 	min-height: 290px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
 	.panels {
 		grid-template-columns: 1fr;
 	}
@@ -462,5 +452,23 @@ onUnmounted(() => {
 	padding-top: 0;
 	padding-bottom: 0;
 	margin: 0;
+}
+
+.code-body {
+	overflow-x: hidden;
+}
+
+.code-line {
+	padding: 0 6px;
+}
+
+.line-num {
+	width: 18px;
+	margin-right: 6px;
+}
+
+.preview-body {
+	min-height: 14.5em;
+	padding: 14px 16px 16px;
 }
 </style>
