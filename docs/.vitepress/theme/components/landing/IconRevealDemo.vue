@@ -9,18 +9,18 @@ const allIcons = import.meta.glob('../../../../../assets/icons/*.svg', {
 }) as Record<string, string>
 
 const INITIAL = [
-	'github',
+	'mongodb',
 	'react',
 	'python',
 	'docker',
-	'figma',
-	'rust',
-	'aws',
+	'ts',
+	'spring',
+	'azure',
 	'go',
 	'vue',
 	'kotlin',
 	'swift',
-	'vercel',
+	'laravel',
 ]
 
 const EXTRA = [
@@ -28,22 +28,22 @@ const EXTRA = [
 	'svelte',
 	'nextjs',
 	'nodejs',
-	'django',
+	'codeforces',
 	'java',
 	'ruby',
-	'linux',
+	'n8n',
 	'git',
-	'kafka',
+	'figma',
 	'dart',
 	'scala',
 	'elixir',
-	'flask',
+	'gcp',
 	'sass',
-	'gradle',
-	'helm',
-	'nestjs',
+	'google',
+	'k8s',
+	'kibana',
 	'nginx',
-	'deno',
+	'ocaml',
 ]
 
 type Icon = { slug: string; url: string }
