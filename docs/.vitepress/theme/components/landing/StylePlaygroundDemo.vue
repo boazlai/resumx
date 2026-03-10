@@ -15,8 +15,8 @@ const COL_GAP_PCT = 2.5
 const gridOn = ref(false)
 
 const colorIdx = ref(0)
-const COLOR_DISPLAY = ["'#333'", "'#2563eb'", "'#c43218'"]
-const COLOR_CSS = ['', '#2563eb', '#c43218']
+const COLOR_DISPLAY = ["'#333'", "'#1e40af'", "'#c43218'"]
+const COLOR_CSS = ['', '#1e40af', '#c43218']
 
 const alignIdx = ref(0)
 const ALIGN_DISPLAY = ['left', 'center', 'right']
