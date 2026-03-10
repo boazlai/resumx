@@ -156,6 +156,12 @@ function copy(slug: string) {
 	text-align: right;
 }
 
+@media (max-width: 480px) {
+	.icon-gallery-count {
+		display: none;
+	}
+}
+
 .icon-gallery-toggle {
 	display: flex;
 	border: 1px solid var(--vp-c-divider);
