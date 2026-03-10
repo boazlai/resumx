@@ -39,10 +39,9 @@
 		"format:check": "prettier --check .",
 		"prepublishOnly": "rm -rf dist && pnpm run build",
 		"prepare": "husky",
-		"docs:codegen": "mkdir -p docs/public/schemas && cp schemas/*.schema.json docs/public/schemas/",
-		"docs:dev": "pnpm run docs:codegen && vitepress dev docs",
-		"docs:build": "pnpm run docs:codegen && vitepress build docs",
-		"docs:preview": "vitepress preview docs",
+		"docs:dev": "pnpm --filter @resumx/docs dev",
+		"docs:build": "pnpm --filter @resumx/docs build",
+		"docs:preview": "pnpm --filter @resumx/docs preview",
 		"deps": "madge --extensions ts,tsx --exclude '\\.(d\\.ts|test\\.(ts|tsx)|spec\\.(ts|tsx))$' --image deps.svg src/ && madge --extensions ts,tsx --exclude '\\.(d\\.ts|test\\.(ts|tsx)|spec\\.(ts|tsx))$' --json src/ > deps.json",
 		"generate:style-options": "pnpm exec tsx scripts/generate-style-options.ts",
 		"optimize-icons": "pnpm exec tsx scripts/optimize-icons.ts",
@@ -100,17 +99,14 @@
 	},
 	"devDependencies": {
 		"@mdit/helper": "^0.22.2",
-		"@shikijs/transformers": "^3.22.0",
 		"@types/js-beautify": "^1.14.3",
 		"@types/markdown-it": "^14.1.2",
 		"@types/markdown-it-attrs": "^4.1.3",
 		"@types/node": "^22.0.0",
 		"@types/which": "^3.0.4",
-		"@vercel/analytics": "^1.6.1",
 		"@vitest/coverage-v8": "^2.1.9",
 		"conventional-changelog-cli": "^5.0.0",
 		"execa": "^9.5.2",
-		"geist": "^1.7.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.2.7",
 		"madge": "^8.0.0",
@@ -118,7 +114,6 @@
 		"tmp-promise": "^3.0.3",
 		"tsx": "^4.21.0",
 		"typescript": "^5.7.0",
-		"vitepress": "^2.0.0-alpha.15",
 		"vitest": "^2.1.0"
 	},
 	"lint-staged": {
@@ -133,7 +128,7 @@
 			"git add src/core/style-options.generated.ts schemas/style-options.schema.json"
 		],
 		"docs/**": [
-			"pnpm run docs:build"
+			"pnpm --filter @resumx/docs build"
 		]
 	},
 	"pnpm": {
