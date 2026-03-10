@@ -134,6 +134,26 @@ function pickSwapCount(): number {
 	return 3
 }
 
+function refreshSlot(slotIdx: number) {
+	if (pool.value.length === 0) return
+	if (fadingSlots.has(slotIdx)) return
+
+	fadingSlots.add(slotIdx)
+
+	setTimeout(async () => {
+		const old = slots.value[slotIdx]
+		const pickIdx = Math.floor(Math.random() * pool.value.length)
+		const replacement = pool.value[pickIdx]
+
+		pool.value.splice(pickIdx, 1)
+		pool.value.push(old)
+		slots.value[slotIdx] = replacement
+
+		await nextTick()
+		fadingSlots.delete(slotIdx)
+	}, FADE_MS)
+}
+
 function swapRandomSlots() {
 	const count = displayCount.value
 	if (pool.value.length === 0) return
@@ -194,6 +214,7 @@ onUnmounted(() => {
 			:key="idx"
 			class="icon-cell"
 			:style="{ '--i': icon.i }"
+			@click="refreshSlot(idx)"
 		>
 			<div
 				class="icon-cell-inner"
@@ -253,6 +274,7 @@ onUnmounted(() => {
 	border-radius: 12px;
 	background: var(--vp-c-bg);
 	border: 1px solid var(--vp-c-divider);
+	cursor: pointer;
 	transition:
 		border-color 0.2s,
 		box-shadow 0.2s;
@@ -269,11 +291,6 @@ onUnmounted(() => {
 
 .icon-cell-inner--hidden {
 	opacity: 0;
-}
-
-.icon-cell:hover {
-	border-color: var(--vp-c-brand-soft);
-	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
 .icon-cell-visual {
