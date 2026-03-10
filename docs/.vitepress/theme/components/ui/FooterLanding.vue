@@ -211,7 +211,6 @@ const columns = [
 }
 
 .footer-column-links {
-	list-style: none;
 	margin: 0;
 	padding: 0;
 	display: flex;
@@ -221,6 +220,7 @@ const columns = [
 
 .footer-link-item {
 	margin: 0;
+	list-style: none !important;
 }
 
 .footer-link {

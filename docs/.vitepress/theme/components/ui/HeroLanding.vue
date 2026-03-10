@@ -269,9 +269,8 @@ const tools = [
 				<StyleCarousel />
 			</DemoCard>
 		</section>
-
-		<FooterLanding />
 	</main>
+	<FooterLanding />
 </template>
 
 <!-- Global overrides for VitePress page layout when hero is present -->
