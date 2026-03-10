@@ -212,9 +212,7 @@ const tools = [
 				</a>
 
 				<!-- Heading -->
-				<h1 class="hero-heading">
-					Built to bring out your best, every time.
-				</h1>
+				<h1 class="hero-heading">Built to bring out your best, every time.</h1>
 
 				<!-- Subtitle -->
 				<p class="hero-subtitle">
@@ -337,6 +335,59 @@ const tools = [
 			>
 				<StyleCarousel />
 			</DemoCard>
+		</section>
+
+		<section class="bottom-cta">
+			<p class="bottom-cta-phrase">Save your spot. Your next resume is one install away.</p>
+			<div class="hero-buttons">
+				<a
+					class="hero-btn hero-btn--primary bottom-cta-star"
+					href="https://github.com/resumx/resumx"
+					target="_blank"
+					rel="noopener"
+				>
+					<!-- Star icon -->
+					<svg
+						class="hero-icon hero-btn-icon--start"
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<polygon
+							points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+						/>
+					</svg>
+					Star on GitHub
+				</a>
+				<a
+					class="hero-btn hero-btn--primary bottom-cta-get-started"
+					href="/guide/quick-start"
+				>
+					Get Started
+					<!-- Arrow right icon -->
+					<svg
+						class="hero-icon hero-btn-icon--end"
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="M5 12h14" />
+						<path d="m12 5 7 7-7 7" />
+					</svg>
+				</a>
+			</div>
 		</section>
 	</main>
 	<FooterLanding />
@@ -949,6 +1000,61 @@ const tools = [
 @media (min-width: 768px) {
 	.tool-name {
 		font-size: 1rem;
+	}
+}
+
+/* ---- Bottom CTA ---- */
+.bottom-cta {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	padding: 2.5rem 1rem 1rem;
+}
+
+@media (min-width: 640px) {
+	.bottom-cta {
+		padding: 3rem 1.5rem 1.5rem;
+	}
+}
+
+.bottom-cta-phrase {
+	margin: 0;
+	text-align: center;
+	font-size: 1rem;
+	color: var(--vp-c-text-1);
+	letter-spacing: 0.01em;
+}
+
+@media (min-width: 640px) {
+	.bottom-cta-phrase {
+		font-size: 1rem;
+	}
+}
+
+/* Mobile: show star, hide get started */
+.bottom-cta-get-started {
+	display: none;
+}
+
+/* Desktop: show get started, restyle star as secondary */
+@media (min-width: 768px) {
+	.bottom-cta-phrase {
+		display: none;
+	}
+
+	.bottom-cta-get-started {
+		display: inline-flex;
+	}
+
+	.hero-landing .bottom-cta-star {
+		border: 1px solid var(--vp-c-divider);
+		background-color: var(--vp-c-bg-soft);
+		color: var(--vp-c-text-1) !important;
+	}
+
+	.hero-landing .bottom-cta-star:hover {
+		background-color: var(--vp-c-default-soft);
 	}
 }
 </style>
