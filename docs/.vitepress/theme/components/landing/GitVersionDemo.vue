@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 interface Commit {
 	hash: string
@@ -29,95 +29,35 @@ const commits: Commit[] = [
 	{ hash: 'u6v7w8x', message: 'init: create resume' },
 ]
 
-type TagLineType = 'prompt' | 'output' | 'success' | 'blank' | 'tag' | 'tagmsg'
-
-interface TagTerminalLine {
-	type: TagLineType
-	text: string
-}
-
 const versions: Array<{
 	label: string
 	branch: string
 	commitHash?: string
-	terminal: TagTerminalLine[]
+	command: string
 }> = [
 	{
 		label: 'sent/stripe-2026-02',
 		branch: 'sent/stripe-2026-02',
-		terminal: [
-			{
-				type: 'prompt',
-				text: '> git resumx sent/stripe-2026-02:resume.md',
-			},
-			{ type: 'tag', text: '  sent/stripe-2026-02' },
-			{
-				type: 'tagmsg',
-				text: '  Tailored for L5 infra, emphasized Kafka + distributed systems',
-			},
-			{ type: 'blank', text: '' },
-			{ type: 'success', text: '  No issues found' },
-			{ type: 'output', text: '  Building resume from: stdin' },
-			{ type: 'blank', text: '' },
-			{ type: 'output', text: '    PDF \u2713' },
-			{ type: 'blank', text: '' },
-			{
-				type: 'success',
-				text: '  Done! 1 file \u2192 output/ (Time: 879ms)',
-			},
-			{ type: 'prompt', text: '>' },
-		],
+		command: 'git resumx sent/stripe-2026-02:resume.md',
 	},
 	{
 		label: 'sent/google-2026-01',
 		branch: 'sent/google-2026-01',
-		terminal: [
-			{
-				type: 'prompt',
-				text: '> git resumx sent/google-2026-01:resume.md',
-			},
-			{ type: 'tag', text: '  sent/google-2026-01' },
-			{
-				type: 'tagmsg',
-				text: '  Focused on API design, highlighted OAuth + rate limiting',
-			},
-			{ type: 'blank', text: '' },
-			{ type: 'success', text: '  No issues found' },
-			{ type: 'output', text: '  Building resume from: stdin' },
-			{ type: 'blank', text: '' },
-			{ type: 'output', text: '    PDF \u2713' },
-			{ type: 'blank', text: '' },
-			{
-				type: 'success',
-				text: '  Done! 1 file \u2192 output/ (Time: 921ms)',
-			},
-			{ type: 'prompt', text: '>' },
-		],
+		command: 'git resumx sent/google-2026-01:resume.md',
 	},
 	{
 		label: 'main',
 		branch: '',
 		commitHash: 'i7j8k9l',
-		terminal: [
-			{ type: 'prompt', text: '> git resumx i7j8k9l:resume.md' },
-			{ type: 'blank', text: '' },
-			{ type: 'success', text: '  No issues found' },
-			{ type: 'output', text: '  Building resume from: stdin' },
-			{ type: 'blank', text: '' },
-			{ type: 'output', text: '    PDF \u2713' },
-			{ type: 'blank', text: '' },
-			{
-				type: 'success',
-				text: '  Done! 1 file \u2192 output/ (Time: 812ms)',
-			},
-			{ type: 'prompt', text: '>' },
-		],
+		command: 'git resumx i7j8k9l:resume.md',
 	},
 ]
 
 const FLIP_MS = 1800
 const active = ref(0)
 let flipId: ReturnType<typeof setInterval> | null = null
+
+const activeCommand = computed(() => versions[active.value].command)
 
 function startFlip() {
 	stopFlip()
@@ -153,83 +93,61 @@ onUnmounted(() => stopFlip())
 
 <template>
 	<section class="git-demo">
-		<div class="demo-panels">
-			<!-- Terminal panel -->
-			<div class="terminal-panel">
-				<div class="terminal-body">
+		<div class="tree-panel">
+			<div class="command-header">
+				<span class="pill-prompt">$</span>
+				<span class="pill-text">{{ activeCommand }}</span>
+			</div>
+			<div class="tree-body">
+				<template v-for="c in commits" :key="c.hash">
 					<div
-						v-for="(ver, vi) in versions"
-						:key="ver.label"
-						class="terminal-frame"
-						:class="{ active: vi === active }"
+						class="tree-row tree-row--commit"
+						:class="{
+							'tree-row--dim': isRowDimmed(c),
+							'tree-row--active': isCommitActive(c),
+						}"
 					>
-						<div
-							v-for="(line, li) in ver.terminal"
-							:key="li"
-							class="term-line"
-							:class="`term-line--${line.type}`"
-						>
-							{{ line.text }}
+						<div class="gutter">
+							<div
+								class="commit-node"
+								:class="{
+									'commit-node--head': c.isHead,
+									'commit-node--glow': isCommitActive(c),
+								}"
+							/>
+						</div>
+						<div class="row-content">
+							<code class="commit-hash">{{ c.hash }}</code>
+							<span class="commit-msg">{{ c.message }}</span>
 						</div>
 					</div>
-				</div>
-			</div>
 
-			<!-- Git tree panel -->
-			<div class="tree-panel">
-				<div class="tree-body">
-					<template v-for="(c, ci) in commits" :key="c.hash">
-						<!-- Commit row -->
-						<div
-							class="tree-row tree-row--commit"
-							:class="{
-								'tree-row--dim': isRowDimmed(c),
-								'tree-row--active': isCommitActive(c),
-							}"
-						>
-							<div class="gutter">
-								<div
-									class="commit-node"
-									:class="{
-										'commit-node--head': c.isHead,
-										'commit-node--glow': isCommitActive(c),
-									}"
-								/>
-							</div>
-							<div class="row-content">
-								<code class="commit-hash">{{ c.hash }}</code>
-								<span class="commit-msg">{{ c.message }}</span>
-							</div>
+					<div
+						v-if="c.branchOff"
+						class="tree-row tree-row--fork"
+						:class="{
+							'tree-row--fork-glow': isBranchActive(c.branchOff),
+							'tree-row--dim': !isBranchActive(c.branchOff),
+						}"
+					>
+						<div class="gutter gutter--fork" />
+						<div class="row-content">
+							<div
+								class="fork-dot"
+								:class="{
+									'fork-dot--glow': isBranchActive(c.branchOff),
+								}"
+							/>
+							<span
+								class="fork-label"
+								:class="{
+									'fork-label--glow': isBranchActive(c.branchOff),
+								}"
+								>{{ c.branchOff }}</span
+							>
 						</div>
-
-						<!-- Fork row -->
-						<div
-							v-if="c.branchOff"
-							class="tree-row tree-row--fork"
-							:class="{
-								'tree-row--fork-glow': isBranchActive(c.branchOff),
-								'tree-row--dim': !isBranchActive(c.branchOff),
-							}"
-						>
-							<div class="gutter gutter--fork" />
-							<div class="row-content">
-								<div
-									class="fork-dot"
-									:class="{
-										'fork-dot--glow': isBranchActive(c.branchOff),
-									}"
-								/>
-								<span
-									class="fork-label"
-									:class="{
-										'fork-label--glow': isBranchActive(c.branchOff),
-									}"
-									>{{ c.branchOff }}</span
-								>
-							</div>
-						</div>
-					</template>
-				</div>
+					</div>
+				</template>
 			</div>
 		</div>
 	</section>
@@ -239,95 +157,34 @@ onUnmounted(() => stopFlip())
 .git-demo {
 	--git-blue: #3794ff;
 	--git-blue-soft: rgba(55, 148, 255, 0.15);
+	width: 100%;
 }
 
-@media (min-width: 640px) {
-	.git-demo {
-		padding: 2rem;
-	}
-}
-
-/* ---- Panels container ---- */
-.demo-panels {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: 10px;
-	border-radius: 10px;
-	border: 1px solid var(--vp-c-divider);
-	padding: 0.85rem;
-	background-color: var(--vp-c-bg);
-	background-image: repeating-linear-gradient(
-		135deg,
-		transparent,
-		transparent 10px,
-		var(--vp-c-divider) 10px,
-		var(--vp-c-divider) 11px
-	);
-}
-
-@media (min-width: 768px) {
-	.demo-panels {
-		grid-template-columns: 1fr 1fr;
-		gap: 16px;
-		padding: 0.85rem;
-	}
-}
-
-/* ---- Terminal panel ---- */
-.terminal-panel {
-	border: 1px solid var(--vp-c-divider);
-	border-radius: 10px;
-	overflow: hidden;
-	background: var(--vp-code-block-bg);
+/* ---- Command header ---- */
+.command-header {
 	display: flex;
-	flex-direction: column;
-}
-
-.terminal-body {
-	position: relative;
+	align-items: center;
+	gap: 6px;
 	font-family: var(--vp-font-family-mono);
-	font-size: 0.8125rem;
-	line-height: 1.7;
-	min-height: 12rem;
+	font-size: 0.75rem;
+	line-height: 1;
+	padding: 10px 14px;
+	border-bottom: 1px solid var(--vp-c-divider);
+	background: var(--vp-c-bg);
+	overflow: hidden;
 }
 
-.terminal-frame {
-	position: absolute;
-	inset: 0;
-	padding: 14px;
-	opacity: 0;
-	transition: opacity 0.4s ease;
-	pointer-events: none;
+.pill-prompt {
+	color: var(--git-blue);
+	flex-shrink: 0;
 }
 
-.terminal-frame.active {
-	opacity: 1;
-	pointer-events: auto;
-}
-
-.term-line--prompt {
+.pill-text {
 	color: var(--vp-c-text-1);
-}
-
-.term-line--output {
-	color: var(--vp-c-text-2);
-}
-
-.term-line--success {
-	color: #0f766e;
-}
-
-.term-line--tag {
-	color: var(--vp-c-text-2);
-}
-
-.term-line--tagmsg {
-	color: var(--vp-c-text-1);
-	font-weight: 600;
-}
-
-.term-line--blank {
-	height: 1.7em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	min-width: 0;
 }
 
 /* ---- Git tree panel ---- */
@@ -395,7 +252,6 @@ onUnmounted(() => stopFlip())
 	bottom: 50%;
 }
 
-/* Fork arm: horizontal line from trunk to content */
 .gutter--fork::after {
 	content: '';
 	position: absolute;
@@ -505,8 +361,5 @@ onUnmounted(() => stopFlip())
 }
 .dark .fork-label--glow {
 	color: var(--git-blue);
-}
-.dark .term-line--success {
-	color: #2dd4bf;
 }
 </style>

@@ -5,6 +5,7 @@ import FooterLanding from './FooterLanding.vue'
 import DemoCard from '../landing/DemoCard.vue'
 import IconRevealDemo from '../landing/IconRevealDemo.vue'
 import TagFilterDemo from '../landing/tag-filter/TagFilterDemo.vue'
+import MultiTargetDemo from '../landing/MultiTargetDemo.vue'
 import PageFitDemo from '../landing/page-fit/PageFitDemo.vue'
 import GitVersionDemo from '../landing/GitVersionDemo.vue'
 import StyleCarousel from '../landing/StyleCarousel.vue'
@@ -50,37 +51,34 @@ function rand(min: number, max: number): number {
 	return Math.random() * (max - min) + min
 }
 
-const particlePool = Array.from(
-	{ length: 55 },
-	(_, i): Particle => {
-		const z = 1 + Math.random() * BOX_DEPTH
-		const depth =
-			BOX_DEPTH > 0
-				? (1 / z - 1 / (1 + BOX_DEPTH)) / (1 - 1 / (1 + BOX_DEPTH))
-				: Math.random()
-		const jitter = (base: number, spread: number) =>
-			Math.max(0, Math.min(1, base + rand(-spread, spread)))
+const particlePool = Array.from({ length: 55 }, (_, i): Particle => {
+	const z = 1 + Math.random() * BOX_DEPTH
+	const depth =
+		BOX_DEPTH > 0 ?
+			(1 / z - 1 / (1 + BOX_DEPTH)) / (1 - 1 / (1 + BOX_DEPTH))
+		:	Math.random()
+	const jitter = (base: number, spread: number) =>
+		Math.max(0, Math.min(1, base + rand(-spread, spread)))
 
-		const sizeT = jitter(depth, 0.2)
-		const opacityT = jitter(depth, 0.25)
-		const speedT = jitter(depth, 0.2)
-		const driftScale = 0.4 + speedT * 0.6
+	const sizeT = jitter(depth, 0.2)
+	const opacityT = jitter(depth, 0.25)
+	const speedT = jitter(depth, 0.2)
+	const driftScale = 0.4 + speedT * 0.6
 
-		return {
-			id: i,
-			char: GLYPH_CHARS[Math.floor(Math.random() * GLYPH_CHARS.length)],
-			x: rand(0, 100),
-			y: rand(0, 100),
-			size: 0.6 + sizeT * 0.45,
-			opacity: 0.03 + opacityT * 0.13,
-			duration: 18 - speedT * 10,
-			delay: rand(-20, 0),
-			dx: rand(-80, 80) * driftScale,
-			dy: rand(-100, -30) * driftScale,
-			rot: rand(-25, 25),
-		}
-	},
-)
+	return {
+		id: i,
+		char: GLYPH_CHARS[Math.floor(Math.random() * GLYPH_CHARS.length)],
+		x: rand(0, 100),
+		y: rand(0, 100),
+		size: 0.6 + sizeT * 0.45,
+		opacity: 0.03 + opacityT * 0.13,
+		duration: 18 - speedT * 10,
+		delay: rand(-20, 0),
+		dx: rand(-80, 80) * driftScale,
+		dy: rand(-100, -30) * driftScale,
+		rot: rand(-25, 25),
+	}
+})
 
 const viewportWidth = ref(1024)
 const particles = computed(() => {
@@ -232,11 +230,14 @@ const tools = [
 				</a>
 
 				<!-- Heading -->
-				<h1 class="hero-heading">The resume builder that gets out of your way.</h1>
+				<h1 class="hero-heading">
+					The resume builder that gets out of your way.
+				</h1>
 
 				<!-- Subtitle -->
 				<p class="hero-subtitle">
-					Write in Markdown. Get a perfectly fitted PDF.<br />No layout fiddling.
+					Write in Markdown. Get a perfectly fitted PDF.<br />No layout
+					fiddling.
 				</p>
 
 				<!-- Buttons -->
@@ -324,7 +325,7 @@ const tools = [
 			<div class="features-bento">
 				<DemoCard
 					label="Targeting"
-					heading="One file, every role"
+					heading="Tag it. Filter it. Nail it."
 					subtitle="Tag, mix and match, ship a tailored resume for every role."
 					header-align="left"
 				>
@@ -333,7 +334,7 @@ const tools = [
 
 				<DemoCard
 					label="Icons"
-					heading="Icons, typed"
+					heading="Icons, typed."
 					subtitle="200k+ icons, just type a shortcode."
 					header-align="right"
 				>
@@ -341,13 +342,32 @@ const tools = [
 				</DemoCard>
 			</div>
 
-			<DemoCard
-				label="Version Control"
-				heading="Every version you sent, recoverable."
-				subtitle="Your resume lives in Git. Render any past commit in one command."
-			>
-				<GitVersionDemo />
-			</DemoCard>
+			<div class="features-bento features-bento--tailor-git">
+				<DemoCard
+					label="Tailoring"
+					heading="Your resume is a query."
+					header-align="left"
+				>
+					<template #subtitle>
+						Your resume is a database, each application is a query.<br />Tailoring
+						doesn't require separate files.
+					</template>
+					<MultiTargetDemo />
+				</DemoCard>
+
+				<DemoCard
+					label="Version Control"
+					heading="Time travel for your resume."
+					header-align="right"
+				>
+					<template #subtitle>
+						Your resume lives in Git. Render any past commit in one
+						command.
+					</template>
+					<GitVersionDemo />
+				</DemoCard>
+			</div>
+
 			<DemoCard
 				label="Typography"
 				heading="Every knob. No friction."
@@ -795,7 +815,7 @@ html.dark .tool-icon--dark-only {
 	}
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
 	.hero-heading {
 		font-size: 3.75rem;
 	}
@@ -925,6 +945,35 @@ html.dark .tool-icon--dark-only {
 @media (min-width: 768px) {
 	.features-bento {
 		grid-template-columns: 1.5fr 1fr;
+	}
+}
+
+/* Tailoring + Version Control: two columns, each card only as tall as its content */
+.features-bento--tailor-git {
+	grid-template-columns: 1fr;
+}
+
+@media (min-width: 860px) {
+	.features-bento--tailor-git {
+		grid-template-columns: 3fr 3fr;
+		grid-template-rows: fit-content(100%) fit-content(100%);
+	}
+
+	.features-bento--tailor-git .demo-card {
+		grid-row: span 2;
+		display: grid;
+		grid-template-rows: subgrid;
+		padding: 2rem 2rem 1.75rem;
+	}
+
+	.features-bento--tailor-git .demo-card .demo-card-header {
+		margin-bottom: 0;
+		align-self: start;
+		padding-bottom: 1.75rem;
+	}
+
+	.features-bento--tailor-git .demo-card .demo-card-body {
+		align-self: start;
 	}
 }
 

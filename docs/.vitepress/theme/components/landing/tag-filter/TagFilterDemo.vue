@@ -113,7 +113,6 @@ onUnmounted(() => {
 					<span class="chrome-dot chrome-dot--red" />
 					<span class="chrome-dot chrome-dot--yellow" />
 					<span class="chrome-dot chrome-dot--green" />
-					<span class="chrome-filename">experience.md</span>
 				</div>
 				<div class="code-body">
 					<div class="code-line code-line--heading">
@@ -169,13 +168,11 @@ onUnmounted(() => {
 					<span class="chrome-dot chrome-dot--red" />
 					<span class="chrome-dot chrome-dot--yellow" />
 					<span class="chrome-dot chrome-dot--green" />
-					<span class="chrome-filename">Preview</span>
 				</div>
 				<div class="preview-body">
 					<div class="preview-header">
-						<h4 class="preview-company">Acme Corp</h4>
-						<span class="preview-role">Senior Engineer</span>
-						<span class="preview-date">Jan 2024 – Present</span>
+						<h4 class="preview-company">Acme Corp - Senior Engineer</h4>
+						<span class="preview-date"><em>Jan 2024 - Present</em></span>
 					</div>
 					<ul class="preview-bullets">
 						<li
@@ -266,14 +263,6 @@ onUnmounted(() => {
 }
 .chrome-dot--green {
 	background: #28c840;
-}
-
-.chrome-filename {
-	font-size: 0.75rem;
-	font-weight: 500;
-	color: var(--vp-c-text-2);
-	font-family: var(--vp-font-family-mono);
-	margin-left: 6px;
 }
 
 /* ---- Code panel ---- */

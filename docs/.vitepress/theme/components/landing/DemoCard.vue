@@ -1,13 +1,16 @@
 <script setup lang="ts">
+import { useSlots } from 'vue'
 withDefaults(
 	defineProps<{
 		label: string
 		heading: string
-		subtitle: string
+		subtitle?: string
 		headerAlign?: 'left' | 'center' | 'right'
 	}>(),
 	{ headerAlign: 'center' }
 )
+const slots = useSlots()
+const hasSubtitleSlot = () => !!slots.subtitle
 </script>
 
 <template>
@@ -15,20 +18,32 @@ withDefaults(
 		<div class="demo-card-header" :class="`demo-card-header--${headerAlign}`">
 			<span class="demo-card-label">{{ label }}</span>
 			<h3 class="demo-card-heading">{{ heading }}</h3>
-			<p class="demo-card-subtitle">{{ subtitle }}</p>
+			<p v-if="hasSubtitleSlot()" class="demo-card-subtitle">
+				<slot name="subtitle" />
+			</p>
+			<p v-else-if="subtitle" class="demo-card-subtitle">{{ subtitle }}</p>
 		</div>
-		<slot />
+		<div class="demo-card-body">
+			<slot />
+		</div>
 	</div>
 </template>
 
 <style scoped>
 .demo-card {
+	display: flex;
+	flex-direction: column;
 	padding: 2rem 2rem 1.75rem;
 	opacity: 0;
 	transform: translateY(2rem);
 	transition:
 		opacity 0.6s ease-out,
 		transform 0.6s ease-out;
+}
+
+.demo-card-body {
+	flex: 1;
+	min-height: 0;
 }
 
 .demo-card--visible {
@@ -87,9 +102,9 @@ withDefaults(
 	line-height: 1.6;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 1080px) {
 	.demo-card-heading {
-		font-size: 2.25rem;
+		font-size: 2rem;
 	}
 }
 

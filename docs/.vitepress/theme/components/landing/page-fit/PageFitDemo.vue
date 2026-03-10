@@ -141,7 +141,6 @@ watch(step, (newVal, oldVal) => {
 		}, 550)
 	}
 })
-
 </script>
 
 <template>
@@ -161,7 +160,6 @@ watch(step, (newVal, oldVal) => {
 					<span class="dot dot-r" />
 					<span class="dot dot-y" />
 					<span class="dot dot-g" />
-					<span class="panel-title">resume.md</span>
 				</div>
 				<div ref="codeBody" class="code-body" v-html="currentCodeHtml" />
 			</div>
@@ -171,7 +169,6 @@ watch(step, (newVal, oldVal) => {
 					<span class="dot dot-r" />
 					<span class="dot dot-y" />
 					<span class="dot dot-g" />
-					<span class="panel-title">Preview</span>
 				</div>
 				<div class="resume-body">
 					<img
@@ -191,7 +188,10 @@ watch(step, (newVal, oldVal) => {
 					<Transition name="arrow-indicator">
 						<span
 							v-if="showArrowIndicator"
-							:class="['slider-arrow-indicator', direction === 'forward' ? 'arrow-up' : 'arrow-down']"
+							:class="[
+								'slider-arrow-indicator',
+								direction === 'forward' ? 'arrow-up' : 'arrow-down',
+							]"
 							aria-hidden="true"
 						>
 							<svg
@@ -214,8 +214,12 @@ watch(step, (newVal, oldVal) => {
 					</Transition>
 				</span>
 				<span class="slider-label-number-wrap">
-					<Transition :name="direction === 'forward' ? 'label-up' : 'label-down'">
-						<span :key="step" class="slider-label-number">{{ manifest.steps[step].lineCount }}</span>
+					<Transition
+						:name="direction === 'forward' ? 'label-up' : 'label-down'"
+					>
+						<span :key="step" class="slider-label-number">{{
+							manifest.steps[step].lineCount
+						}}</span>
 					</Transition>
 				</span>
 				<span class="slider-label-static">lines</span>
@@ -282,7 +286,7 @@ watch(step, (newVal, oldVal) => {
 
 @media (min-width: 640px) {
 	.demo-heading {
-		font-size: 2.25rem;
+		font-size: 2rem;
 	}
 }
 
@@ -326,13 +330,13 @@ watch(step, (newVal, oldVal) => {
 	align-items: center;
 	gap: 6px;
 	padding: 10px 14px;
-	background: var(--vp-c-bg-soft);
+	background: var(--vp-code-block-bg);
 	border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .dot {
-	width: 10px;
-	height: 10px;
+	width: 8px;
+	height: 8px;
 	border-radius: 50%;
 }
 
@@ -346,13 +350,6 @@ watch(step, (newVal, oldVal) => {
 
 .dot-g {
 	background: #34c759;
-}
-
-.panel-title {
-	font-size: 0.75rem;
-	color: var(--vp-c-text-2);
-	margin-left: 6px;
-	font-family: var(--vp-font-family-base);
 }
 
 /* Code panel */
