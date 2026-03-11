@@ -1,7 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { verifyTurnstile } from './_lib/turnstile.js'
 import { detectFormat } from './_lib/format.js'
-import { convertWithAI, type ConversionInput } from './_converters/ai.js'
+import {
+	convertWithAI,
+	NotAResumeError,
+	type ConversionInput,
+} from './_converters/ai.js'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const MAX_BASE64_LENGTH = Math.ceil(MAX_FILE_SIZE * 1.37)
@@ -152,6 +156,10 @@ export default async function handler(
 
 		res.status(200).json({ markdown })
 	} catch (err) {
+		if (err instanceof NotAResumeError) {
+			res.status(400).json({ error: err.message })
+			return
+		}
 		console.error('Conversion error:', err)
 		res.status(500).json({ error: 'Conversion failed. Please try again.' })
 	}

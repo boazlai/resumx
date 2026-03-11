@@ -4,7 +4,26 @@ export type ConversionInput =
 	| { kind: 'text'; text: string; label: string }
 	| { kind: 'file'; buffer: Buffer; mimeType: string; label: string }
 
+const NOT_A_RESUME_MESSAGE =
+	'This document is not a resume. Please upload a resume.'
+
+/** Thrown when the AI determines the document is not a resume. */
+export class NotAResumeError extends Error {
+	constructor(message: string = NOT_A_RESUME_MESSAGE) {
+		super(message)
+		this.name = 'NotAResumeError'
+	}
+}
+
+const NOT_A_RESUME_PREFIX = 'NOT_A_RESUME'
+
 const SYSTEM_PROMPT = `You convert resumes into Resumx Markdown. Output ONLY the Markdown, no explanations or code fences.
+
+## When to refuse
+
+If the document is clearly NOT a resume (e.g. recipe, article, blog post, cover letter, form letter, invoice, contract), do not convert it. Output exactly on the first line:
+${NOT_A_RESUME_PREFIX}
+Do not add any explanation or reason after it.
 
 ## Your job
 
@@ -108,8 +127,14 @@ export async function convertWithAI(input: ConversionInput): Promise<string> {
 				.map(p => p.text)
 				.join('')
 		)
-	return content
+	const trimmed = content
 		.replace(/^```\w*\n/, '')
 		.replace(/\n```$/, '')
 		.trim()
+
+	if (trimmed.toUpperCase().startsWith(NOT_A_RESUME_PREFIX)) {
+		throw new NotAResumeError()
+	}
+
+	return trimmed
 }
