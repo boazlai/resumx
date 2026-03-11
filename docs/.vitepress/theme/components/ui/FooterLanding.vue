@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import { useData } from 'vitepress'
 import { ref, onMounted, onUnmounted } from 'vue'
 import FlickeringGrid from './FlickeringGrid.vue'
-
-const { isDark } = useData()
 
 const isTablet = ref(false)
 let mq: MediaQueryList | null = null
@@ -61,16 +58,14 @@ const columns = [
 			<div class="footer-brand">
 				<a href="/" class="footer-logo">
 					<img
-						v-if="isDark"
-						src="/images/resumx-wordmark-dark.svg"
-						alt="Resumx"
-						class="footer-logo-img"
-					/>
-					<img
-						v-else
 						src="/images/resumx-wordmark-light.svg"
 						alt="Resumx"
-						class="footer-logo-img"
+						class="footer-logo-img footer-logo-img--light"
+					/>
+					<img
+						src="/images/resumx-wordmark-dark.svg"
+						alt="Resumx"
+						class="footer-logo-img footer-logo-img--dark"
 					/>
 				</a>
 				<p class="footer-tagline">
@@ -176,6 +171,21 @@ const columns = [
 
 .footer-logo-img {
 	height: 1.25rem;
+}
+
+/* Match VitePress dark mode: class is on html. Use html selectors so correct
+   logo shows when page loads in dark mode. */
+.footer-logo-img--light {
+	display: inline;
+}
+.footer-logo-img--dark {
+	display: none;
+}
+html.dark .footer-logo-img--light {
+	display: none;
+}
+html.dark .footer-logo-img--dark {
+	display: inline;
 }
 
 .footer-tagline {
