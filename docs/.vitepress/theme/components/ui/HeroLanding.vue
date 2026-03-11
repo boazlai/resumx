@@ -345,7 +345,7 @@ const tools = [
 			<div class="features-bento features-bento--tailor-git">
 				<DemoCard
 					label="Tailoring"
-					heading="Your resume is a query."
+					heading="Your resume is a database."
 					header-align="left"
 				>
 					<template #subtitle>

@@ -1,10 +1,5 @@
 ---
 pages: 1
-style:
-  font-family: "'Palatino Linotype', 'Palatino', 'Georgia', 'Times New Roman', serif"
-  name-caps: small-caps
-  section-title-color: '#c43218'
-  section-title-border: 1.5px solid var(--section-title-color)
 ---
 
 # Adrian Sterling
