@@ -67,9 +67,8 @@ function clearCached() {
 	} catch { /* ignore */ }
 }
 
-const cached = loadCached()
-const state = ref<DialogState>(cached ? 'preview' : 'drop')
-const markdown = ref(cached)
+const state = ref<DialogState>('drop')
+const markdown = ref('')
 const errorMessage = ref('')
 const dialogRef = ref<HTMLDialogElement>()
 const processingMessageIndex = ref(0)
@@ -187,6 +186,11 @@ function handleKeydown(e: KeyboardEvent) {
 
 onMounted(() => {
 	document.addEventListener('keydown', handleKeydown)
+	const cached = loadCached()
+	if (cached) {
+		markdown.value = cached
+		state.value = 'preview'
+	}
 })
 
 onUnmounted(() => {
