@@ -112,6 +112,30 @@ onUnmounted(() => {
 	if (formatFlipId != null) clearInterval(formatFlipId)
 })
 
+function scrollToFeatures() {
+	const el = document.querySelector('.features-section')
+	if (!el) return
+	const target = el.getBoundingClientRect().top + window.scrollY
+	const start = window.scrollY
+	const distance = target - start
+	const duration = 1200
+	let startTime: number | null = null
+
+	function springEase(t: number): number {
+		return 1 - Math.pow(1 - t, 4) * Math.cos(t * Math.PI * 0.8)
+	}
+
+	function step(time: number) {
+		if (startTime === null) startTime = time
+		const elapsed = time - startTime
+		const t = Math.min(elapsed / duration, 1)
+		window.scrollTo(0, start + distance * springEase(t))
+		if (t < 1) requestAnimationFrame(step)
+	}
+
+	requestAnimationFrame(step)
+}
+
 const tools = [
 	{ name: 'Cursor', icon: '/images/logos/cursor.svg', invert: true },
 	{
@@ -262,9 +286,26 @@ const tools = [
 
 				<!-- Buttons -->
 				<div class="hero-buttons">
-					<a class="hero-btn hero-btn--secondary" href="/guide/quick-start">
-						Get Started
-						<!-- Arrow right icon -->
+				<a class="hero-btn hero-btn--secondary hero-btn--mobile-only" href="#features" @click.prevent="scrollToFeatures()">
+					See it in action
+						<svg
+							class="hero-icon hero-btn-icon--end"
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M12 5v14" />
+							<path d="m5 12 7 7 7-7" />
+						</svg>
+					</a>
+					<a class="hero-btn hero-btn--secondary hero-btn--desktop-only" href="/guide/quick-start">
+					Get Started
 						<svg
 							class="hero-icon hero-btn-icon--end"
 							xmlns="http://www.w3.org/2000/svg"
@@ -934,6 +975,29 @@ html.dark .tool-icon--dark-only {
 	.hero-btn {
 		width: auto;
 		max-width: none;
+	}
+}
+
+.hero-btn--primary {
+	order: -1;
+}
+
+@media (min-width: 480px) {
+	.hero-btn--primary {
+		order: unset;
+	}
+}
+
+.hero-btn--desktop-only {
+	display: none;
+}
+
+@media (min-width: 768px) {
+	.hero-btn--mobile-only {
+		display: none;
+	}
+	.hero-btn--desktop-only {
+		display: inline-flex;
 	}
 }
 
