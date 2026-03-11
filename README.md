@@ -51,6 +51,12 @@ Most resume effort goes to layout and styling, the factors that matter least for
 - **PDF, HTML, DOCX, and PNG** from a single source.
 - **Multi-language, variables, live preview, and more.**
 
+## Already Have a Resume?
+
+**[Import it to Resumx Markdown in seconds →](https://resumx.dev/#import)**
+
+Drop your PDF, DOCX, LaTeX, or JSON Resume and get a ready-to-render `.md` file back.
+
 ## Quick Start
 
 **Install:**
