@@ -410,6 +410,11 @@ watch(step, (newVal, oldVal) => {
 	margin-right: 8px;
 }
 
+.code-body :deep(.code-line:has(.hl-pages-key)) {
+	background: rgba(74, 222, 128, 0.06);
+	border-left: 2px solid var(--vp-c-green-1);
+}
+
 .code-body :deep(.hl-delim) {
 	color: #89b4fa;
 }
