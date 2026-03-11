@@ -127,6 +127,11 @@ const SWAP_INTERVAL_MS = 1400
 const INITIAL_DELAY_MS = 0
 let swapTimer: ReturnType<typeof setInterval> | undefined
 
+function restartSwapTimer() {
+	if (swapTimer) clearInterval(swapTimer)
+	swapTimer = setInterval(swapRandomSlots, SWAP_INTERVAL_MS)
+}
+
 function pickSwapCount(): number {
 	const r = Math.random()
 	if (r < 0.6) return 1
@@ -137,6 +142,8 @@ function pickSwapCount(): number {
 function refreshSlot(slotIdx: number) {
 	if (pool.value.length === 0) return
 	if (fadingSlots.has(slotIdx)) return
+
+	restartSwapTimer()
 
 	fadingSlots.add(slotIdx)
 
@@ -197,7 +204,7 @@ onMounted(() => {
 	mediaQueries.forEach(({ mq }) => mq.addEventListener('change', onMediaChange))
 
 	setTimeout(() => {
-		swapTimer = setInterval(swapRandomSlots, SWAP_INTERVAL_MS)
+		restartSwapTimer()
 	}, INITIAL_DELAY_MS)
 })
 
