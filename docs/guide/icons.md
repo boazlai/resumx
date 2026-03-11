@@ -8,10 +8,10 @@ Use the `:icon:` syntax to add icons inline. Click any icon below to copy its sy
 
 Need something not in the gallery? Use the `set/name` syntax for access to [200,000+ Iconify icons](https://icon-sets.iconify.design/):
 
-- `:devicon/react:` -- <img src="/icons/devicon:react.svg" alt="devicon/react" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
-- `:logos/kubernetes:` -- <img src="/icons/logos:kubernetes.svg" alt="logos/kubernetes" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
-- `:simple-icons/docker:` -- <img src="/icons/simple-icons:docker.svg" alt="simple-icons/docker" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
-- `:mdi/work:` -- <img src="/icons/mdi:work.svg" alt="mdi/work" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
+- `:devicon/react:` -- <img src="/icons/devicon--react.svg" alt="devicon/react" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
+- `:logos/kubernetes:` -- <img src="/icons/logos--kubernetes.svg" alt="logos/kubernetes" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
+- `:simple-icons/docker:` -- <img src="/icons/simple-icons--docker.svg" alt="simple-icons/docker" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
+- `:mdi/work:` -- <img src="/icons/mdi--work.svg" alt="mdi/work" style="display: inline-block; height: 1.25em; vertical-align: text-top;">
 
 ::: info
 Iconify icons may need **internet access** the first time. Resumx caches fetched icons, so later renders usually work offline.
