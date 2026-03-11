@@ -1,0 +1,12 @@
+{
+	"name": "@resumx/api",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@openrouter/sdk": "^0.1.0",
+		"mammoth": "^1.9.0"
+	},
+	"devDependencies": {
+		"@vercel/node": "^5.1.0"
+	}
+}

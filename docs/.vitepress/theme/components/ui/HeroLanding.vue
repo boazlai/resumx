@@ -9,6 +9,19 @@ import MultiTargetDemo from '../landing/MultiTargetDemo.vue'
 import PageFitDemo from '../landing/page-fit/PageFitDemo.vue'
 import GitVersionDemo from '../landing/GitVersionDemo.vue'
 import StylePlaygroundDemo from '../landing/StylePlaygroundDemo.vue'
+import ConvertDialog from '../convert/ConvertDialog.vue'
+
+const showConvertDialog = ref(false)
+
+function openConvertDialog() {
+	showConvertDialog.value = true
+	history.replaceState(null, '', '#import')
+}
+
+function closeConvertDialog() {
+	showConvertDialog.value = false
+	history.replaceState(null, '', window.location.pathname)
+}
 
 const GLYPH_CHARS = [
 	'#',
@@ -106,6 +119,10 @@ onMounted(() => {
 	formatFlipId = setInterval(() => {
 		activeFormat.value = (activeFormat.value + 1) % formats.length
 	}, 1500)
+
+	if (window.location.hash === '#import') {
+		openConvertDialog()
+	}
 })
 onUnmounted(() => {
 	if (resizeHandler) window.removeEventListener('resize', resizeHandler)
@@ -351,8 +368,20 @@ const tools = [
 						View GitHub
 					</a>
 				</div>
+
+				<p class="hero-import-link">
+					Already have a resume?
+					<a href="#import" @click.prevent="openConvertDialog()"
+						>Import it</a
+					>
+				</p>
 			</div>
 		</section>
+
+		<ConvertDialog
+			:open="showConvertDialog"
+			@close="closeConvertDialog()"
+		/>
 
 		<!-- Compatible With Section -->
 		<section class="logos-section">
@@ -1035,6 +1064,25 @@ html.dark .tool-icon--dark-only {
 
 .hero-btn-icon--end {
 	margin-left: 0.5rem;
+}
+
+/* ---- Import link ---- */
+.hero-import-link {
+	margin: 0;
+	font-size: 0.8125rem;
+	color: var(--vp-c-text-3);
+	animation: fade-slide-in 0.5s ease-out 0.4s backwards;
+}
+
+.hero-import-link a {
+	color: var(--vp-c-brand-1) !important;
+	text-decoration: underline !important;
+	text-underline-offset: 2px;
+	cursor: pointer;
+}
+
+.hero-import-link a:hover {
+	color: var(--vp-c-brand-2) !important;
 }
 
 /* ---- Features Section ---- */

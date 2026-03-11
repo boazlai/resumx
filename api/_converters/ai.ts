@@ -1,0 +1,115 @@
+import { OpenRouter } from '@openrouter/sdk'
+
+export type ConversionInput =
+	| { kind: 'text'; text: string; label: string }
+	| { kind: 'file'; buffer: Buffer; mimeType: string; label: string }
+
+const SYSTEM_PROMPT = `You convert resumes into Resumx Markdown. Output ONLY the Markdown, no explanations or code fences.
+
+## Your job
+
+Translate the FORMAT, not reorganize the CONTENT. Preserve the user's structure exactly:
+- Keep their section order (if Work comes before Education, keep it that way)
+- Keep their date format (don't normalize "January 2020" to "Jan 2020")
+- Keep their entry ordering (if job title comes before company, preserve that)
+- Keep their contact info style and delimiter
+- Keep their bullet wording verbatim
+- Keep their section names (don't rename "Professional Experience" to "Work Experience")
+
+The only thing you change is the markup syntax.
+
+## Resumx Markdown Syntax Reference
+
+Frontmatter:
+\`\`\`
+---
+pages: 1 or 2
+---
+\`\`\`
+
+Set \`pages: 2\` when the resume has 5+ work entries, or 20+ bullet points, or clearly dense content that would overflow a single page. Otherwise use \`pages: 1\`.
+
+Name (always H1):
+\`# Full Name\`
+
+Contact line (pipe-separated, links where appropriate):
+\`[email](mailto:email) | [linkedin.com/in/user](https://linkedin.com/in/user) | Location\`
+
+Section headings (H2):
+\`## Section Name\`
+
+Entries (H3 with \`||\` for right-aligned content like dates):
+\`### Company Name || Jan 2020 - Present\`
+
+Subtitles (italic with \`||\` for right-aligned content like location):
+\`_Job Title_ || San Francisco, CA\`
+
+Bullets:
+\`- Achievement text\`
+
+Skills as definition lists:
+\`\`\`
+Languages
+: JavaScript, TypeScript, Python
+\`\`\`
+
+## Key syntax rules
+
+- \`||\` splits a line into left/right columns. Use for dates, locations, or any right-aligned text.
+- \`_text_\` for italic (roles, degrees). Use underscores, not asterisks.
+- Links: \`[display](url)\`, email: \`[x@y.com](mailto:x@y.com)\`, phone: \`[num](tel:num)\`
+- Always include \`pages\` in frontmatter. Choose 1 or 2 based on content density (see above).
+`
+
+function buildUserContent(input: ConversionInput) {
+	if (input.kind === 'text') {
+		return `Convert this ${input.label} resume to Resumx Markdown:\n\n${input.text}`
+	}
+
+	const dataUri = `data:${input.mimeType};base64,${input.buffer.toString('base64')}`
+	return [
+		{
+			type: 'text' as const,
+			text: `Convert this ${input.label} resume to Resumx Markdown:`,
+		},
+		{ type: 'image_url' as const, imageUrl: { url: dataUri } },
+	]
+}
+
+export async function convertWithAI(input: ConversionInput): Promise<string> {
+	const apiKey = process.env['OPENROUTER_API_KEY']
+	if (!apiKey) {
+		throw new Error('OPENROUTER_API_KEY not configured')
+	}
+
+	const model = process.env['OPENROUTER_MODEL'] ?? 'google/gemini-2.0-flash-001'
+
+	const client = new OpenRouter({ apiKey })
+
+	const response = await client.chat.send({
+		model,
+		messages: [
+			{ role: 'system', content: SYSTEM_PROMPT },
+			{ role: 'user', content: buildUserContent(input) },
+		],
+		temperature: 0.1,
+		maxTokens: 4096,
+	})
+
+	const raw = response.choices?.[0]?.message?.content
+	if (!raw) {
+		throw new Error('AI returned empty response')
+	}
+
+	const content =
+		typeof raw === 'string' ? raw : (
+			raw
+				.filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+				.map(p => p.text)
+				.join('')
+		)
+	return content
+		.replace(/^```\w*\n/, '')
+		.replace(/\n```$/, '')
+		.trim()
+}

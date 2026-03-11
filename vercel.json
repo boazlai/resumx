@@ -1,0 +1,10 @@
+{
+	"devCommand": "cd docs && pnpm run codegen && pnpm exec vitepress dev . --port $PORT",
+	"buildCommand": "pnpm docs:build",
+	"outputDirectory": "docs/.vitepress/dist",
+	"functions": {
+		"api/convert.ts": {
+			"maxDuration": 30
+		}
+	}
+}
