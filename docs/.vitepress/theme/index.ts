@@ -45,6 +45,8 @@ export default {
 						lenisInstance = new LenisClass({
 							autoRaf: true,
 							anchors: true,
+							lerp: 0.08,
+							wheelMultiplier: 0.7,
 						})
 					})
 				} else if (!isHome && lenisInstance) {
