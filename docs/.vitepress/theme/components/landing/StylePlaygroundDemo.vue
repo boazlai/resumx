@@ -176,7 +176,25 @@ onUnmounted(() => {
 				>
 					<span class="fm-indent">&nbsp;&nbsp;</span>
 					<span class="fm-key">{{ opt.key }}:</span>
-					<Transition name="val" mode="out-in">
+					<template v-if="opt.key === 'section-title-align'">
+						<span class="fm-val-cell">
+							<Transition name="val" mode="out-in">
+								<span
+									class="fm-val"
+									:key="opt.values[opt.index.value]"
+									:style="fmValStyle(opt)"
+								>
+									{{ opt.values[opt.index.value] }}
+								</span>
+							</Transition>
+							<span
+								class="align-dot"
+								:class="'align-dot--' + opt.values[opt.index.value]"
+								aria-hidden="true"
+							/>
+						</span>
+					</template>
+					<Transition v-else name="val" mode="out-in">
 						<span
 							class="fm-val"
 							:key="opt.values[opt.index.value]"
@@ -262,6 +280,7 @@ onUnmounted(() => {
 }
 
 .playground-doc {
+	--playground-mono-size: 0.72rem;
 	background: var(--vp-c-bg);
 	border: 1px solid var(--vp-c-divider);
 	border-radius: 8px;
@@ -271,8 +290,8 @@ onUnmounted(() => {
 /* --- Frontmatter block --- */
 .fm-block {
 	font-family: var(--vp-font-family-mono);
-	font-size: 0.8rem;
-	line-height: 1.6;
+	font-size: var(--playground-mono-size);
+	line-height: 1.3;
 	padding: 0.75rem 1.25rem;
 	border-bottom: 1px solid var(--vp-c-divider);
 	background: color-mix(in srgb, var(--vp-c-bg-soft) 50%, var(--vp-c-bg));
@@ -309,6 +328,39 @@ onUnmounted(() => {
 	margin-left: 0.5ch;
 	color: var(--vp-c-text-2);
 	transition: color 0.2s ease;
+}
+
+.fm-val-cell {
+	display: inline-block;
+	position: relative;
+	margin-left: 0.5ch;
+}
+
+.align-dot {
+	position: absolute;
+	left: 0;
+	bottom: -2px;
+	width: 2.5px;
+	height: 2.5px;
+	border-radius: 50%;
+	background: currentColor;
+	opacity: 0.7;
+	transition: left 0.45s cubic-bezier(0.4, 0, 0.2, 1), transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.align-dot--left {
+	left: 0.45em;
+	transform: translateX(0);
+}
+
+.align-dot--center {
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.align-dot--right {
+	left: calc(100% - 0.2em);
+	transform: translateX(-100%);
 }
 
 /* --- Click hint icon --- */
@@ -389,7 +441,7 @@ onUnmounted(() => {
 /* --- Fence annotations --- */
 .ann-line {
 	font-family: var(--vp-font-family-mono);
-	font-size: 0.72rem;
+	font-size: var(--playground-mono-size);
 	line-height: 1.7;
 	color: var(--vp-c-text-3);
 	white-space: nowrap;
