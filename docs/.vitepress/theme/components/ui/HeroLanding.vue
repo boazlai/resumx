@@ -243,9 +243,7 @@ const tools = [
 				</a>
 
 				<!-- Heading -->
-				<h1 class="hero-heading">
-					The resume builder that gets out of your way.
-				</h1>
+				<h1 class="hero-heading">Resumes as code - write, render, done</h1>
 
 				<!-- Subtitle -->
 				<p class="hero-subtitle">
