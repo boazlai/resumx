@@ -29,6 +29,7 @@ const commits: Commit[] = [
 	{ hash: 'u6v7w8x', message: 'init: create resume' },
 ]
 
+/** Ordered top-to-bottom in tree so scroll progress moves highlight downward. */
 const versions: Array<{
 	label: string
 	branch: string
@@ -36,9 +37,21 @@ const versions: Array<{
 	command: string
 }> = [
 	{
+		label: 'HEAD',
+		branch: '',
+		commitHash: 'a1b2c3d',
+		command: 'git resumx resume.md',
+	},
+	{
 		label: 'sent/stripe-2026-02',
 		branch: 'sent/stripe-2026-02',
 		command: 'git resumx sent/stripe-2026-02:resume.md',
+	},
+	{
+		label: 'main',
+		branch: '',
+		commitHash: 'i7j8k9l',
+		command: 'git resumx i7j8k9l:resume.md',
 	},
 	{
 		label: 'sent/google-2026-01',
@@ -48,29 +61,29 @@ const versions: Array<{
 	{
 		label: 'main',
 		branch: '',
-		commitHash: 'i7j8k9l',
-		command: 'git resumx i7j8k9l:resume.md',
+		commitHash: 'q3r4s5t',
+		command: 'git resumx q3r4s5t:resume.md',
+	},
+	{
+		label: 'init',
+		branch: '',
+		commitHash: 'u6v7w8x',
+		command: 'git resumx u6v7w8x:resume.md',
 	},
 ]
 
-const FLIP_MS = 1800
 const active = ref(0)
-let flipId: ReturnType<typeof setInterval> | null = null
+const sectionRef = ref<HTMLElement | null>(null)
+const SCROLL_TRIGGER_ID = 'git-version-demo'
 
 const activeCommand = computed(() => versions[active.value].command)
 
-function startFlip() {
-	stopFlip()
-	flipId = setInterval(() => {
-		active.value = (active.value + 1) % versions.length
-	}, FLIP_MS)
-}
-
-function stopFlip() {
-	if (flipId != null) {
-		clearInterval(flipId)
-		flipId = null
-	}
+function updateActiveFromProgress(progress: number) {
+	const index = Math.min(
+		versions.length - 1,
+		Math.floor(progress * versions.length),
+	)
+	active.value = index
 }
 
 function isBranchActive(name: string): boolean {
@@ -87,12 +100,32 @@ function isRowDimmed(commit: Commit): boolean {
 	return !isCommitActive(commit)
 }
 
-onMounted(() => startFlip())
-onUnmounted(() => stopFlip())
+onMounted(() => {
+	import('gsap/ScrollTrigger').then(({ ScrollTrigger: ST }) => {
+		import('gsap').then(({ gsap }) => {
+			gsap.registerPlugin(ST)
+			const el = sectionRef.value
+			if (!el) return
+			const st = ST.create({
+				trigger: el,
+				start: 'top 80%',
+				end: 'top 3%',
+				id: SCROLL_TRIGGER_ID,
+				onUpdate: self => updateActiveFromProgress(self.progress),
+			})
+			updateActiveFromProgress(st.progress)
+		})
+	})
+})
+onUnmounted(() => {
+	import('gsap/ScrollTrigger').then(({ ScrollTrigger: ST }) => {
+		ST.getById(SCROLL_TRIGGER_ID)?.kill()
+	})
+})
 </script>
 
 <template>
-	<section class="git-demo">
+	<section ref="sectionRef" class="git-demo">
 		<div class="tree-panel">
 			<div class="command-header">
 				<span class="pill-prompt">$</span>
