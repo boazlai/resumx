@@ -20,7 +20,7 @@ pip install pdf2docx
 **Agent Skill** — let your AI agent understand Resumx syntax
 
 ```bash
-npx skills add resumx/resumx
+npx skills add resumx/skills
 ```
 
 **Git integration**

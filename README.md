@@ -45,7 +45,7 @@ Most resume effort goes to layout and styling, the factors that matter least for
 
 - **Built with AI in mind.** Optimized for autonomous AI editing. Agent skills are included.
   ```sh
-  npx skills add resumx/resumx
+  npx skills add resumx/skills
   ```
 - **Markdown in, schema out.** Write plain Markdown. The [schema is inferred](https://resumx.dev/guide/semantic-selectors.html).
 - **PDF, HTML, DOCX, and PNG** from a single source.
