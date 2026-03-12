@@ -76,6 +76,9 @@ const active = ref(0)
 const sectionRef = ref<HTMLElement | null>(null)
 const SCROLL_TRIGGER_ID = 'git-version-demo'
 
+/** Breakpoint for ScrollTrigger start/end (matches common tablet/mobile). */
+const MOBILE_BREAKPOINT = 768
+
 const activeCommand = computed(() => versions[active.value].command)
 
 function updateActiveFromProgress(progress: number) {
@@ -100,27 +103,44 @@ function isRowDimmed(commit: Commit): boolean {
 	return !isCommitActive(commit)
 }
 
+let matchMedia: { revert: () => void } | null = null
+
 onMounted(() => {
 	import('gsap/ScrollTrigger').then(({ ScrollTrigger: ST }) => {
 		import('gsap').then(({ gsap }) => {
 			gsap.registerPlugin(ST)
 			const el = sectionRef.value
 			if (!el) return
-			const st = ST.create({
-				trigger: el,
-				start: 'top 70%',
-				end: 'bottom 80%',
-				id: SCROLL_TRIGGER_ID,
-				onUpdate: self => updateActiveFromProgress(self.progress),
+			const mm = gsap.matchMedia()
+			matchMedia = mm
+			mm.add(`(min-width: ${MOBILE_BREAKPOINT}px)`, () => {
+				const st = ST.create({
+					trigger: el,
+					start: 'top 85%',
+					end: 'bottom 35%',
+					id: SCROLL_TRIGGER_ID,
+					onUpdate: self => updateActiveFromProgress(self.progress),
+				})
+				updateActiveFromProgress(st.progress)
+				return () => {}
 			})
-			updateActiveFromProgress(st.progress)
+			mm.add(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`, () => {
+				const st = ST.create({
+					trigger: el,
+					start: 'top 90%',
+					end: 'bottom 30%',
+					id: SCROLL_TRIGGER_ID,
+					onUpdate: self => updateActiveFromProgress(self.progress),
+				})
+				updateActiveFromProgress(st.progress)
+				return () => {}
+			})
 		})
 	})
 })
 onUnmounted(() => {
-	import('gsap/ScrollTrigger').then(({ ScrollTrigger: ST }) => {
-		ST.getById(SCROLL_TRIGGER_ID)?.kill()
-	})
+	matchMedia?.revert()
+	matchMedia = null
 })
 </script>
 
