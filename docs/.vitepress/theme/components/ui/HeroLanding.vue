@@ -147,7 +147,8 @@ onMounted(() => {
 			const el = pageFitSectionRef.value
 			if (!el) return
 			const isSmall = window.innerWidth <= PAGE_FIT_SMALL_SCREEN_MAX_WIDTH
-			const initialScale = isSmall ? PAGE_FIT_INITIAL_SCALE_SMALL : PAGE_FIT_INITIAL_SCALE
+			const initialScale =
+				isSmall ? PAGE_FIT_INITIAL_SCALE_SMALL : PAGE_FIT_INITIAL_SCALE
 			gsap.set(el, { scale: initialScale, transformOrigin: '50% 50%' })
 			el.style.setProperty('--page-fit-tint', String(PAGE_FIT_TINT_STRENGTH))
 			const st = ST.create({
@@ -156,20 +157,31 @@ onMounted(() => {
 				end: 'top 60%',
 				id: PAGE_FIT_SCROLL_TRIGGER_ID,
 			})
-			pageFitSpringTrigger = st as unknown as { progress: number; kill: () => void }
+			pageFitSpringTrigger = st as unknown as {
+				progress: number
+				kill: () => void
+			}
 			let currentScale = initialScale
 			let velocity = 0
 			const ticker: TickerCb = (_time?, deltaTime?) => {
 				if (!pageFitSpringTrigger) return
 				const progress = pageFitSpringTrigger.progress
-				const initial = window.innerWidth <= PAGE_FIT_SMALL_SCREEN_MAX_WIDTH ? PAGE_FIT_INITIAL_SCALE_SMALL : PAGE_FIT_INITIAL_SCALE
+				const initial =
+					window.innerWidth <= PAGE_FIT_SMALL_SCREEN_MAX_WIDTH ?
+						PAGE_FIT_INITIAL_SCALE_SMALL
+					:	PAGE_FIT_INITIAL_SCALE
 				const targetScale = initial + progress * (1 - initial)
 				const dt = Math.min((deltaTime ?? 16) / 1000, 0.05)
-				velocity += (targetScale - currentScale) * SPRING_TENSION * dt - velocity * SPRING_FRICTION * dt
+				velocity +=
+					(targetScale - currentScale) * SPRING_TENSION * dt
+					- velocity * SPRING_FRICTION * dt
 				currentScale += velocity * dt
 				currentScale = Math.max(initial - 0.1, Math.min(1.5, currentScale))
 				gsap.set(el, { scale: currentScale })
-				el.style.setProperty('--page-fit-tint', String((1 - progress) * PAGE_FIT_TINT_STRENGTH))
+				el.style.setProperty(
+					'--page-fit-tint',
+					String((1 - progress) * PAGE_FIT_TINT_STRENGTH),
+				)
 			}
 			pageFitTickerRef = ticker
 			gsap.ticker.add(ticker)
@@ -344,7 +356,9 @@ const tools = [
 				</a>
 
 				<!-- Heading -->
-				<h1 class="hero-heading">Resumes as code - write, render, send</h1>
+				<h1 class="hero-heading">
+					Let AI rewrite your resume freely. Layout never breaks.
+				</h1>
 
 				<!-- Subtitle -->
 				<p class="hero-subtitle">
@@ -431,17 +445,12 @@ const tools = [
 
 				<p class="hero-import-link">
 					Already have a resume?
-					<a href="#import" @click.prevent="openConvertDialog()"
-						>Import it</a
-					>
+					<a href="#import" @click.prevent="openConvertDialog()">Import it</a>
 				</p>
 			</div>
 		</section>
 
-		<ConvertDialog
-			:open="showConvertDialog"
-			@close="closeConvertDialog()"
-		/>
+		<ConvertDialog :open="showConvertDialog" @close="closeConvertDialog()" />
 
 		<!-- Compatible With Section -->
 		<section class="logos-section">
@@ -1163,7 +1172,11 @@ html.dark .tool-icon--dark-only {
 	position: relative;
 	border-radius: 3rem;
 	overflow: hidden;
-	background: color-mix(in srgb, var(--page-fit-elevation) calc(var(--page-fit-tint, 1) * 100%), transparent);
+	background: color-mix(
+		in srgb,
+		var(--page-fit-elevation) calc(var(--page-fit-tint, 1) * 100%),
+		transparent
+	);
 }
 
 @media (max-width: 640px) {
