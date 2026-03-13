@@ -111,8 +111,8 @@ ${body}
 	})
 }
 
-const TAILWIND_CDN_SCRIPT =
-	'<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>'
+const TAILWIND_CDN_SNIPPET = `<style type="text/tailwindcss">@import "tailwindcss/utilities";</style>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>`
 
 export interface GenerateHtmlOptions {
 	/** 'compile' (default) runs @tailwindcss/node; 'cdn' injects a browser script tag instead. */
@@ -143,7 +143,7 @@ export async function generateHtml(
 	const tailwindCSS =
 		tailwindMode === 'compile' ? await compileTailwindCSS(body) : ''
 	const combinedCSS = tailwindCSS + '\n' + baseCSS
-	const headExtra = tailwindMode === 'cdn' ? TAILWIND_CDN_SCRIPT : undefined
+	const headExtra = tailwindMode === 'cdn' ? TAILWIND_CDN_SNIPPET : undefined
 
 	return assembleHtml(body, combinedCSS, resolved.inline, headExtra)
 }
