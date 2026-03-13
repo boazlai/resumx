@@ -95,6 +95,7 @@ describe('telemetry', () => {
 			const { showNoticeIfNeeded } = await loadModule({
 				RESUMX_TELEMETRY: undefined,
 				DO_NOT_TRACK: undefined,
+				CI: undefined,
 			})
 
 			showNoticeIfNeeded()
@@ -112,6 +113,7 @@ describe('telemetry', () => {
 			const { showNoticeIfNeeded } = await loadModule({
 				RESUMX_TELEMETRY: undefined,
 				DO_NOT_TRACK: undefined,
+				CI: undefined,
 			})
 
 			showNoticeIfNeeded()
@@ -154,6 +156,21 @@ describe('telemetry', () => {
 
 			expect(stderrWrite).not.toHaveBeenCalled()
 		})
+
+		it('does not print notice when CI=true', async () => {
+			const stderrWrite = vi
+				.spyOn(process.stderr, 'write')
+				.mockReturnValue(true)
+			const { showNoticeIfNeeded } = await loadModule({
+				RESUMX_TELEMETRY: undefined,
+				DO_NOT_TRACK: undefined,
+				CI: 'true',
+			})
+
+			showNoticeIfNeeded()
+
+			expect(stderrWrite).not.toHaveBeenCalled()
+		})
 	})
 
 	describe('capture', () => {
@@ -161,6 +178,7 @@ describe('telemetry', () => {
 			const { capture, captures } = await loadModule({
 				RESUMX_TELEMETRY: undefined,
 				DO_NOT_TRACK: undefined,
+				CI: undefined,
 			})
 
 			await capture({
@@ -221,6 +239,7 @@ describe('telemetry', () => {
 			const { capture, captures } = await loadModule({
 				RESUMX_TELEMETRY: undefined,
 				DO_NOT_TRACK: undefined,
+				CI: undefined,
 			})
 
 			await capture({
