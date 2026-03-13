@@ -1,4 +1,3 @@
-import { compile } from '@tailwindcss/node'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -87,6 +86,7 @@ export async function compileTailwindCSS(html: string): Promise<string> {
 	const cssInput = `@import "tailwindcss" source(none);`
 
 	try {
+		const { compile } = await import('@tailwindcss/node')
 		const compiler = await compile(cssInput, {
 			base: __dirname,
 			onDependency: () => {},
