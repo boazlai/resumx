@@ -260,7 +260,7 @@ onUnmounted(() => {
 								height: iframeHeight + 'px',
 								transform: `scale(${scale})`,
 							}"
-							sandbox="allow-same-origin"
+							sandbox="allow-same-origin allow-scripts"
 							title="Resume preview"
 						/>
 					</div>
