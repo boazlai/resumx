@@ -329,7 +329,7 @@ const tools = [
 				<!-- Badge -->
 				<a
 					class="hero-badge"
-					href="https://github.com/resumx/resumx"
+					href="https://github.com/resumx/resumx/releases/latest"
 					target="_blank"
 					rel="noopener"
 				>
