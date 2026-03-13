@@ -12,11 +12,7 @@ export const en = defineConfig({
 	themeConfig: {
 		nav: [
 			{ text: 'Guide', link: '/guide/quick-start', activeMatch: '^/guide/' },
-			{
-				text: 'Playbook',
-				link: '/playbook/resume-length',
-				activeMatch: '^/playbook/',
-			},
+			{ text: 'Playground', link: '/playground' },
 		],
 		sidebar: {
 			'/playbook/': [

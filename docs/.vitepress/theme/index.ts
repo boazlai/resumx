@@ -13,6 +13,7 @@ import ResumeDemo from './ResumeDemo.vue'
 import TagLineage from './TagLineage.vue'
 import HeroLanding from './components/ui/HeroLanding.vue'
 import NavBarTitleA11y from './NavBarTitleA11y.vue'
+import ResumePlayground from './ResumePlayground.vue'
 
 export default {
 	extends: DefaultTheme,
@@ -64,5 +65,6 @@ export default {
 		app.component('ResumeDemo', ResumeDemo)
 		app.component('TagLineage', TagLineage)
 		app.component('HeroLanding', HeroLanding)
+		app.component('ResumePlayground', ResumePlayground)
 	},
 } satisfies Theme

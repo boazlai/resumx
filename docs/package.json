@@ -13,7 +13,8 @@
 		"geist": "^1.7.0",
 		"gsap": "^3.14.2",
 		"lenis": "^1.3.18",
-		"posthog-js": "^1.360.0"
+		"posthog-js": "^1.360.0",
+		"shiki": "^4.0.2"
 	},
 	"devDependencies": {
 		"@shikijs/transformers": "^3.22.0",

@@ -5,6 +5,9 @@
 	"functions": {
 		"api/convert.ts": {
 			"maxDuration": 30
+		},
+		"api/preview.ts": {
+			"maxDuration": 15
 		}
 	}
 }
