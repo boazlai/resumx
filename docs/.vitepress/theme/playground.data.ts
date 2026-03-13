@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineLoader } from 'vitepress'
@@ -16,13 +16,18 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 export interface PlaygroundData {
 	markdown: string
 	html: string
+	defaultPdfUrl?: string
+	defaultPageCount?: number
 }
 
 declare const data: PlaygroundData
 export { data }
 
 export default defineLoader({
-	watch: [resolve(__dirname, 'playground-default.md')],
+	watch: [
+		resolve(__dirname, 'playground-default.md'),
+		resolve(__dirname, '../../public/playground/meta.json'),
+	],
 	async load(watchedFiles): Promise<PlaygroundData> {
 		const mdPath = watchedFiles[0]
 		const markdown = readFileSync(mdPath, 'utf-8')
@@ -51,6 +56,18 @@ export default defineLoader({
 		}
 
 		const html = await generateHtml(doc, view)
-		return { markdown, html }
+
+		let defaultPdfUrl: string | undefined
+		let defaultPageCount: number | undefined
+		const metaPath = resolve(__dirname, '../../public/playground/meta.json')
+		if (existsSync(metaPath)) {
+			const meta = JSON.parse(readFileSync(metaPath, 'utf-8')) as {
+				pageCount?: number
+			}
+			defaultPdfUrl = '/playground/default.pdf'
+			defaultPageCount = typeof meta.pageCount === 'number' ? meta.pageCount : 1
+		}
+
+		return { markdown, html, defaultPdfUrl, defaultPageCount }
 	},
 })

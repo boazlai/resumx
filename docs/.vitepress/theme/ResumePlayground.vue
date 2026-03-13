@@ -8,13 +8,14 @@ const A4_WIDTH_PX = 794
 const A4_HEIGHT_PX = 1123
 
 const markdown = ref(DEFAULT_CONTENT)
-const previewHtml = ref('')
+const pdfBlobUrl = ref('')
 const warnings = ref<string[]>([])
 const error = ref('')
 const loading = ref(false)
 const iframeRef = ref<HTMLIFrameElement | null>(null)
 const containerRef = ref<HTMLDivElement | null>(null)
 const scale = ref(1)
+const pageCount = ref(1)
 const iframeHeight = ref(A4_HEIGHT_PX)
 const highlightedCode = ref('')
 
@@ -51,20 +52,40 @@ function updateScale(): void {
 
 const previewColWidth = computed(() => Math.ceil(A4_WIDTH_PX * scale.value) + 2)
 
-function measureContentHeight(): void {
-	const iframe = iframeRef.value
-	if (!iframe) return
-	const doc = iframe.contentDocument
-	if (!doc) return
-	const contentH = doc.documentElement.scrollHeight
-	iframeHeight.value = Math.max(contentH, A4_HEIGHT_PX)
+const defaultPdfUrl = playgroundData.defaultPdfUrl
+const defaultPageCount = playgroundData.defaultPageCount ?? 1
+
+const previewSrc = computed(() => {
+	if (pdfBlobUrl.value) return pdfBlobUrl.value
+	if (markdown.value === DEFAULT_CONTENT && defaultPdfUrl) return defaultPdfUrl
+	return ''
+})
+
+function applyDefaultPreview(): void {
+	revokePdfUrl()
+	pageCount.value = defaultPageCount
+	iframeHeight.value = A4_HEIGHT_PX * defaultPageCount
+	warnings.value = []
+	updateScale()
 }
 
-function applyPreview(html: string, warns: string[]): void {
-	previewHtml.value = html
+function revokePdfUrl(): void {
+	if (pdfBlobUrl.value) {
+		URL.revokeObjectURL(pdfBlobUrl.value)
+		pdfBlobUrl.value = ''
+	}
+}
+
+function applyPreview(
+	blob: Blob,
+	warns: string[],
+	pages: number = 1,
+): void {
+	revokePdfUrl()
+	pdfBlobUrl.value = URL.createObjectURL(blob)
 	warnings.value = warns
-	writeToIframe(html)
-	measureContentHeight()
+	pageCount.value = pages
+	iframeHeight.value = A4_HEIGHT_PX * pages
 	updateScale()
 }
 
@@ -74,8 +95,8 @@ async function renderPreview(): Promise<void> {
 		return
 	}
 
-	if (markdown.value === DEFAULT_CONTENT && playgroundData.html) {
-		applyPreview(playgroundData.html, [])
+	if (markdown.value === DEFAULT_CONTENT && defaultPdfUrl) {
+		applyDefaultPreview()
 		return
 	}
 
@@ -90,19 +111,43 @@ async function renderPreview(): Promise<void> {
 			body: JSON.stringify({ markdown: markdown.value }),
 		})
 
-		const data = (await res.json()) as {
-			html?: string
-			error?: string
-			warnings?: string[]
-		}
+		const contentType = res.headers.get('content-type') ?? ''
 
 		if (!res.ok) {
-			error.value = data.error ?? 'Preview failed'
+			if (contentType.includes('application/json')) {
+				const data = (await res.json()) as { error?: string }
+				error.value = data.error ?? 'Preview failed'
+			} else {
+				error.value = 'Preview failed'
+			}
 			return
 		}
 
+		if (!contentType.includes('application/pdf')) {
+			error.value = 'Preview did not return PDF'
+			return
+		}
+
+		const blob = await res.blob()
+		const warnsHeader = res.headers.get('X-Resumx-Warnings')
+		const pageFitHeader = res.headers.get('X-Resumx-Page-Fit')
+		const warnings: string[] = warnsHeader
+			? (JSON.parse(warnsHeader) as string[])
+			: []
+		let pages = 1
+		if (pageFitHeader) {
+			try {
+				const fit = JSON.parse(pageFitHeader) as {
+					finalPages?: number
+				}
+				if (typeof fit.finalPages === 'number') pages = fit.finalPages
+			} catch {
+				// ignore
+			}
+		}
+
 		await nextTick()
-		applyPreview(data.html ?? '', data.warnings ?? [])
+		applyPreview(blob, warnings, pages)
 	} catch {
 		error.value = 'Failed to connect to preview server'
 	} finally {
@@ -113,16 +158,6 @@ async function renderPreview(): Promise<void> {
 			renderPreview()
 		}
 	}
-}
-
-function writeToIframe(html: string): void {
-	const iframe = iframeRef.value
-	if (!iframe) return
-	const doc = iframe.contentDocument
-	if (!doc) return
-	doc.open()
-	doc.write(html)
-	doc.close()
 }
 
 function onInput(): void {
@@ -421,10 +456,16 @@ onMounted(() => {
 	resizeObserver = new ResizeObserver(() => updateScale())
 	if (containerRef.value) resizeObserver.observe(containerRef.value)
 	updateScale()
-	renderPreview()
+	// When default content and we have a prebuilt PDF, show it without calling the API
+	if (markdown.value === DEFAULT_CONTENT && defaultPdfUrl) {
+		applyDefaultPreview()
+	} else {
+		renderPreview()
+	}
 })
 
 onUnmounted(() => {
+	revokePdfUrl()
 	resizeObserver?.disconnect()
 	closeVerification()
 })
@@ -554,6 +595,9 @@ onUnmounted(() => {
 			<div class="preview-pane">
 				<div class="pane-label">
 					<span>Preview</span>
+					<span v-if="previewSrc" class="page-count">
+						{{ pageCount }} {{ pageCount === 1 ? 'page' : 'pages' }}
+					</span>
 					<span v-if="loading" class="loading-dot" />
 				</div>
 				<div
@@ -570,12 +614,12 @@ onUnmounted(() => {
 						<iframe
 							ref="iframeRef"
 							class="preview-iframe"
+							:src="previewSrc"
 							:style="{
 								width: A4_WIDTH_PX + 'px',
 								height: iframeHeight + 'px',
 								transform: `scale(${scale})`,
 							}"
-							sandbox="allow-same-origin allow-scripts"
 							title="Resume preview"
 						/>
 					</div>
@@ -768,6 +812,14 @@ onUnmounted(() => {
 	letter-spacing: 0.05em;
 	color: var(--vp-c-text-3);
 	padding: 0 2px 8px;
+}
+
+.pane-label .page-count {
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: none;
+	letter-spacing: 0;
+	color: var(--vp-c-text-2);
 }
 
 .loading-dot {

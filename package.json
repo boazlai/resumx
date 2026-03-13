@@ -44,6 +44,7 @@
 		"docs:preview": "pnpm --filter @resumx/docs preview",
 		"deps": "madge --extensions ts,tsx --exclude '\\.(d\\.ts|test\\.(ts|tsx)|spec\\.(ts|tsx))$' --image deps.svg src/ && madge --extensions ts,tsx --exclude '\\.(d\\.ts|test\\.(ts|tsx)|spec\\.(ts|tsx))$' --json src/ > deps.json",
 		"generate:style-options": "pnpm exec tsx scripts/generate-style-options.ts",
+		"generate:playground-pdf": "pnpm exec tsx scripts/generate-playground-default-pdf.ts",
 		"optimize-icons": "pnpm exec tsx scripts/optimize-icons.ts",
 		"changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
 	},

@@ -49,6 +49,10 @@ function setCorsHeaders(req: VercelRequest, res: VercelResponse): void {
 		res.setHeader('Access-Control-Allow-Origin', allowed)
 		res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
 		res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+		res.setHeader(
+			'Access-Control-Expose-Headers',
+			'X-Resumx-Warnings, X-Resumx-Page-Fit',
+		)
 	}
 }
 
@@ -153,11 +157,23 @@ export default async function handler(
 			}
 		}
 
-		res.status(200).json({
-			html: finalHtml,
-			...(pageFit ? { pageFit } : {}),
-			...(warnings.length > 0 ? { warnings } : {}),
-		})
+		const b = await acquireBrowser()
+		const page = await b.newPage()
+		try {
+			await page.setViewportSize({ width: A4_WIDTH_PX, height: 1123 })
+			await page.setContent(finalHtml, { waitUntil: 'domcontentloaded' })
+			const pdfBuffer = await page.pdf({
+				preferCSSPageSize: true,
+				printBackground: true,
+			})
+			res.setHeader('Content-Type', 'application/pdf')
+			if (warnings.length > 0)
+				res.setHeader('X-Resumx-Warnings', JSON.stringify(warnings))
+			if (pageFit) res.setHeader('X-Resumx-Page-Fit', JSON.stringify(pageFit))
+			res.status(200).send(Buffer.from(pdfBuffer))
+		} finally {
+			await page.close()
+		}
 	} catch (err) {
 		console.error('Preview error:', err)
 		const message =
