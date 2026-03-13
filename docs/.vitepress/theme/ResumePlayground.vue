@@ -14,11 +14,9 @@ const error = ref('')
 const loading = ref(false)
 const iframeRef = ref<HTMLIFrameElement | null>(null)
 const containerRef = ref<HTMLDivElement | null>(null)
-const highlightRef = ref<HTMLDivElement | null>(null)
 const scale = ref(1)
 const iframeHeight = ref(A4_HEIGHT_PX)
 const highlightedCode = ref('')
-const highlighterReady = ref(false)
 
 interface ShikiHighlighter {
 	codeToHtml(
@@ -42,24 +40,6 @@ function updateHighlight(): void {
 		lang: 'markdown',
 		themes: { light: 'github-light', dark: 'github-dark-dimmed' },
 	})
-}
-
-function syncScroll(e: Event): void {
-	const textarea = e.target as HTMLTextAreaElement
-	if (highlightRef.value) {
-		highlightRef.value.scrollTop = textarea.scrollTop
-		highlightRef.value.scrollLeft = textarea.scrollLeft
-	}
-}
-
-function downloadMarkdown(): void {
-	const blob = new Blob([markdown.value], { type: 'text/markdown' })
-	const url = URL.createObjectURL(blob)
-	const a = document.createElement('a')
-	a.href = url
-	a.download = 'resume.md'
-	a.click()
-	URL.revokeObjectURL(url)
 }
 
 function updateScale(): void {
@@ -148,7 +128,7 @@ function writeToIframe(html: string): void {
 function onInput(): void {
 	updateHighlight()
 	if (debounceTimer) clearTimeout(debounceTimer)
-	debounceTimer = setTimeout(renderPreview, 300)
+	debounceTimer = setTimeout(renderPreview, 150)
 }
 
 function handleTab(e: KeyboardEvent): void {
@@ -162,6 +142,16 @@ function handleTab(e: KeyboardEvent): void {
 	nextTick(() => {
 		textarea.selectionStart = textarea.selectionEnd = start + 2
 	})
+}
+
+function downloadMarkdown(): void {
+	const blob = new Blob([markdown.value], { type: 'text/markdown' })
+	const url = URL.createObjectURL(blob)
+	const a = document.createElement('a')
+	a.href = url
+	a.download = 'resume.md'
+	a.click()
+	URL.revokeObjectURL(url)
 }
 
 function reset(): void {
@@ -195,7 +185,29 @@ onUnmounted(() => {
 					</span>
 				</p>
 			</div>
-			<button class="reset-btn" @click="reset" title="Reset to default">
+		<div class="header-actions">
+			<button
+				class="action-btn"
+				@click="downloadMarkdown"
+				title="Download as resume.md"
+			>
+				<svg
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+					<polyline points="7 10 12 15 17 10" />
+					<line x1="12" y1="15" x2="12" y2="3" />
+				</svg>
+				Download
+			</button>
+			<button class="action-btn" @click="reset" title="Reset to default">
 				<svg
 					width="16"
 					height="16"
@@ -211,6 +223,7 @@ onUnmounted(() => {
 				</svg>
 				Reset
 			</button>
+		</div>
 		</div>
 
 		<div v-if="warnings.length > 0" class="warnings">
@@ -308,7 +321,13 @@ onUnmounted(() => {
 	text-decoration: underline !important;
 }
 
-.reset-btn {
+.header-actions {
+	display: flex;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+.action-btn {
 	display: flex;
 	align-items: center;
 	gap: 6px;
@@ -324,7 +343,7 @@ onUnmounted(() => {
 	transition: all 0.15s;
 }
 
-.reset-btn:hover {
+.action-btn:hover {
 	color: var(--vp-c-text-1);
 	border-color: var(--vp-c-text-3);
 }
