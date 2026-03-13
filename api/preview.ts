@@ -1,14 +1,27 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { chromium, type Browser } from 'playwright'
 import {
 	parseFrontmatterFromString,
 	extractTagMap,
 } from '../src/core/frontmatter.js'
 import { resolveView } from '../src/core/view/resolve.js'
 import { generateHtml } from '../src/core/html-generator.js'
+import { fitToPagesOnPage } from '../src/core/page-fit/index.js'
+import { A4_WIDTH_PX } from '../src/core/page-fit/types.js'
+import type { FitResult } from '../src/core/page-fit/index.js'
 import type { DocumentContext } from '../src/core/types.js'
 import type { ViewLayer } from '../src/core/view/types.js'
 
 const MAX_MARKDOWN_LENGTH = 50_000
+
+let browser: Browser | null = null
+
+async function acquireBrowser(): Promise<Browser> {
+	if (!browser || !browser.isConnected()) {
+		browser = await chromium.launch({ headless: true })
+	}
+	return browser
+}
 
 function getAllowedOrigin(origin: string): string | null {
 	try {
@@ -83,6 +96,7 @@ export default async function handler(
 				layer.bulletOrder = parsed.config['bullet-order']
 			if (parsed.config.vars) layer.vars = parsed.config.vars
 			if (parsed.config.style) layer.style = parsed.config.style
+			if (parsed.config.pages) layer.pages = parsed.config.pages
 
 			if (parsed.config.css) {
 				const inline = parsed.config.css.filter(
@@ -95,16 +109,9 @@ export default async function handler(
 				}
 				if (inline.length > 0) layer.css = inline
 			}
-
-			if (parsed.config.pages) {
-				warnings.push(
-					'Page fitting requires the CLI. Preview shows content without page constraints.',
-				)
-			}
 		}
 
 		const view = resolveView([layer])
-		view.pages = null
 		view.format = 'html'
 
 		const doc: DocumentContext = {
@@ -114,10 +121,41 @@ export default async function handler(
 			baseDir: process.cwd(),
 		}
 
-		const html = await generateHtml(doc, view, { tailwind: 'cdn' })
+		const needsPageFit = view.pages !== null
+		const html = await generateHtml(doc, view, {
+			tailwind: needsPageFit ? 'compile' : 'cdn',
+		})
+
+		let finalHtml = html
+		let pageFit: Pick<FitResult, 'originalPages' | 'finalPages'> | undefined
+
+		if (needsPageFit) {
+			try {
+				const b = await acquireBrowser()
+				const page = await b.newPage()
+				try {
+					await page.setViewportSize({ width: A4_WIDTH_PX, height: 1123 })
+					await page.setContent(html, { waitUntil: 'domcontentloaded' })
+					const result = await fitToPagesOnPage(page, html, view.pages!)
+					finalHtml = result.html
+					pageFit = {
+						originalPages: result.originalPages,
+						finalPages: result.finalPages,
+					}
+				} finally {
+					await page.close()
+				}
+			} catch (err) {
+				console.error('Page fit error:', err)
+				warnings.push(
+					'Page fitting failed. Showing content without page constraints.',
+				)
+			}
+		}
 
 		res.status(200).json({
-			html,
+			html: finalHtml,
+			...(pageFit ? { pageFit } : {}),
 			...(warnings.length > 0 ? { warnings } : {}),
 		})
 	} catch (err) {
