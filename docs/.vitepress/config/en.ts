@@ -107,6 +107,10 @@ export const en = defineConfig({
 							text: 'Frontmatter Reference',
 							link: '/guide/frontmatter-reference',
 						},
+						{
+							text: 'Telemetry',
+							link: '/guide/telemetry',
+						},
 					],
 				},
 			],

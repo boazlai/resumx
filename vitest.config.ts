@@ -5,7 +5,10 @@ export default defineConfig({
 		globals: true,
 		environment: 'node',
 		include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
-		testTimeout: 30000, // Increased for Playwright PDF rendering
+		testTimeout: 30000,
+		env: {
+			RESUMX_TELEMETRY: '0',
+		},
 		coverage: {
 			provider: 'v8',
 			reporter: ['text', 'json', 'html'],

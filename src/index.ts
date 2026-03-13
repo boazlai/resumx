@@ -9,6 +9,8 @@ import {
 import { initCommand, type InitCommandOptions } from './commands/init.js'
 import { parseSectionList } from './core/section-types.js'
 import type { BulletOrder } from './core/view/types.js'
+import { showNoticeIfNeeded, capture, shutdown } from './lib/telemetry/index.js'
+import { classifyError } from './lib/telemetry/events.js'
 
 const program = new Command()
 
@@ -224,6 +226,7 @@ program
 		'bonus',
 	)
 	.action(async (file: string | undefined, options: RenderCommandOptions) => {
+		showNoticeIfNeeded()
 		try {
 			const result = await renderCommand(file, options)
 			if (result) {
@@ -233,8 +236,19 @@ program
 				})
 				await result.done
 			}
+			await shutdown()
 			process.exit(0)
 		} catch (error) {
+			await capture({
+				event: 'cli_render_failure',
+				properties: {
+					error_class: classifyError(error),
+					version: process.env['npm_package_version'] ?? '0.0.0',
+					os: process.platform,
+					node_version: process.version,
+				},
+			})
+			await shutdown()
 			const message = error instanceof Error ? error.message : String(error)
 			console.error(chalk.red(`Error: ${message}`))
 			process.exit(1)

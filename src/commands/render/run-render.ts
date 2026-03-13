@@ -52,6 +52,7 @@ import {
 	type RenderCommandOptions,
 	type RenderContext,
 } from './types.js'
+import { capture } from '../../lib/telemetry/index.js'
 
 export async function runRender(
 	parsed: Extract<ParseResult, { ok: true }>,
@@ -278,6 +279,18 @@ export async function runRender(
 	)
 
 	reportResults(taskResults, cwd, renderStart)
+
+	void capture({
+		event: 'cli_render_success',
+		properties: {
+			formats,
+			duration_ms: Math.round(performance.now() - renderStart),
+			view_count: namedViews.length,
+			version: process.env['npm_package_version'] ?? '0.0.0',
+			os: process.platform,
+			node_version: process.version,
+		},
+	})
 }
 
 export async function handleCheck(
