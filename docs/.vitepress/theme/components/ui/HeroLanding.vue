@@ -371,7 +371,7 @@ const tools = [
 
 				<!-- Heading -->
 				<h1 class="hero-heading">
-					Let AI rewrite your resume freely. Layout never breaks.
+					Let AI rewrite your resume without ever breaking the layout.
 				</h1>
 
 				<!-- Subtitle -->
