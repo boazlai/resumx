@@ -1,3 +1,52 @@
+# [0.2.0](https://github.com/resumx/resumx/compare/v0.1.1...v0.2.0) (2026-03-13)
+
+### Bug Fixes
+
+- **docs:** adjust Git version demo scroll trigger range ([906857f](https://github.com/resumx/resumx/commit/906857f7b6356aca939b71a5bf85b8024ecde982))
+- **docs:** defer convert dialog cache read to onMounted for SSR ([d5e4d58](https://github.com/resumx/resumx/commit/d5e4d58db8cfedc5dfa8700068950222e5bd15ba))
+- **docs:** hero tool icons in dark mode on load, simplify tag filter demo ([0343846](https://github.com/resumx/resumx/commit/0343846edbb881c4d2e5c876240910ef20ebd984))
+- **docs:** improve docs a11y for Lighthouse (contrast, landmarks, touch targets) ([64f850e](https://github.com/resumx/resumx/commit/64f850e0e77c65d2c22c2bb1d34b643634b63e12))
+- **docs:** improve style playground annotation spacing on small screens ([cd9c168](https://github.com/resumx/resumx/commit/cd9c168a42a05d0043d7119d5336027a2e78de71))
+- **docs:** preserve user gesture for copy Markdown via ClipboardItem ([15f80a7](https://github.com/resumx/resumx/commit/15f80a736b3ecec81b669bc5bcb81a35990a7d8e))
+- **docs:** reduce Lenis scroll sensitivity on landing ([07deeb9](https://github.com/resumx/resumx/commit/07deeb9322fb0c57d2ce71d12e24823ef28dca91))
+- **docs:** show correct footer logo on first load in dark mode ([1c116df](https://github.com/resumx/resumx/commit/1c116dfbddf2f7c6854489be20668b881e01c0ec))
+- **docs:** tune Git version demo scroll range and update hero tagline ([5b98097](https://github.com/resumx/resumx/commit/5b98097224aae1afea4435e57c21075b1999b2ff))
+- **docs:** use CSS visibility for dark-mode logo icons ([c0708b8](https://github.com/resumx/resumx/commit/c0708b83174122ce05477bce5720c2a191e05e0e))
+- **docs:** use double-dash in icon filenames for Windows compatibility ([54eeb8a](https://github.com/resumx/resumx/commit/54eeb8a5ca834959284ce03c1820259a992def1b))
+- **docs:** use matchMedia for responsive scroll trigger breakpoints ([b5e6797](https://github.com/resumx/resumx/commit/b5e679733f1a542506a6f2fa30cd5d2195940a47))
+- **icons:** shrink antigravity.svg to reduce package size ([ae02936](https://github.com/resumx/resumx/commit/ae0293636341c3c60d319008a9ddf0e2230b15a8))
+
+### Features
+
+- **convert:** add AI resume-to-Markdown converter with Turnstile ([d8065a5](https://github.com/resumx/resumx/commit/d8065a53912024afef60076b5efab3d6ab457de4))
+- **convert:** refuse non-resume documents in AI converter, return 400 ([e480389](https://github.com/resumx/resumx/commit/e48038900b282bb91b3d2526e9ea0a2d045dcf8e))
+- **css:** support inline CSS strings in the css field ([8e13ab3](https://github.com/resumx/resumx/commit/8e13ab38abe4267349e22b03c560825abed0c240))
+- **docs:** add arrow indicator and refine line-count label in page-fit demo ([cc839d8](https://github.com/resumx/resumx/commit/cc839d846117ae7c31bf1a85fbe21296b85cabb6))
+- **docs:** add auto-play and animated scroll to page-fit demo ([845d708](https://github.com/resumx/resumx/commit/845d7084e0f893290948c0e6fd13d23a340a0a34))
+- **docs:** add bottom CTA to landing with Star and Get Started buttons ([02c2d66](https://github.com/resumx/resumx/commit/02c2d668cfd560241042db17ea55ffce6eacd25f))
+- **docs:** add dedicated landing page with hero, footer, and AI logos ([e0f19fb](https://github.com/resumx/resumx/commit/e0f19fb9100a9beece1caff6693550b8b5945099))
+- **docs:** add format rotator to hero subtitle, smaller on mobile ([024d530](https://github.com/resumx/resumx/commit/024d530b82bcecf61a77adb8feb2f2cf2e618b4e))
+- **docs:** add Free & open source hero badge, link to GitHub ([8fec697](https://github.com/resumx/resumx/commit/8fec6971685b2cc15ea51b6a3024fa214955d1ee))
+- **docs:** add Git version and style carousel demos to landing ([1e0b601](https://github.com/resumx/resumx/commit/1e0b60164e6fa462f7d884599a3da07705a66338))
+- **docs:** add landing demos for page-fit, tag-filter, and icon reveal ([e587fac](https://github.com/resumx/resumx/commit/e587fac5bc7c134e71722ea7f7bc75d52c139736))
+- **docs:** add page-fit scroll animation and Lenis smooth scroll on landing ([ff9c199](https://github.com/resumx/resumx/commit/ff9c1998aaddde2682456ba709eb943b386f452d))
+- **docs:** add PostHog analytics, capture pageview on route change ([3815eaf](https://github.com/resumx/resumx/commit/3815eafe6604bec36ef038e03e78513f943eb50b))
+- **docs:** add style playground demo, replace typography carousel ([6599ab9](https://github.com/resumx/resumx/commit/6599ab93a3c2fba9e80e2a99622faf2e6188818f))
+- **docs:** add tailoring demo, slot-based DemoCard, and simplify Git version demo ([685f493](https://github.com/resumx/resumx/commit/685f4932e31d1dee5b779ffb8ed7883d1a34b82e))
+- **docs:** clarify hero headline and subtitle for conversion ([e96da80](https://github.com/resumx/resumx/commit/e96da80b4de8e5d46f176aff862a5c748a4c2e2c))
+- **docs:** drive Git version demo highlight from scroll progress ([1ca059a](https://github.com/resumx/resumx/commit/1ca059a524e9a711be9ddb8ccf78f4cf499fc781))
+- **docs:** fetch latest release from GitHub for hero badge ([99f9fc5](https://github.com/resumx/resumx/commit/99f9fc58ab753f17d1d5d3f7039ea0f7dd89f459))
+- **docs:** hero CTA: See it in action on mobile, Get Started on desktop ([ab7afd2](https://github.com/resumx/resumx/commit/ab7afd229d3286a7eb86d3d428e0eae5e7e37e06))
+- **docs:** icon reveal cycles icons with fade, simplify page-fit demo ([0290283](https://github.com/resumx/resumx/commit/02902836819402a4e50b6e461babbeb7d64480e8))
+- **docs:** put Get Started first, GitHub second in hero and bottom CTA ([23f6f9d](https://github.com/resumx/resumx/commit/23f6f9dbcebb6b26c293b62fbf733b75e915cd3a))
+- **docs:** refresh only clicked icon in IconRevealDemo ([f8d2fd4](https://github.com/resumx/resumx/commit/f8d2fd4c0eb42dca99ef4659679dfa480db81e6d))
+- **docs:** reset icon reveal auto-swap timer on logo click ([c645fac](https://github.com/resumx/resumx/commit/c645fac9969cbdca87824551c5d2b3de1aba8126))
+- **docs:** responsive particles with depth in hero, code icon for badge ([bdeb73a](https://github.com/resumx/resumx/commit/bdeb73a2bfadd83fbb05d03af360104c85c028c1))
+- **git:** show annotated tag name and note in git resumx alias ([0c2ae4c](https://github.com/resumx/resumx/commit/0c2ae4c5079efe602fb8a9f1c73a5ad1771dc473))
+- **output:** add {format} template variable and default view name ([5946cdd](https://github.com/resumx/resumx/commit/5946cddc8d673b33bc433940fdfdadf126396842))
+- **style:** add name-color option for h1 ([28fb104](https://github.com/resumx/resumx/commit/28fb104641870d39be2492d847440709dfb0440a))
+- **telemetry:** add anonymous usage telemetry with opt-out ([e8f587d](https://github.com/resumx/resumx/commit/e8f587d336c80918ecdc37e6803316ce41fbf11f))
+
 ## [0.1.1](https://github.com/resumx/resumx/compare/v0.1.0...v0.1.1) (2026-03-03)
 
 ### Bug Fixes
