@@ -86,13 +86,13 @@
 		"gray-matter": "^4.0.3",
 		"js-beautify": "^1.15.4",
 		"linkedom": "^0.18.12",
-		"markdown-it": "^14.1.0",
+		"markdown-it": "^14.1.1",
 		"markdown-it-attrs": "^4.3.1",
 		"markdown-it-emoji": "^3.0.0",
 		"playwright": "^1.58.0",
 		"posthog-node": "^5.28.1",
 		"smol-toml": "^1.6.0",
-		"svgo": "^4.0.0",
+		"svgo": "^4.0.1",
 		"tailwindcss": "^4.1.18",
 		"which": "^6.0.1",
 		"yaml": "^2.8.2",
@@ -139,6 +139,15 @@
 		"onlyBuiltDependencies": [
 			"esbuild",
 			"sharp"
-		]
+		],
+		"overrides": {
+			"minimatch": ">=10.2.3",
+			"ajv": ">=8.18.0",
+			"undici": ">=6.23.0",
+			"path-to-regexp": ">=6.3.0",
+			"rollup": ">=4.59.0",
+			"@conventional-changelog/git-client": ">=2.0.0",
+			"esbuild": ">=0.25.0"
+		}
 	}
 }
