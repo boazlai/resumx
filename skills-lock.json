@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "resume-writing": {
+      "source": "resumx/skills",
+      "sourceType": "github",
+      "computedHash": "f577e70d05869e9f9643b19139eafc254fd0ddfa43d7453efe9cf61e5cca239d"
+    },
+    "resumx": {
+      "source": "resumx/skills",
+      "sourceType": "github",
+      "computedHash": "e79a0bba736ba76da2e19817fa89915a1e0e97213e846a2dfeb5903642c6e22c"
+    }
+  }
+}
