@@ -41,39 +41,61 @@ export async function POST(request: Request) {
 	const { markdown, format } = body
 
 	if (!markdown || typeof markdown !== 'string') {
-		return NextResponse.json({ error: 'Missing markdown field' }, { status: 400 })
+		return NextResponse.json(
+			{ error: 'Missing markdown field' },
+			{ status: 400 },
+		)
 	}
 	if (!SUPPORTED_FORMATS.includes(format)) {
 		return NextResponse.json(
-			{ error: `Unsupported format. Use one of: ${SUPPORTED_FORMATS.join(', ')}` },
+			{
+				error: `Unsupported format. Use one of: ${SUPPORTED_FORMATS.join(', ')}`,
+			},
 			{ status: 400 },
 		)
 	}
 	if (markdown.length > 50_000) {
-		return NextResponse.json({ error: 'Content too large (50KB max)' }, { status: 413 })
+		return NextResponse.json(
+			{ error: 'Content too large (50KB max)' },
+			{ status: 413 },
+		)
 	}
 
-	// Forward to the resumx API service
-	const baseUrl =
-		process.env.VERCEL_URL ?
-			`https://${process.env.VERCEL_URL}`
-		:	'http://localhost:3000'
+	// HTML and DOCX require a full resumx deployment with pandoc.
+	if (format !== 'pdf') {
+		return NextResponse.json(
+			{
+				error: `${format.toUpperCase()} export is not yet supported. PDF export is available.`,
+			},
+			{ status: 501 },
+		)
+	}
 
-	const response = await fetch(`${baseUrl}/api/render`, {
+	// Forward to the resumx render service for PDF.
+	const resumxBaseUrl = (
+		process.env.RESUMX_API_URL ?? 'https://resumx.dev'
+	).replace(/\/$/, '')
+
+	const response = await fetch(`${resumxBaseUrl}/api/preview`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ markdown, format }),
+		body: JSON.stringify({ markdown }),
 	})
 
 	if (!response.ok) {
-		const error = await response.json().catch(() => ({ error: 'Render failed' }))
+		const error = await response
+			.json()
+			.catch(() => ({ error: 'Render failed' }))
 		return NextResponse.json(error, { status: response.status })
 	}
 
 	const fileBuffer = await response.arrayBuffer()
 	const warnings = response.headers.get('X-Resumx-Warnings')
 	const pageFit = response.headers.get('X-Resumx-Page-Fit')
-	const ext = format === 'html' ? 'html' : format === 'docx' ? 'docx' : 'pdf'
+	const ext =
+		format === 'html' ? 'html'
+		: format === 'docx' ? 'docx'
+		: 'pdf'
 
 	const headers = new Headers({
 		'Content-Type': CONTENT_TYPES[format as ExportFormat],

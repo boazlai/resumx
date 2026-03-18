@@ -26,8 +26,14 @@ interface EditorToolbarProps {
 
 const EXPORT_LABELS: Record<ExportFormat, string> = {
 	pdf: 'PDF',
-	html: 'HTML',
-	docx: 'Word (.docx)',
+	html: 'HTML (coming soon)',
+	docx: 'Word / DOCX (coming soon)',
+}
+
+const EXPORT_ENABLED: Record<ExportFormat, boolean> = {
+	pdf: true,
+	html: false,
+	docx: false,
 }
 
 const EXPORT_MIME: Record<ExportFormat, string> = {
@@ -73,11 +79,12 @@ export function EditorToolbar({
 
 			const blob = await res.blob()
 			const url = URL.createObjectURL(blob)
-			const slug = title
-				.trim()
-				.toLowerCase()
-				.replace(/[^a-z0-9]+/g, '-')
-				.replace(/^-|-$/g, '') || 'resume'
+			const slug =
+				title
+					.trim()
+					.toLowerCase()
+					.replace(/[^a-z0-9]+/g, '-')
+					.replace(/^-|-$/g, '') || 'resume'
 			const filename = `${slug}.${EXPORT_EXT[format]}`
 
 			const a = document.createElement('a')
@@ -88,7 +95,11 @@ export function EditorToolbar({
 
 			toast({ title: `Downloaded ${filename}` })
 		} catch {
-			toast({ title: 'Export failed', description: 'Network error.', variant: 'destructive' })
+			toast({
+				title: 'Export failed',
+				description: 'Network error.',
+				variant: 'destructive',
+			})
 		} finally {
 			setExporting(null)
 		}
@@ -125,11 +136,9 @@ export function EditorToolbar({
 						disabled={exporting !== null}
 						className='shrink-0'
 					>
-						{exporting ? (
+						{exporting ?
 							<Loader2 className='h-4 w-4 animate-spin' />
-						) : (
-							<Download className='h-4 w-4' />
-						)}
+						:	<Download className='h-4 w-4' />}
 						{exporting ? `Exporting ${EXPORT_LABELS[exporting]}…` : 'Export'}
 					</Button>
 				</DropdownMenuTrigger>
@@ -137,8 +146,8 @@ export function EditorToolbar({
 					{(Object.keys(EXPORT_LABELS) as ExportFormat[]).map(fmt => (
 						<DropdownMenuItem
 							key={fmt}
-							onSelect={() => handleExport(fmt)}
-							disabled={exporting !== null}
+							onSelect={() => EXPORT_ENABLED[fmt] && handleExport(fmt)}
+							disabled={exporting !== null || !EXPORT_ENABLED[fmt]}
 						>
 							{EXPORT_LABELS[fmt]}
 						</DropdownMenuItem>
@@ -162,7 +171,11 @@ function SaveIndicator({ status }: { status: SaveStatus }) {
 			{status === 'saving' && <Loader2 className='h-3 w-3 animate-spin' />}
 			{status === 'saved' && <Check className='h-3 w-3' />}
 			{status === 'error' && <AlertCircle className='h-3 w-3' />}
-			{status === 'saving' ? 'Saving…' : status === 'error' ? 'Save failed' : 'Saved'}
+			{status === 'saving' ?
+				'Saving…'
+			: status === 'error' ?
+				'Save failed'
+			:	'Saved'}
 		</span>
 	)
 }

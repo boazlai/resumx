@@ -107,6 +107,7 @@ export function ImportButton() {
 					<input
 						ref={inputRef}
 						type='file'
+						aria-label='Select a resume file to import'
 						className='hidden'
 						accept='.md,.txt,text/markdown,text/plain'
 						onChange={e => handleFiles(e.target.files)}

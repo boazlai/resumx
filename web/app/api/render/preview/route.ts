@@ -47,14 +47,12 @@ export async function POST(request: Request) {
 		)
 	}
 
-	// Forward to the resumx preview serverless function
-	// In Vercel, both functions are in the same deployment so this is an internal call.
-	const baseUrl =
-		process.env.VERCEL_URL ?
-			`https://${process.env.VERCEL_URL}`
-		:	'http://localhost:3000'
+	// Forward to the resumx render service.
+	// Configure RESUMX_API_URL to point to your own resumx deployment.
+	// Defaults to the live resumx.dev service (server-to-server, no CORS issues).
+	const resumxBaseUrl = (process.env.RESUMX_API_URL ?? 'https://resumx.dev').replace(/\/$/, '')
 
-	const response = await fetch(`${baseUrl}/api/preview`, {
+	const response = await fetch(`${resumxBaseUrl}/api/preview`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ markdown }),

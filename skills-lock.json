@@ -10,6 +10,11 @@
       "source": "resumx/skills",
       "sourceType": "github",
       "computedHash": "e79a0bba736ba76da2e19817fa89915a1e0e97213e846a2dfeb5903642c6e22c"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "computedHash": "9c87c315aed143ee3b34bec8117100f5035e0df09e6b23e1ecc772cff434c9ad"
     }
   }
 }
