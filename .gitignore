@@ -154,10 +154,16 @@ deps.svg
 
 .agents/
 .claude/
+.claude-tmp/
 .cursor/
 .cursorignore
 TODO.md
 private/
+implementation_plan.md
+web-tsc-status.txt
+package-lock.json
+tmp-render*.html
+*.pdf
 vhs/output/
 vhs/page-fit/.tmp/
 docs/.vitepress/theme/components/landing/page-fit/.tmp/

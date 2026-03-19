@@ -18,18 +18,20 @@ export function PdfPreview({ url, loading, error }: Props) {
 		)
 	}
 
-	if (!url && !loading) {
-		return (
-			<div className='h-full flex flex-col items-center justify-center gap-3 text-muted-foreground'>
-				<FileText className='h-10 w-10' />
-				<p className='text-sm'>Preview will appear here</p>
-				<p className='text-xs'>Start typing to generate a PDF preview</p>
-			</div>
-		)
-	}
+if (!url && !loading) {
+return (
+<div className='h-full flex flex-col items-center justify-center gap-3 px-6 text-center text-muted-foreground'>
+<FileText className='h-10 w-10' />
+<p className='text-sm font-medium'>PDF preview will appear here</p>
+<p className='max-w-xs text-xs leading-5'>
+Edit in Markdown or WYSIWYG mode, then compile to refresh the rendered preview.
+</p>
+</div>
+)
+}
 
-	return (
-		<div className='relative h-full bg-muted/30'>
+return (
+<div className='relative h-full bg-muted/30'>
 			{loading && (
 				<div className='absolute inset-0 flex items-center justify-center bg-background/50 z-10'>
 					<Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />

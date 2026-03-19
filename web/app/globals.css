@@ -3,49 +3,60 @@
 @tailwind utilities;
 
 @layer base {
+	/*
+	 * Palette:
+	 *   #DFD0B8  hsl(37, 38%, 80%)   — cream
+	 *   #948979  hsl(35, 11%, 53%)   — taupe
+	 *   #393E46  hsl(218, 10%, 25%)  — slate
+	 *   #222831  hsl(216, 18%, 16%)  — charcoal
+	 */
+
+	/* ── Light theme ─────────────────────────────────────────────── */
 	:root {
-		--background: 0 0% 100%;
-		--foreground: 224 71.4% 4.1%;
+		--background: 37 30% 96%; /* off-white warm */
+		--foreground: 216 18% 16%; /* #222831 charcoal */
 		--card: 0 0% 100%;
-		--card-foreground: 224 71.4% 4.1%;
+		--card-foreground: 216 18% 16%;
 		--popover: 0 0% 100%;
-		--popover-foreground: 224 71.4% 4.1%;
-		--primary: 220.9 39.3% 11%;
-		--primary-foreground: 210 20% 98%;
-		--secondary: 220 14.3% 95.9%;
-		--secondary-foreground: 220.9 39.3% 11%;
-		--muted: 220 14.3% 95.9%;
-		--muted-foreground: 220 8.9% 46.1%;
-		--accent: 220 14.3% 95.9%;
-		--accent-foreground: 220.9 39.3% 11%;
-		--destructive: 0 84.2% 60.2%;
-		--destructive-foreground: 210 20% 98%;
-		--border: 220 13% 91%;
-		--input: 220 13% 91%;
-		--ring: 224 71.4% 4.1%;
+		--popover-foreground: 216 18% 16%;
+		--primary: 216 18% 16%; /* #222831 */
+		--primary-foreground: 37 38% 80%; /* #DFD0B8 */
+		--secondary: 37 22% 91%; /* light cream tint */
+		--secondary-foreground: 216 18% 16%;
+		--muted: 37 22% 91%;
+		--muted-foreground: 35 11% 53%; /* #948979 taupe */
+		--accent: 37 22% 86%;
+		--accent-foreground: 216 18% 16%;
+		--destructive: 0 78% 55%;
+		--destructive-foreground: 0 0% 98%;
+		--border: 37 20% 84%;
+		--input: 37 20% 84%;
+		--ring: 216 18% 35%;
 		--radius: 0.5rem;
 	}
 
+	/* ── Dark theme ─────────────────────────────────────────────── */
 	.dark {
-		--background: 224 71.4% 4.1%;
-		--foreground: 210 20% 98%;
-		--card: 224 71.4% 4.1%;
-		--card-foreground: 210 20% 98%;
-		--popover: 224 71.4% 4.1%;
-		--popover-foreground: 210 20% 98%;
-		--primary: 210 20% 98%;
-		--primary-foreground: 220.9 39.3% 11%;
-		--secondary: 215 27.9% 16.9%;
-		--secondary-foreground: 210 20% 98%;
-		--muted: 215 27.9% 16.9%;
-		--muted-foreground: 217.9 10.6% 64.9%;
-		--accent: 215 27.9% 16.9%;
-		--accent-foreground: 210 20% 98%;
-		--destructive: 0 62.8% 30.6%;
-		--destructive-foreground: 210 20% 98%;
-		--border: 215 27.9% 16.9%;
-		--input: 215 27.9% 16.9%;
-		--ring: 216 12.2% 83.9%;
+		--background: 216 18% 16%; /* #222831 charcoal */
+		--foreground: 37 38% 83%; /* cream-ish */
+		--card: 218 10% 21%; /* between charcoal and slate */
+		--card-foreground: 37 38% 83%;
+		--popover: 218 10% 19%;
+		--popover-foreground: 37 38% 83%;
+		--primary: 37 38% 80%; /* #DFD0B8 cream */
+		--primary-foreground: 216 18% 16%;
+		--secondary: 218 10% 25%; /* #393E46 slate */
+		--secondary-foreground: 37 38% 80%;
+		--muted: 218 10% 23%;
+		--muted-foreground: 35 11% 53%; /* #948979 taupe */
+		--accent: 218 10% 28%;
+		--accent-foreground: 37 38% 83%;
+		--destructive: 0 62% 46%;
+		--destructive-foreground: 37 38% 92%;
+		--border: 218 10% 25%; /* #393E46 */
+		--input: 218 10% 25%;
+		--ring: 37 25% 55%;
+		--radius: 0.5rem;
 	}
 }
 

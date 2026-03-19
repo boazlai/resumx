@@ -1,0 +1,69 @@
+/* Bundled fonts for editor and renderer. Place WOFF2 files under public/fonts/ */
+
+@font-face {
+	font-family: 'Inter';
+	src: url('fonts/Inter-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Inter';
+	src: url('fonts/Inter-Bold.woff2') format('woff2');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	src: url('fonts/Roboto-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Merriweather';
+	src: url('fonts/Merriweather-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Source Code Pro';
+	src: url('fonts/SourceCodePro-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+/* Utility class to apply chosen font */
+.r-font-inter {
+	font-family:
+		Inter,
+		system-ui,
+		-apple-system,
+		'Segoe UI',
+		Roboto,
+		'Helvetica Neue',
+		Arial;
+}
+.r-font-roboto {
+	font-family:
+		'Roboto',
+		Inter,
+		system-ui,
+		-apple-system,
+		'Segoe UI',
+		Arial;
+}
+.r-font-merriweather {
+	font-family: 'Merriweather', Georgia, serif;
+}
+.r-font-sourcecode {
+	font-family:
+		'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco,
+		'Courier New', monospace;
+}

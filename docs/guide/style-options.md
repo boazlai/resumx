@@ -112,7 +112,7 @@ Warm serif with small-caps name and colored section headers.
 
 ```yaml
 style:
-  font-family: "'Palatino Linotype', Palatino, Georgia, serif"
+  font-family: 'Inter, ui-sans-serif, system-ui, sans-serif'
   name-caps: small-caps
   section-title-color: '#c43218'
   section-title-border: 1.5px solid var(--section-title-color)

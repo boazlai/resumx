@@ -3,7 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"codegen": "mkdir -p public/schemas && cp ../schemas/*.schema.json public/schemas/",
+		"codegen": "node -e \"const fs=require('fs'),p=require('path');fs.mkdirSync('public/schemas',{recursive:true});fs.readdirSync('../schemas').filter(f=>f.endsWith('.schema.json')).forEach(f=>fs.copyFileSync(p.join('../schemas',f),p.join('public/schemas',f)))\"",
 		"dev": "pnpm run codegen && vitepress dev .",
 		"build": "pnpm run codegen && vitepress build .",
 		"preview": "vitepress preview ."

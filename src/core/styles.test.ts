@@ -43,7 +43,7 @@ body { color: var(--text-color); }
 			const css = `
 :root {
 	--font-family:
-		'Palatino Linotype', 'Palatino', 'Georgia', serif;
+		'Inter', ui-sans-serif, system-ui, sans-serif;
 	--base-font-size: 10pt;
 }
 `
@@ -51,7 +51,7 @@ body { color: var(--text-color); }
 			expect(vars).toEqual([
 				{
 					name: '--font-family',
-					value: "'Palatino Linotype', 'Palatino', 'Georgia', serif",
+					value: "'Inter', ui-sans-serif, system-ui, sans-serif",
 				},
 				{ name: '--base-font-size', value: '10pt' },
 			])

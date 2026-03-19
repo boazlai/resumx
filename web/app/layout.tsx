@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { ToastContextProvider } from '@/lib/toast'
 import { Toaster } from '@/components/ui/toaster'
+import { ThemeProvider } from '@/lib/theme'
 
 export const metadata: Metadata = {
 	title: 'Resume Editor — Powered by Resumx',
@@ -17,6 +18,12 @@ export default function RootLayout({
 	return (
 		<html lang='en' suppressHydrationWarning>
 			<head>
+				{/* Avoid flash of wrong theme */}
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `(function(){var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark');})()`,
+					}}
+				/>
 				<link rel='preconnect' href='https://fonts.googleapis.com' />
 				<link
 					rel='preconnect'
@@ -28,11 +35,13 @@ export default function RootLayout({
 					rel='stylesheet'
 				/>
 			</head>
-			<body className='antialiased'>
-				<ToastContextProvider>
-					{children}
-					<Toaster />
-				</ToastContextProvider>
+			<body className='antialiased' suppressHydrationWarning>
+				<ThemeProvider>
+					<ToastContextProvider>
+						{children}
+						<Toaster />
+					</ToastContextProvider>
+				</ThemeProvider>
 			</body>
 		</html>
 	)

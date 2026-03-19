@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { MoreHorizontal, Pencil, Trash2, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -101,9 +101,9 @@ export function ResumeCard({ resume }: { resume: ResumeRow }) {
 					</DropdownMenu>
 				</div>
 
-				{/* favicon-style doc icon */}
-				<div className='flex-shrink-0 w-10 h-12 rounded border bg-muted flex items-center justify-center text-muted-foreground text-xs font-mono'>
-					.md
+				{/* Document icon */}
+				<div className='flex-shrink-0 w-10 h-12 rounded border bg-muted flex items-center justify-center text-muted-foreground'>
+					<FileText className='h-5 w-5' />
 				</div>
 
 				<div className='min-w-0'>

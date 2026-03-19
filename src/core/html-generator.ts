@@ -9,6 +9,8 @@ import jsBeautify from 'js-beautify'
 const { html: beautifyHtml } = jsBeautify
 import { generateVariablesCSS } from '../lib/css-engine/css-variables.js'
 import { getBundledStylesDir, DEFAULT_STYLESHEET } from './styles.js'
+import { dirname, resolve as pathResolve } from 'node:path'
+import { readFileSync, existsSync as fsExistsSync } from 'node:fs'
 import { resolveCssImports } from '../lib/css-engine/css-resolver.js'
 import { compileTailwindCSS } from '../lib/css-engine/tailwind.js'
 import { markdownRenderer } from './markdown.js'
@@ -143,7 +145,93 @@ export async function generateHtml(
 	const tailwindCSS =
 		tailwindMode === 'compile' ? await compileTailwindCSS(body) : ''
 	const combinedCSS = tailwindCSS + '\n' + baseCSS
+
+	// Embed font files referenced by CSS as data URIs so the headless
+	// browser can load fonts when rendering from standalone HTML.
+	const embeddedCSS = embedFontsInCss(combinedCSS, resolved.paths)
 	const headExtra = tailwindMode === 'cdn' ? TAILWIND_CDN_SNIPPET : undefined
 
-	return assembleHtml(body, combinedCSS, resolved.inline, headExtra)
+	return assembleHtml(body, embeddedCSS, resolved.inline, headExtra)
+}
+
+/**
+ * Replace url(...) references to local font files with data URIs.
+ * Tries to resolve relative URLs against the list of CSS file paths
+ * (their directories) provided in `cssPaths`. If a referenced file is
+ * found, it's read and inlined as base64.
+ */
+function embedFontsInCss(css: string, cssPaths: string[]): string {
+	if (!cssPaths || cssPaths.length === 0) return css
+
+	const urlRegex = /url\((?:\"|'|)([^\"')]+)(?:\"|'|)\)/g
+
+	return css.replace(urlRegex, (match, p1) => {
+		const url = p1.trim()
+
+		// Skip already inlined or remote URLs
+		if (
+			url.startsWith('data:')
+			|| url.startsWith('http://')
+			|| url.startsWith('https://')
+			|| url.startsWith('//')
+		) {
+			return match
+		}
+
+		// Try resolving against each provided css path directory
+		for (const cssPath of cssPaths) {
+			try {
+				const dir = dirname(cssPath)
+				const candidate = pathResolve(dir, url)
+				if (fsExistsSync(candidate)) {
+					const ext = candidate.split('.').pop()?.toLowerCase() ?? ''
+					const buffer = readFileSync(candidate)
+					const b64 = buffer.toString('base64')
+					const mime =
+						ext === 'woff2' ? 'font/woff2'
+						: ext === 'woff' ? 'font/woff'
+						: ext === 'ttf' ? 'font/ttf'
+						: ext === 'otf' ? 'font/otf'
+						: null
+					if (mime) {
+						return `url('data:${mime};base64,${b64}')`
+					}
+					// If unknown extension, still inline as application/octet-stream
+					return `url('data:application/octet-stream;base64,${b64}')`
+				}
+				// Fallback: try scanning the 'fonts' subdirectory for a matching file
+				const fontsDir = pathResolve(dirname(cssPath), 'fonts')
+				try {
+					const files =
+						fsExistsSync(fontsDir) ?
+							(require('fs').readdirSync(fontsDir) as string[])
+						:	[]
+					const base = url.split('/').pop()?.toLowerCase() ?? ''
+					const baseToken = base.split(/[-._]/)[0]
+					const match = files.find(f => f.toLowerCase().includes(baseToken))
+					if (match) {
+						const candidate2 = pathResolve(fontsDir, match)
+						if (fsExistsSync(candidate2)) {
+							const ext = candidate2.split('.').pop()?.toLowerCase() ?? ''
+							const buffer = readFileSync(candidate2)
+							const b64 = buffer.toString('base64')
+							const mime =
+								ext === 'woff2' ? 'font/woff2'
+								: ext === 'woff' ? 'font/woff'
+								: ext === 'ttf' ? 'font/ttf'
+								: ext === 'otf' ? 'font/otf'
+								: null
+							if (mime) return `url('data:${mime};base64,${b64}')`
+							return `url('data:application/octet-stream;base64,${b64}')`
+						}
+					}
+				} catch {}
+			} catch (err) {
+				// ignore and continue
+			}
+		}
+
+		// Nothing found — return original
+		return match
+	})
 }

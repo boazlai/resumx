@@ -4,11 +4,12 @@
  */
 const WINDOWS_INVALID = /[<>:"|?*]/
 
-const violations = process.argv
-	.slice(2)
-	.filter(file =>
-		file.split('/').some(segment => WINDOWS_INVALID.test(segment)),
-	)
+const violations = process.argv.slice(2).filter(file => {
+	// Strip Windows drive letter (e.g. "C:") before checking segments
+	// so that valid drive prefixes don't trigger the colon check.
+	const withoutDrive = file.replace(/^[A-Za-z]:/, '')
+	return withoutDrive.split('/').some(segment => WINDOWS_INVALID.test(segment))
+})
 
 if (violations.length > 0) {
 	console.error('Windows-incompatible filenames detected:')
