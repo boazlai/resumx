@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 interface ColorPickerProps {
 	value?: string
@@ -13,6 +13,7 @@ export default function ColorPicker({
 }: ColorPickerProps) {
 	const ref = useRef<HTMLDivElement | null>(null)
 	const pickrRef = useRef<any>(null)
+	const [pickrLoaded, setPickrLoaded] = useState(false)
 
 	useEffect(() => {
 		let mounted = true
@@ -27,6 +28,9 @@ export default function ColorPicker({
 				const Pickr = (PickrModule as any).default ?? (PickrModule as any)
 				if (!mounted) return
 				// create a button anchor
+				ref.current.style.display = 'inline-flex'
+				ref.current.style.alignItems = 'center'
+				ref.current.style.gap = '4px'
 				const el = document.createElement('button')
 				el.type = 'button'
 				el.className = 'h-8 w-8 rounded border p-0'
@@ -102,6 +106,7 @@ export default function ColorPicker({
 					},
 				})
 				pickrRef.current = p
+				setPickrLoaded(true)
 				p.on('save', (color: any) => {
 					const hex = color.toHEXA().toString()
 					el.style.background = hex
@@ -148,14 +153,16 @@ export default function ColorPicker({
 	return (
 		<div className='inline-flex items-center'>
 			<div ref={ref} />
-			{/* Fallback native color input (visually hidden when Pickr mounts) */}
-			<input
-				type='color'
-				defaultValue={value}
-				onChange={e => onChange(e.target.value)}
-				aria-label='Pick color'
-				className='h-8 w-8 p-0 border rounded ml-1'
-			/>
+			{/* Fallback native color input — hidden once Pickr loads */}
+			{!pickrLoaded && (
+				<input
+					type='color'
+					defaultValue={value}
+					onChange={e => onChange(e.target.value)}
+					aria-label='Pick color'
+					className='h-8 w-8 p-0 border rounded'
+				/>
+			)}
 		</div>
 	)
 }

@@ -21,6 +21,12 @@ export function AppHeader({ email, name, avatarUrl }: AppHeaderProps) {
 					>
 						My Resumes
 					</Link>
+					<Link
+						href='/icons'
+						className='text-sm text-muted-foreground hover:text-foreground transition-colors font-medium'
+					>
+						Icons
+					</Link>
 				</div>
 				<UserMenu email={email} name={name} avatarUrl={avatarUrl} />
 			</div>

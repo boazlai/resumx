@@ -4,7 +4,7 @@ import { db } from '@/lib/db'
 import { resumes } from '@/lib/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { EditorShell } from '@/components/editor/editor-shell'
-import { AppHeader } from '@/components/app-header'
+import { EditorSidebar } from '@/components/editor/editor-sidebar'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -31,13 +31,15 @@ export default async function ResumePage({ params }: Props) {
 	if (!row) notFound()
 
 	return (
-		<div className='flex flex-col h-screen overflow-hidden'>
-			<AppHeader
+		<div className='flex h-screen overflow-hidden'>
+			<EditorSidebar
 				email={user.email ?? ''}
 				name={user.user_metadata?.full_name ?? ''}
 				avatarUrl={user.user_metadata?.avatar_url ?? ''}
 			/>
-			<EditorShell resume={row} />
+			<div className='flex flex-col flex-1 min-w-0'>
+				<EditorShell resume={row} />
+			</div>
 		</div>
 	)
 }

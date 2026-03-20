@@ -5,7 +5,13 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import TextStyle from '@tiptap/extension-text-style'
-import { Markdown } from 'tiptap-markdown'
+import Underline from '@tiptap/extension-underline'
+import Color from '@tiptap/extension-color'
+import Highlight from '@tiptap/extension-highlight'
+import TextAlign from '@tiptap/extension-text-align'
+import FontFamily from '@tiptap/extension-font-family'
+import { Section } from './extensions/section'
+import { Entry } from './extensions/entry'
 import { cn } from '@/lib/utils'
 import type { ResumeEditorSurfaceProps } from './types'
 
@@ -21,6 +27,7 @@ export function WysiwygEditor({
 	onChange,
 	className,
 	onActionsReady,
+	onSelectionUpdate,
 }: ResumeEditorSurfaceProps) {
 	const initialHtml = useRef(astToHtml(parseMarkdownToAST(value)))
 	const initialValue = useRef(initialHtml.current)
@@ -30,13 +37,15 @@ export function WysiwygEditor({
 		extensions: [
 			StarterKit,
 			TextStyle,
+			Underline,
+			Color,
+			Highlight.configure({ multicolor: true }),
+			TextAlign.configure({ types: ['heading', 'paragraph'] }),
+			FontFamily,
+			Section,
+			Entry,
 			Placeholder.configure({
 				placeholder: 'Start writing your resume…',
-			}),
-			Markdown.configure({
-				html: false,
-				transformCopiedText: true,
-				transformPastedText: true,
 			}),
 		],
 		// Use the initial value only — don't re-initialize from `value` prop
@@ -53,7 +62,11 @@ export function WysiwygEditor({
 		onBlur() {
 			isFocused.current = false
 		},
+		onSelectionUpdate() {
+			onSelectionUpdate?.()
+		},
 		onUpdate({ editor }) {
+			onSelectionUpdate?.()
 			// Convert editor HTML -> AST -> markdown body to keep structured nodes
 			try {
 				const html = editor.getHTML()
@@ -61,9 +74,7 @@ export function WysiwygEditor({
 				const md = serializeASTToMarkdown(ast)
 				onChange(md)
 			} catch {
-				// fallback: keep TipTap markdown storage if conversion fails
-				const md = editor.storage.markdown.getMarkdown()
-				onChange(md)
+				onChange(editor.getText())
 			}
 		},
 	})
@@ -77,186 +88,114 @@ export function WysiwygEditor({
 			if (currentHtml !== html) {
 				editor.commands.setContent(html, false)
 			}
+			return
 		} catch {
-			const currentMd = editor.storage.markdown.getMarkdown()
-			if (currentMd !== value) {
-				editor.commands.setContent(value, false)
-			}
+			// If HTML conversion fails, set content directly
+			editor.commands.setContent(value, false)
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [value])
-
-	// Toolbar actions
-	const toggleBold = () => {
-		editor?.chain().focus().toggleBold().run()
-	}
-	const toggleItalic = () => {
-		editor?.chain().focus().toggleItalic().run()
-	}
-	const toggleBulletList = () => {
-		editor?.chain().focus().toggleBulletList().run()
-	}
-	const toggleOrderedList = () => {
-		editor?.chain().focus().toggleOrderedList().run()
-	}
-	const clearFormatting = () => {
-		editor?.chain().focus().clearNodes().unsetAllMarks().run()
-	}
-
-	const toggleStrike = () => {
-		editor
-			?.chain()
-			.focus()
-			.setMark('textStyle', { style: 'text-decoration: line-through;' })
-			.run()
-	}
-	const setHeader = (level: number) => {
-		editor?.chain().focus().toggleHeading({ level }).run()
-	}
-	const setFont = (font: string) => {
-		editor
-			?.chain()
-			.focus()
-			.setMark('textStyle', { style: `font-family: ${font};` })
-			.run()
-	}
-	const setColor = (hex: string) => {
-		editor
-			?.chain()
-			.focus()
-			.setMark('textStyle', { style: `color: ${hex};` })
-			.run()
-	}
-	const setHighlight = (hex: string) => {
-		editor
-			?.chain()
-			.focus()
-			.setMark('textStyle', { style: `background-color: ${hex};` })
-			.run()
-	}
-	const increaseIndent = () => {
-		/* implement later if needed */
-	}
-	const decreaseIndent = () => {
-		/* implement later if needed */
-	}
-	const setAlign = (a: 'left' | 'center' | 'right' | 'justify') => {
-		// Try to set paragraph node style
-		editor
-			?.chain()
-			.focus()
-			.command(({ tr, state, dispatch }) => {
-				const { from, to } = state.selection
-				state.doc.nodesBetween(from, to, (node, pos) => {
-					if (node.type.name === 'paragraph' || node.type.name === 'heading') {
-						dispatch?.(
-							tr.setNodeMarkup(pos, undefined, {
-								...node.attrs,
-								style: `text-align: ${a};`,
-							}),
-						)
-					}
-				})
-				return true
-			})
-			.run()
-	}
-	const incIndent = () => {
-		editor
-			?.chain()
-			.focus()
-			.command(({ tr, state, dispatch }) => {
-				const { from, to } = state.selection
-				state.doc.nodesBetween(from, to, (node, pos) => {
-					if (node.isTextblock) {
-						dispatch?.(tr.insertText('  ', pos + 1))
-					}
-				})
-				return true
-			})
-			.run()
-	}
-	const decIndent = () => {
-		editor
-			?.chain()
-			.focus()
-			.command(({ tr, state, dispatch }) => {
-				const { from, to } = state.selection
-				state.doc.nodesBetween(from, to, (node, pos) => {
-					if (node.isTextblock) {
-						const lineText = node.textContent
-						if (lineText.startsWith('  ')) {
-							// remove first two spaces
-							const start = pos + 1
-							dispatch?.(tr.delete(start, start + 2))
-						}
-					}
-				})
-				return true
-			})
-			.run()
-	}
-
-	const setFontSize = (size: 'small' | 'normal' | 'large') => {
-		const map: Record<string, string> = {
-			small: '11px',
-			normal: '13px',
-			large: '15px',
-		}
-		editor
-			?.chain()
-			.focus()
-			.setMark('textStyle', { style: `font-size: ${map[size]};` })
-			.run()
-	}
 
 	// Expose actionable helpers to surrounding UI (e.g. StyleToolbar)
 	useEffect(() => {
 		if (!editor) return
 		const actions = {
-			setAlign: (a: 'left' | 'center' | 'right' | 'justify') => setAlign(a),
-			increaseIndent: () => incIndent(),
-			decreaseIndent: () => decIndent(),
 			toggleMark: (mark: 'bold' | 'italic' | 'underline' | 'strike') => {
-				if (mark === 'bold') toggleBold()
-				else if (mark === 'italic') toggleItalic()
+				if (mark === 'bold') editor.chain().focus().toggleBold().run()
+				else if (mark === 'italic') editor.chain().focus().toggleItalic().run()
 				else if (mark === 'underline')
+					editor.chain().focus().toggleUnderline().run()
+				else if (mark === 'strike') editor.chain().focus().toggleStrike().run()
+			},
+			toggleList: (type: 'bullet' | 'ordered') => {
+				if (type === 'bullet') editor.chain().focus().toggleBulletList().run()
+				else editor.chain().focus().toggleOrderedList().run()
+			},
+			setFontSize: (size: 'small' | 'normal' | 'large') => {
+				const map: Record<string, string> = {
+					small: '11px',
+					normal: '13px',
+					large: '15px',
+				}
+				editor
+					.chain()
+					.focus()
+					.setMark('textStyle', { style: `font-size: ${map[size]};` })
+					.run()
+			},
+			setHeader: (level: number) => {
+				if (level === 0) editor.chain().focus().setParagraph().run()
+				else
 					editor
 						.chain()
 						.focus()
-						.setMark('textStyle', { style: 'text-decoration: underline;' })
+						.toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 })
 						.run()
-				else if (mark === 'strike') toggleStrike()
 			},
-			toggleList: (type: 'bullet' | 'ordered') => {
-				if (type === 'bullet') toggleBulletList()
-				else toggleOrderedList()
+			setFont: (font: string) => {
+				editor.chain().focus().setFontFamily(font).run()
 			},
-			setFontSize: (size: 'small' | 'normal' | 'large') => setFontSize(size),
-			setHeader: (level: number) => setHeader(level),
-			setFont: (font: string) => setFont(font),
-			setColor: (hex: string) => setColor(hex),
-			setHighlight: (hex: string) => setHighlight(hex),
-			clearFormatting: () => clearFormatting(),
+			setColor: (hex: string) => {
+				editor.chain().focus().setColor(hex).run()
+			},
+			setHighlight: (hex: string) => {
+				if (hex === 'transparent') editor.chain().focus().unsetHighlight().run()
+				else editor.chain().focus().setHighlight({ color: hex }).run()
+			},
+			clearFormatting: () => {
+				editor.chain().focus().clearNodes().unsetAllMarks().run()
+			},
+			setAlign: (a: 'left' | 'center' | 'right' | 'justify') => {
+				editor.chain().focus().setTextAlign(a).run()
+			},
+			increaseIndent: () => {
+				editor
+					.chain()
+					.focus()
+					.command(({ tr, state, dispatch }) => {
+						const { from, to } = state.selection
+						state.doc.nodesBetween(from, to, (node, pos) => {
+							if (node.isTextblock) {
+								dispatch?.(tr.insertText('  ', pos + 1))
+							}
+						})
+						return true
+					})
+					.run()
+			},
+			decreaseIndent: () => {
+				editor
+					.chain()
+					.focus()
+					.command(({ tr, state, dispatch }) => {
+						const { from, to } = state.selection
+						state.doc.nodesBetween(from, to, (node, pos) => {
+							if (node.isTextblock) {
+								const lineText = node.textContent
+								if (lineText.startsWith('  ')) {
+									const start = pos + 1
+									dispatch?.(tr.delete(start, start + 2))
+								}
+							}
+						})
+						return true
+					})
+					.run()
+			},
 			isMarkActive: (mark: 'bold' | 'italic' | 'underline' | 'strike') => {
 				if (mark === 'bold') return !!editor.isActive('bold')
 				if (mark === 'italic') return !!editor.isActive('italic')
-				if (mark === 'underline') {
-					const attrs = editor.getAttributes('textStyle') as Record<string, any>
-					const style = attrs?.style || ''
-					return style.includes('underline')
-				}
-				if (mark === 'strike') {
-					const attrs = editor.getAttributes('textStyle') as Record<string, any>
-					const style = attrs?.style || ''
-					return style.includes('line-through')
-				}
+				if (mark === 'underline') return !!editor.isActive('underline')
+				if (mark === 'strike') return !!editor.isActive('strike')
 				return false
 			},
 			isListActive: (type: 'bullet' | 'ordered') => {
 				if (type === 'bullet') return !!editor.isActive('bulletList')
 				return !!editor.isActive('orderedList')
 			},
+			insertTable: (_rows: number, _cols: number) => {},
+			insertGrid: (_cols: number) => {},
+			insertDefList: () => {},
 		}
 		onActionsReady?.(actions)
 		return () =>
@@ -267,82 +206,25 @@ export function WysiwygEditor({
 				clearFormatting: () => {},
 				isMarkActive: () => false,
 				isListActive: () => false,
+				insertTable: () => {},
+				insertGrid: () => {},
+				insertDefList: () => {},
 			})
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [editor])
 
 	return (
+		// Outer area uses app background colour; content is the white A4 paper
 		<div className={cn('h-full overflow-auto bg-background', className)}>
-			<div className='px-4 py-2 border-b bg-muted/5'>
-				<div className='flex items-center gap-2'>
-					<button
-						aria-label='Bold'
-						onClick={toggleBold}
-						className={cn(
-							'px-2 py-1 rounded text-sm',
-							editor?.isActive('bold') ?
-								'bg-foreground/10'
-							:	'hover:bg-foreground/5',
-						)}
-					>
-						<strong>B</strong>
-					</button>
-
-					<button
-						aria-label='Italic'
-						onClick={toggleItalic}
-						className={cn(
-							'px-2 py-1 rounded text-sm',
-							editor?.isActive('italic') ?
-								'bg-foreground/10'
-							:	'hover:bg-foreground/5',
-						)}
-					>
-						<em>I</em>
-					</button>
-
-					<button
-						aria-label='Bullet list'
-						onClick={toggleBulletList}
-						className={cn(
-							'px-2 py-1 rounded text-sm',
-							editor?.isActive('bulletList') ?
-								'bg-foreground/10'
-							:	'hover:bg-foreground/5',
-						)}
-					>
-						• List
-					</button>
-
-					<button
-						aria-label='Numbered list'
-						onClick={toggleOrderedList}
-						className={cn(
-							'px-2 py-1 rounded text-sm',
-							editor?.isActive('orderedList') ?
-								'bg-foreground/10'
-							:	'hover:bg-foreground/5',
-						)}
-					>
-						1. List
-					</button>
-
-					{/* Font size control removed — font sizing is handled via style presets or custom CSS */}
-
-					<button
-						aria-label='Clear formatting'
-						onClick={clearFormatting}
-						className='ml-auto px-2 py-1 rounded text-sm hover:bg-foreground/5'
-					>
-						Clear
-					</button>
+			<div className='flex min-h-full justify-center px-4 py-8'>
+				{/* White A4-proportioned page: 750 px wide, min-height ≈ 750 × (297/210) ≈ 1061 px */}
+				<div className='w-full max-w-[750px] min-h-[1061px] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.25)] rounded-sm'>
+					<EditorContent
+						editor={editor}
+						className='[&_.ProseMirror]:min-h-[1061px] [&_.ProseMirror]:px-16 [&_.ProseMirror]:py-12 [&_.ProseMirror]:focus:outline-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-muted-foreground [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0'
+					/>
 				</div>
 			</div>
-
-			<EditorContent
-				editor={editor}
-				className='h-full [&_.ProseMirror]:min-h-full [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-muted-foreground [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0'
-			/>
 		</div>
 	)
 }

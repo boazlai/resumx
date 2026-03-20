@@ -455,16 +455,21 @@
  * Horizontal scroll allows viewing long lines without breaking layout.
  */
 	pre {
+		font-family:
+			'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco,
+			'Courier New', monospace;
 		overflow-x: auto;
 		white-space: pre-wrap;
 		word-wrap: break-word;
 	}
 
 	/*
- * Inline code — inherit by default, no code-block styling.
+ * Inline code — match the monospace font stack used for code blocks.
  */
 	code {
-		font-family: inherit;
+		font-family:
+			'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco,
+			'Courier New', monospace;
 		font-size: inherit;
 		background: none;
 		padding: 0;

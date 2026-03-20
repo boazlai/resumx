@@ -51,21 +51,19 @@ export function htmlToAST(html: string): DocNode {
 			if (el.tagName.toLowerCase() === 'ul') {
 				const bullets: BulletNode[] = []
 				el.querySelectorAll('li').forEach(li => {
-					bullets.push({ type: 'bullet', text: li.textContent?.trim() ?? '' })
+					bullets.push({ type: 'bullet', text: innerHtmlToMarkdown(li) })
 				})
-				// if ul is directly inside a section/entry, callers will attach each bullet individually;
-				// return as an array marker (we return first bullet wrapper; caller handles arrays)
 				return bullets
 			}
 
 			if (el.tagName.toLowerCase() === 'p') {
-				const text = el.textContent?.trim() ?? ''
+				const text = innerHtmlToMarkdown(el)
 				const t: TextNode = { type: 'text', text }
 				return t
 			}
 
 			// fallback: treat element's text as paragraph
-			const txt = el.textContent?.trim() ?? ''
+			const txt = innerHtmlToMarkdown(el)
 			if (txt) return { type: 'text', text: txt } as TextNode
 			return null
 		} else if (node.nodeType === Node.TEXT_NODE) {
@@ -88,4 +86,31 @@ export function htmlToAST(html: string): DocNode {
 	}
 
 	return out
+}
+
+/** Serialize an element's inner content to Markdown, preserving inline formatting. */
+function innerHtmlToMarkdown(el: HTMLElement): string {
+	return Array.from(el.childNodes)
+		.map(child => nodeToMarkdown(child))
+		.join('')
+		.trim()
+}
+
+function nodeToMarkdown(node: ChildNode): string {
+	if (node.nodeType === Node.TEXT_NODE) {
+		return node.textContent || ''
+	}
+	if (node.nodeType === Node.ELEMENT_NODE) {
+		const el = node as HTMLElement
+		const tag = el.tagName.toLowerCase()
+		const inner = Array.from(el.childNodes).map(nodeToMarkdown).join('')
+		if (tag === 'strong' || tag === 'b') return `**${inner}**`
+		if (tag === 'em' || tag === 'i') return `*${inner}*`
+		if (tag === 's' || tag === 'del' || tag === 'strike') return `~~${inner}~~`
+		if (tag === 'u') return `<u>${inner}</u>`
+		if (tag === 'code') return `\`${inner}\``
+		// span, mark, etc. — pass through content
+		return inner
+	}
+	return ''
 }

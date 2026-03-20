@@ -15,6 +15,18 @@ import type { EditorMode, SaveStatus } from './types'
 export function EditorShell({ resume }: { resume: Resume }) {
 	const router = useRouter()
 
+	// User-uploaded icons for auto-insert
+	const [userIcons, setUserIcons] = useState<Map<string, string>>(new Map())
+
+	useEffect(() => {
+		fetch('/api/icons')
+			.then(r => (r.ok ? r.json() : []))
+			.then((icons: { name: string; url: string }[]) => {
+				setUserIcons(new Map(icons.map(i => [i.name, i.url])))
+			})
+			.catch(() => {})
+	}, [])
+
 	// Editor mode + markdown/frontmatter split
 	const [editorMode, setEditorMode] = useState<EditorMode>('markdown')
 
@@ -38,6 +50,7 @@ export function EditorShell({ resume }: { resume: Resume }) {
 	const [previewError, setPreviewError] = useState<string | null>(null)
 	const prevUrlRef = useRef<string | null>(null)
 	const markdownRef = useRef(resume.markdown ?? '')
+	const isCompilingRef = useRef(false)
 
 	// Auto-save markdown after 800ms of inactivity
 	const autoSave = useDebouncedCallback(async (value: string) => {
@@ -57,6 +70,8 @@ export function EditorShell({ resume }: { resume: Resume }) {
 
 	// Manual compile: render the current markdown to the preview
 	const handleCompile = useCallback(async () => {
+		if (isCompilingRef.current) return
+		isCompilingRef.current = true
 		const value = markdownRef.current
 		setPreviewLoading(true)
 		setPreviewError(null)
@@ -80,6 +95,7 @@ export function EditorShell({ resume }: { resume: Resume }) {
 			setPreviewError('Network error — could not reach server')
 		} finally {
 			setPreviewLoading(false)
+			isCompilingRef.current = false
 		}
 	}, [])
 
@@ -154,6 +170,9 @@ export function EditorShell({ resume }: { resume: Resume }) {
 		setAlign?: (a: 'left' | 'center' | 'right' | 'justify') => void
 		increaseIndent?: () => void
 		decreaseIndent?: () => void
+		insertTable?: (rows: number, cols: number) => void
+		insertGrid?: (cols: number) => void
+		insertDefList?: () => void
 	}>({
 		toggleMark: () => {},
 		toggleList: () => {},
@@ -169,6 +188,12 @@ export function EditorShell({ resume }: { resume: Resume }) {
 		increaseIndent: () => {},
 		decreaseIndent: () => {},
 	})
+
+	// When the editor selection changes, create a shallow-copy of editorActions so
+	// toolbar components re-render and pick up fresh isMarkActive / isListActive results.
+	const handleSelectionUpdate = useCallback(() => {
+		setEditorActions(prev => ({ ...prev }))
+	}, [])
 
 	return (
 		<div className='flex flex-col flex-1 min-h-0 overflow-hidden bg-background'>
@@ -199,6 +224,11 @@ export function EditorShell({ resume }: { resume: Resume }) {
 				onSetAlign={editorActions.setAlign}
 				onIncreaseIndent={editorActions.increaseIndent}
 				onDecreaseIndent={editorActions.decreaseIndent}
+				isMarkActive={editorActions.isMarkActive}
+				isListActive={editorActions.isListActive}
+				onInsertTable={editorActions.insertTable}
+				onInsertGrid={editorActions.insertGrid}
+				onInsertDefList={editorActions.insertDefList}
 			/>
 
 			{showFrontmatter && (
@@ -222,11 +252,15 @@ export function EditorShell({ resume }: { resume: Resume }) {
 								value={markdown}
 								onChange={handleChange}
 								onActionsReady={setEditorActions}
+								frontmatter={frontmatter}
+								userIcons={userIcons}
+								onFrontmatterUpdate={setFrontmatterAndSave}
 							/>
 						:	<WysiwygEditor
 								value={body}
 								onChange={handleWysiwygChange}
 								onActionsReady={setEditorActions}
+								onSelectionUpdate={handleSelectionUpdate}
 							/>
 						}
 					</div>

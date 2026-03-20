@@ -1,0 +1,2438 @@
+[
+	{
+		"name": "2sigma",
+		"category": "company"
+	},
+	{
+		"name": "ableton",
+		"category": "other"
+	},
+	{
+		"name": "accenture",
+		"category": "company"
+	},
+	{
+		"name": "access",
+		"category": "other"
+	},
+	{
+		"name": "ada",
+		"category": "other"
+	},
+	{
+		"name": "adobe-animate",
+		"category": "company"
+	},
+	{
+		"name": "adobe",
+		"category": "company"
+	},
+	{
+		"name": "after-effects",
+		"category": "design"
+	},
+	{
+		"name": "airbnb",
+		"category": "company"
+	},
+	{
+		"name": "airflow",
+		"category": "other"
+	},
+	{
+		"name": "airtable",
+		"category": "other"
+	},
+	{
+		"name": "airwallex",
+		"category": "other"
+	},
+	{
+		"name": "algolia",
+		"category": "other"
+	},
+	{
+		"name": "alibaba",
+		"category": "company"
+	},
+	{
+		"name": "amazon",
+		"category": "company"
+	},
+	{
+		"name": "amd",
+		"category": "company"
+	},
+	{
+		"name": "amex",
+		"category": "other"
+	},
+	{
+		"name": "amp",
+		"category": "other"
+	},
+	{
+		"name": "android-studio",
+		"category": "tool"
+	},
+	{
+		"name": "anduril",
+		"category": "company"
+	},
+	{
+		"name": "angellist",
+		"category": "other"
+	},
+	{
+		"name": "angular",
+		"category": "framework"
+	},
+	{
+		"name": "angularjs",
+		"category": "framework"
+	},
+	{
+		"name": "ansible",
+		"category": "cloud"
+	},
+	{
+		"name": "ansys",
+		"category": "other"
+	},
+	{
+		"name": "ant-design",
+		"category": "other"
+	},
+	{
+		"name": "anthropic",
+		"category": "company"
+	},
+	{
+		"name": "antigravity",
+		"category": "other"
+	},
+	{
+		"name": "antlr",
+		"category": "other"
+	},
+	{
+		"name": "apache",
+		"category": "other"
+	},
+	{
+		"name": "apollo",
+		"category": "other"
+	},
+	{
+		"name": "apple",
+		"category": "company"
+	},
+	{
+		"name": "arch",
+		"category": "platform"
+	},
+	{
+		"name": "arduino",
+		"category": "other"
+	},
+	{
+		"name": "arm",
+		"category": "other"
+	},
+	{
+		"name": "asana",
+		"category": "company"
+	},
+	{
+		"name": "asml",
+		"category": "other"
+	},
+	{
+		"name": "astro",
+		"category": "framework"
+	},
+	{
+		"name": "asus",
+		"category": "other"
+	},
+	{
+		"name": "atlassian",
+		"category": "company"
+	},
+	{
+		"name": "atnt",
+		"category": "other"
+	},
+	{
+		"name": "atom",
+		"category": "other"
+	},
+	{
+		"name": "audition",
+		"category": "other"
+	},
+	{
+		"name": "auth0",
+		"category": "other"
+	},
+	{
+		"name": "autodesk",
+		"category": "other"
+	},
+	{
+		"name": "awesome",
+		"category": "other"
+	},
+	{
+		"name": "aws",
+		"category": "cloud"
+	},
+	{
+		"name": "azure",
+		"category": "cloud"
+	},
+	{
+		"name": "bac",
+		"category": "other"
+	},
+	{
+		"name": "baidu",
+		"category": "company"
+	},
+	{
+		"name": "bain",
+		"category": "company"
+	},
+	{
+		"name": "barclays",
+		"category": "other"
+	},
+	{
+		"name": "bash",
+		"category": "language"
+	},
+	{
+		"name": "bcg",
+		"category": "company"
+	},
+	{
+		"name": "behance",
+		"category": "other"
+	},
+	{
+		"name": "bigquery",
+		"category": "other"
+	},
+	{
+		"name": "bilibili",
+		"category": "other"
+	},
+	{
+		"name": "bing",
+		"category": "other"
+	},
+	{
+		"name": "biome",
+		"category": "other"
+	},
+	{
+		"name": "bitbucket",
+		"category": "company"
+	},
+	{
+		"name": "bitcoin",
+		"category": "other"
+	},
+	{
+		"name": "blazor",
+		"category": "other"
+	},
+	{
+		"name": "blender",
+		"category": "design"
+	},
+	{
+		"name": "blueprint",
+		"category": "other"
+	},
+	{
+		"name": "bluesky",
+		"category": "other"
+	},
+	{
+		"name": "bluetooth",
+		"category": "other"
+	},
+	{
+		"name": "bmo",
+		"category": "other"
+	},
+	{
+		"name": "bnpp",
+		"category": "other"
+	},
+	{
+		"name": "bootstrap",
+		"category": "design"
+	},
+	{
+		"name": "brave",
+		"category": "platform"
+	},
+	{
+		"name": "bridgewater",
+		"category": "company"
+	},
+	{
+		"name": "broadcom",
+		"category": "other"
+	},
+	{
+		"name": "browerstack",
+		"category": "other"
+	},
+	{
+		"name": "bun",
+		"category": "framework"
+	},
+	{
+		"name": "bytedance",
+		"category": "company"
+	},
+	{
+		"name": "c",
+		"category": "language"
+	},
+	{
+		"name": "cacib",
+		"category": "other"
+	},
+	{
+		"name": "calibre",
+		"category": "other"
+	},
+	{
+		"name": "canva",
+		"category": "company"
+	},
+	{
+		"name": "capacitor",
+		"category": "other"
+	},
+	{
+		"name": "capgemini",
+		"category": "other"
+	},
+	{
+		"name": "cassandra",
+		"category": "database"
+	},
+	{
+		"name": "centos",
+		"category": "platform"
+	},
+	{
+		"name": "chakra-ui",
+		"category": "design"
+	},
+	{
+		"name": "chartjs",
+		"category": "other"
+	},
+	{
+		"name": "chroma",
+		"category": "other"
+	},
+	{
+		"name": "chrome",
+		"category": "platform"
+	},
+	{
+		"name": "cibc",
+		"category": "other"
+	},
+	{
+		"name": "circleci",
+		"category": "cloud"
+	},
+	{
+		"name": "cisco",
+		"category": "company"
+	},
+	{
+		"name": "citadel",
+		"category": "company"
+	},
+	{
+		"name": "citi",
+		"category": "other"
+	},
+	{
+		"name": "citic",
+		"category": "other"
+	},
+	{
+		"name": "claude",
+		"category": "other"
+	},
+	{
+		"name": "clickhouse",
+		"category": "database"
+	},
+	{
+		"name": "clojure",
+		"category": "language"
+	},
+	{
+		"name": "cloudflare",
+		"category": "company"
+	},
+	{
+		"name": "cmake",
+		"category": "other"
+	},
+	{
+		"name": "cncf",
+		"category": "other"
+	},
+	{
+		"name": "cobol",
+		"category": "other"
+	},
+	{
+		"name": "cockroachdb",
+		"category": "database"
+	},
+	{
+		"name": "codeclimate",
+		"category": "other"
+	},
+	{
+		"name": "codecov",
+		"category": "other"
+	},
+	{
+		"name": "codeforces",
+		"category": "other"
+	},
+	{
+		"name": "codepen",
+		"category": "other"
+	},
+	{
+		"name": "cohere",
+		"category": "other"
+	},
+	{
+		"name": "coinbase",
+		"category": "other"
+	},
+	{
+		"name": "colab",
+		"category": "other"
+	},
+	{
+		"name": "composer",
+		"category": "other"
+	},
+	{
+		"name": "conda",
+		"category": "other"
+	},
+	{
+		"name": "confluence",
+		"category": "company"
+	},
+	{
+		"name": "confluent",
+		"category": "other"
+	},
+	{
+		"name": "contentful",
+		"category": "other"
+	},
+	{
+		"name": "cordova",
+		"category": "other"
+	},
+	{
+		"name": "cosmosdb",
+		"category": "other"
+	},
+	{
+		"name": "couchdb",
+		"category": "database"
+	},
+	{
+		"name": "coursera",
+		"category": "other"
+	},
+	{
+		"name": "cpp",
+		"category": "language"
+	},
+	{
+		"name": "csharp",
+		"category": "language"
+	},
+	{
+		"name": "css",
+		"category": "design"
+	},
+	{
+		"name": "cursor",
+		"category": "other"
+	},
+	{
+		"name": "cypress",
+		"category": "tool"
+	},
+	{
+		"name": "d3",
+		"category": "other"
+	},
+	{
+		"name": "dart",
+		"category": "language"
+	},
+	{
+		"name": "databricks",
+		"category": "company"
+	},
+	{
+		"name": "datadog",
+		"category": "company"
+	},
+	{
+		"name": "db2",
+		"category": "other"
+	},
+	{
+		"name": "dbs",
+		"category": "other"
+	},
+	{
+		"name": "dbt",
+		"category": "other"
+	},
+	{
+		"name": "de-shaw",
+		"category": "other"
+	},
+	{
+		"name": "debian",
+		"category": "platform"
+	},
+	{
+		"name": "deepseek",
+		"category": "other"
+	},
+	{
+		"name": "dell",
+		"category": "company"
+	},
+	{
+		"name": "deloitte",
+		"category": "company"
+	},
+	{
+		"name": "delphi",
+		"category": "other"
+	},
+	{
+		"name": "deno",
+		"category": "framework"
+	},
+	{
+		"name": "deutsche-bank",
+		"category": "other"
+	},
+	{
+		"name": "devto",
+		"category": "other"
+	},
+	{
+		"name": "digital-ocean",
+		"category": "other"
+	},
+	{
+		"name": "discord",
+		"category": "company"
+	},
+	{
+		"name": "django",
+		"category": "framework"
+	},
+	{
+		"name": "docker",
+		"category": "cloud"
+	},
+	{
+		"name": "docusaurus",
+		"category": "other"
+	},
+	{
+		"name": "docusign",
+		"category": "other"
+	},
+	{
+		"name": "dolby",
+		"category": "other"
+	},
+	{
+		"name": "doordash",
+		"category": "other"
+	},
+	{
+		"name": "dotnet-core",
+		"category": "other"
+	},
+	{
+		"name": "dotnet",
+		"category": "other"
+	},
+	{
+		"name": "doubao",
+		"category": "other"
+	},
+	{
+		"name": "dreamweaver",
+		"category": "other"
+	},
+	{
+		"name": "dribbble",
+		"category": "other"
+	},
+	{
+		"name": "dropbox",
+		"category": "other"
+	},
+	{
+		"name": "drupal",
+		"category": "other"
+	},
+	{
+		"name": "duckdb",
+		"category": "other"
+	},
+	{
+		"name": "duolingo",
+		"category": "other"
+	},
+	{
+		"name": "dynamodb",
+		"category": "database"
+	},
+	{
+		"name": "eclipse",
+		"category": "other"
+	},
+	{
+		"name": "edge",
+		"category": "platform"
+	},
+	{
+		"name": "editorconfig",
+		"category": "other"
+	},
+	{
+		"name": "edx",
+		"category": "other"
+	},
+	{
+		"name": "elastic",
+		"category": "company"
+	},
+	{
+		"name": "elasticsearch",
+		"category": "company"
+	},
+	{
+		"name": "electron",
+		"category": "other"
+	},
+	{
+		"name": "elevenlabs",
+		"category": "other"
+	},
+	{
+		"name": "elixir",
+		"category": "language"
+	},
+	{
+		"name": "elliott",
+		"category": "other"
+	},
+	{
+		"name": "emacs",
+		"category": "tool"
+	},
+	{
+		"name": "email",
+		"category": "other"
+	},
+	{
+		"name": "ember",
+		"category": "framework"
+	},
+	{
+		"name": "epic-games",
+		"category": "other"
+	},
+	{
+		"name": "erlang",
+		"category": "language"
+	},
+	{
+		"name": "eslint",
+		"category": "tool"
+	},
+	{
+		"name": "etcd",
+		"category": "other"
+	},
+	{
+		"name": "ethereum",
+		"category": "other"
+	},
+	{
+		"name": "evercore",
+		"category": "other"
+	},
+	{
+		"name": "excel",
+		"category": "other"
+	},
+	{
+		"name": "expo",
+		"category": "other"
+	},
+	{
+		"name": "express",
+		"category": "framework"
+	},
+	{
+		"name": "ey",
+		"category": "company"
+	},
+	{
+		"name": "fastapi",
+		"category": "framework"
+	},
+	{
+		"name": "fastify",
+		"category": "framework"
+	},
+	{
+		"name": "fauna",
+		"category": "other"
+	},
+	{
+		"name": "fb",
+		"category": "other"
+	},
+	{
+		"name": "fedora",
+		"category": "platform"
+	},
+	{
+		"name": "ffmpeg",
+		"category": "other"
+	},
+	{
+		"name": "figma",
+		"category": "company"
+	},
+	{
+		"name": "filezilla",
+		"category": "other"
+	},
+	{
+		"name": "firebase",
+		"category": "company"
+	},
+	{
+		"name": "firefox",
+		"category": "platform"
+	},
+	{
+		"name": "flask",
+		"category": "framework"
+	},
+	{
+		"name": "flickr",
+		"category": "other"
+	},
+	{
+		"name": "flink",
+		"category": "other"
+	},
+	{
+		"name": "flutter",
+		"category": "other"
+	},
+	{
+		"name": "fortran",
+		"category": "other"
+	},
+	{
+		"name": "framer",
+		"category": "design"
+	},
+	{
+		"name": "fsharp",
+		"category": "language"
+	},
+	{
+		"name": "gatsby",
+		"category": "framework"
+	},
+	{
+		"name": "gcp",
+		"category": "cloud"
+	},
+	{
+		"name": "gdrive",
+		"category": "other"
+	},
+	{
+		"name": "gemini",
+		"category": "other"
+	},
+	{
+		"name": "gh-actions",
+		"category": "other"
+	},
+	{
+		"name": "gh-copilot",
+		"category": "other"
+	},
+	{
+		"name": "git",
+		"category": "tool"
+	},
+	{
+		"name": "gitbook",
+		"category": "other"
+	},
+	{
+		"name": "github",
+		"category": "company"
+	},
+	{
+		"name": "gitlab",
+		"category": "company"
+	},
+	{
+		"name": "global-payments",
+		"category": "other"
+	},
+	{
+		"name": "go",
+		"category": "language"
+	},
+	{
+		"name": "godaddy",
+		"category": "other"
+	},
+	{
+		"name": "godot",
+		"category": "other"
+	},
+	{
+		"name": "google-pay",
+		"category": "company"
+	},
+	{
+		"name": "google-play",
+		"category": "company"
+	},
+	{
+		"name": "google",
+		"category": "company"
+	},
+	{
+		"name": "gradio",
+		"category": "other"
+	},
+	{
+		"name": "gradle",
+		"category": "other"
+	},
+	{
+		"name": "grafana",
+		"category": "company"
+	},
+	{
+		"name": "grammarly",
+		"category": "other"
+	},
+	{
+		"name": "graphql",
+		"category": "other"
+	},
+	{
+		"name": "grok",
+		"category": "other"
+	},
+	{
+		"name": "groovy",
+		"category": "other"
+	},
+	{
+		"name": "grpc",
+		"category": "other"
+	},
+	{
+		"name": "gs",
+		"category": "other"
+	},
+	{
+		"name": "handlebars",
+		"category": "other"
+	},
+	{
+		"name": "hashicorp",
+		"category": "other"
+	},
+	{
+		"name": "hashnode",
+		"category": "other"
+	},
+	{
+		"name": "haskell",
+		"category": "language"
+	},
+	{
+		"name": "hcaptcha",
+		"category": "other"
+	},
+	{
+		"name": "helm",
+		"category": "cloud"
+	},
+	{
+		"name": "heroku",
+		"category": "company"
+	},
+	{
+		"name": "hibernate",
+		"category": "other"
+	},
+	{
+		"name": "homebrew",
+		"category": "other"
+	},
+	{
+		"name": "hrt",
+		"category": "other"
+	},
+	{
+		"name": "hsbc",
+		"category": "other"
+	},
+	{
+		"name": "html",
+		"category": "other"
+	},
+	{
+		"name": "htmx",
+		"category": "other"
+	},
+	{
+		"name": "hubspot",
+		"category": "company"
+	},
+	{
+		"name": "huggingface",
+		"category": "other"
+	},
+	{
+		"name": "hugo",
+		"category": "other"
+	},
+	{
+		"name": "ibkr",
+		"category": "other"
+	},
+	{
+		"name": "ibm-cloud",
+		"category": "company"
+	},
+	{
+		"name": "ibm",
+		"category": "company"
+	},
+	{
+		"name": "ie",
+		"category": "other"
+	},
+	{
+		"name": "ieee",
+		"category": "other"
+	},
+	{
+		"name": "illustrator",
+		"category": "design"
+	},
+	{
+		"name": "imc",
+		"category": "other"
+	},
+	{
+		"name": "immer",
+		"category": "other"
+	},
+	{
+		"name": "incopy",
+		"category": "other"
+	},
+	{
+		"name": "indesign",
+		"category": "other"
+	},
+	{
+		"name": "influxdb",
+		"category": "other"
+	},
+	{
+		"name": "infosys",
+		"category": "other"
+	},
+	{
+		"name": "intel",
+		"category": "company"
+	},
+	{
+		"name": "intellij",
+		"category": "company"
+	},
+	{
+		"name": "intuit",
+		"category": "other"
+	},
+	{
+		"name": "ionic",
+		"category": "other"
+	},
+	{
+		"name": "jane-street",
+		"category": "other"
+	},
+	{
+		"name": "java",
+		"category": "language"
+	},
+	{
+		"name": "jcb",
+		"category": "other"
+	},
+	{
+		"name": "jefferies",
+		"category": "other"
+	},
+	{
+		"name": "jenkins",
+		"category": "cloud"
+	},
+	{
+		"name": "jest",
+		"category": "tool"
+	},
+	{
+		"name": "jfrog",
+		"category": "other"
+	},
+	{
+		"name": "jingdong",
+		"category": "other"
+	},
+	{
+		"name": "jinja",
+		"category": "other"
+	},
+	{
+		"name": "jira",
+		"category": "company"
+	},
+	{
+		"name": "jnj",
+		"category": "other"
+	},
+	{
+		"name": "jpm",
+		"category": "other"
+	},
+	{
+		"name": "jquery",
+		"category": "other"
+	},
+	{
+		"name": "js",
+		"category": "other"
+	},
+	{
+		"name": "json",
+		"category": "other"
+	},
+	{
+		"name": "jss",
+		"category": "other"
+	},
+	{
+		"name": "julia",
+		"category": "language"
+	},
+	{
+		"name": "jump-trading",
+		"category": "other"
+	},
+	{
+		"name": "junit",
+		"category": "other"
+	},
+	{
+		"name": "jupyter",
+		"category": "other"
+	},
+	{
+		"name": "k6",
+		"category": "other"
+	},
+	{
+		"name": "k8s",
+		"category": "cloud"
+	},
+	{
+		"name": "kafka",
+		"category": "other"
+	},
+	{
+		"name": "kaggle",
+		"category": "other"
+	},
+	{
+		"name": "kearney",
+		"category": "other"
+	},
+	{
+		"name": "khan-academy",
+		"category": "other"
+	},
+	{
+		"name": "kibana",
+		"category": "other"
+	},
+	{
+		"name": "kimi",
+		"category": "other"
+	},
+	{
+		"name": "kling",
+		"category": "other"
+	},
+	{
+		"name": "kotlin",
+		"category": "language"
+	},
+	{
+		"name": "kpmg",
+		"category": "company"
+	},
+	{
+		"name": "ktor",
+		"category": "other"
+	},
+	{
+		"name": "lam-research",
+		"category": "other"
+	},
+	{
+		"name": "laravel",
+		"category": "framework"
+	},
+	{
+		"name": "latex",
+		"category": "other"
+	},
+	{
+		"name": "lazard",
+		"category": "other"
+	},
+	{
+		"name": "leetcode",
+		"category": "other"
+	},
+	{
+		"name": "lg",
+		"category": "other"
+	},
+	{
+		"name": "lighthouse",
+		"category": "other"
+	},
+	{
+		"name": "lightroom",
+		"category": "design"
+	},
+	{
+		"name": "linear",
+		"category": "company"
+	},
+	{
+		"name": "linkedin",
+		"category": "company"
+	},
+	{
+		"name": "linuxmint",
+		"category": "platform"
+	},
+	{
+		"name": "lisp",
+		"category": "other"
+	},
+	{
+		"name": "lit",
+		"category": "other"
+	},
+	{
+		"name": "lodash",
+		"category": "other"
+	},
+	{
+		"name": "logstash",
+		"category": "other"
+	},
+	{
+		"name": "lua",
+		"category": "language"
+	},
+	{
+		"name": "madge",
+		"category": "other"
+	},
+	{
+		"name": "mailchimp",
+		"category": "company"
+	},
+	{
+		"name": "manus",
+		"category": "other"
+	},
+	{
+		"name": "mariadb",
+		"category": "database"
+	},
+	{
+		"name": "markdown",
+		"category": "other"
+	},
+	{
+		"name": "mastercard",
+		"category": "other"
+	},
+	{
+		"name": "matlab",
+		"category": "other"
+	},
+	{
+		"name": "maven",
+		"category": "other"
+	},
+	{
+		"name": "mckinsey",
+		"category": "company"
+	},
+	{
+		"name": "mdx",
+		"category": "other"
+	},
+	{
+		"name": "medium",
+		"category": "other"
+	},
+	{
+		"name": "meta",
+		"category": "company"
+	},
+	{
+		"name": "meteor",
+		"category": "other"
+	},
+	{
+		"name": "micron",
+		"category": "other"
+	},
+	{
+		"name": "micropython",
+		"category": "other"
+	},
+	{
+		"name": "microsoft",
+		"category": "company"
+	},
+	{
+		"name": "midjourney",
+		"category": "other"
+	},
+	{
+		"name": "minimax",
+		"category": "other"
+	},
+	{
+		"name": "miro",
+		"category": "other"
+	},
+	{
+		"name": "mistral",
+		"category": "other"
+	},
+	{
+		"name": "mizuho",
+		"category": "other"
+	},
+	{
+		"name": "mobx",
+		"category": "other"
+	},
+	{
+		"name": "mongodb",
+		"category": "company"
+	},
+	{
+		"name": "moonshot",
+		"category": "other"
+	},
+	{
+		"name": "morgan-stanley",
+		"category": "company"
+	},
+	{
+		"name": "motion",
+		"category": "other"
+	},
+	{
+		"name": "mps",
+		"category": "other"
+	},
+	{
+		"name": "msbuild",
+		"category": "other"
+	},
+	{
+		"name": "mufg",
+		"category": "other"
+	},
+	{
+		"name": "mui",
+		"category": "other"
+	},
+	{
+		"name": "mysql",
+		"category": "database"
+	},
+	{
+		"name": "n8n",
+		"category": "other"
+	},
+	{
+		"name": "neo4j",
+		"category": "database"
+	},
+	{
+		"name": "neon",
+		"category": "database"
+	},
+	{
+		"name": "neovim",
+		"category": "tool"
+	},
+	{
+		"name": "nestjs",
+		"category": "framework"
+	},
+	{
+		"name": "netease",
+		"category": "other"
+	},
+	{
+		"name": "netflix",
+		"category": "company"
+	},
+	{
+		"name": "netlify",
+		"category": "company"
+	},
+	{
+		"name": "new-relic",
+		"category": "other"
+	},
+	{
+		"name": "nextjs",
+		"category": "framework"
+	},
+	{
+		"name": "nginx",
+		"category": "other"
+	},
+	{
+		"name": "ngrok",
+		"category": "other"
+	},
+	{
+		"name": "nintendo",
+		"category": "other"
+	},
+	{
+		"name": "nodejs",
+		"category": "framework"
+	},
+	{
+		"name": "nomura",
+		"category": "other"
+	},
+	{
+		"name": "notepad",
+		"category": "other"
+	},
+	{
+		"name": "notion",
+		"category": "company"
+	},
+	{
+		"name": "npm",
+		"category": "tool"
+	},
+	{
+		"name": "nuget",
+		"category": "other"
+	},
+	{
+		"name": "numpy",
+		"category": "other"
+	},
+	{
+		"name": "nuxt",
+		"category": "framework"
+	},
+	{
+		"name": "nvidia",
+		"category": "company"
+	},
+	{
+		"name": "nvm",
+		"category": "other"
+	},
+	{
+		"name": "obsidian",
+		"category": "other"
+	},
+	{
+		"name": "ocaml",
+		"category": "language"
+	},
+	{
+		"name": "office",
+		"category": "other"
+	},
+	{
+		"name": "okta",
+		"category": "other"
+	},
+	{
+		"name": "oliver-wyman",
+		"category": "other"
+	},
+	{
+		"name": "ollama",
+		"category": "other"
+	},
+	{
+		"name": "onedrive",
+		"category": "other"
+	},
+	{
+		"name": "openai",
+		"category": "company"
+	},
+	{
+		"name": "openapi",
+		"category": "other"
+	},
+	{
+		"name": "opencv",
+		"category": "other"
+	},
+	{
+		"name": "opengl",
+		"category": "other"
+	},
+	{
+		"name": "openjs",
+		"category": "other"
+	},
+	{
+		"name": "opensense",
+		"category": "other"
+	},
+	{
+		"name": "openshift",
+		"category": "other"
+	},
+	{
+		"name": "openstack",
+		"category": "other"
+	},
+	{
+		"name": "opentelemetry",
+		"category": "other"
+	},
+	{
+		"name": "opera",
+		"category": "platform"
+	},
+	{
+		"name": "optiver",
+		"category": "other"
+	},
+	{
+		"name": "oracle",
+		"category": "company"
+	},
+	{
+		"name": "oreilly",
+		"category": "other"
+	},
+	{
+		"name": "palantir",
+		"category": "company"
+	},
+	{
+		"name": "pandas",
+		"category": "other"
+	},
+	{
+		"name": "parcel",
+		"category": "tool"
+	},
+	{
+		"name": "patreon",
+		"category": "other"
+	},
+	{
+		"name": "paypal",
+		"category": "other"
+	},
+	{
+		"name": "perl",
+		"category": "language"
+	},
+	{
+		"name": "perplexity",
+		"category": "other"
+	},
+	{
+		"name": "pgsql",
+		"category": "other"
+	},
+	{
+		"name": "phoenix",
+		"category": "framework"
+	},
+	{
+		"name": "phone",
+		"category": "other"
+	},
+	{
+		"name": "php",
+		"category": "language"
+	},
+	{
+		"name": "phpstorm",
+		"category": "language"
+	},
+	{
+		"name": "pinecone",
+		"category": "other"
+	},
+	{
+		"name": "platformio",
+		"category": "other"
+	},
+	{
+		"name": "playwright",
+		"category": "tool"
+	},
+	{
+		"name": "plotly",
+		"category": "other"
+	},
+	{
+		"name": "pnpm",
+		"category": "tool"
+	},
+	{
+		"name": "pocketbase",
+		"category": "other"
+	},
+	{
+		"name": "podman",
+		"category": "other"
+	},
+	{
+		"name": "poe",
+		"category": "other"
+	},
+	{
+		"name": "postcss",
+		"category": "other"
+	},
+	{
+		"name": "postgraphile",
+		"category": "other"
+	},
+	{
+		"name": "posthog",
+		"category": "other"
+	},
+	{
+		"name": "postman",
+		"category": "tool"
+	},
+	{
+		"name": "powerpoint",
+		"category": "other"
+	},
+	{
+		"name": "powershell",
+		"category": "language"
+	},
+	{
+		"name": "preact",
+		"category": "other"
+	},
+	{
+		"name": "premiere",
+		"category": "design"
+	},
+	{
+		"name": "prettier",
+		"category": "tool"
+	},
+	{
+		"name": "primereact",
+		"category": "other"
+	},
+	{
+		"name": "prisma",
+		"category": "database"
+	},
+	{
+		"name": "prolog",
+		"category": "other"
+	},
+	{
+		"name": "prometheus",
+		"category": "other"
+	},
+	{
+		"name": "ps",
+		"category": "other"
+	},
+	{
+		"name": "pug",
+		"category": "other"
+	},
+	{
+		"name": "puppeteer",
+		"category": "other"
+	},
+	{
+		"name": "purescript",
+		"category": "other"
+	},
+	{
+		"name": "pushbullet",
+		"category": "other"
+	},
+	{
+		"name": "putty",
+		"category": "other"
+	},
+	{
+		"name": "pwa",
+		"category": "other"
+	},
+	{
+		"name": "pwc",
+		"category": "company"
+	},
+	{
+		"name": "pycharm",
+		"category": "other"
+	},
+	{
+		"name": "pypi",
+		"category": "other"
+	},
+	{
+		"name": "pytest",
+		"category": "other"
+	},
+	{
+		"name": "python",
+		"category": "language"
+	},
+	{
+		"name": "pytorch",
+		"category": "other"
+	},
+	{
+		"name": "qt",
+		"category": "other"
+	},
+	{
+		"name": "quarkus",
+		"category": "other"
+	},
+	{
+		"name": "quasar",
+		"category": "other"
+	},
+	{
+		"name": "qwen",
+		"category": "other"
+	},
+	{
+		"name": "qwik",
+		"category": "framework"
+	},
+	{
+		"name": "r",
+		"category": "language"
+	},
+	{
+		"name": "rabbitmq",
+		"category": "other"
+	},
+	{
+		"name": "rails",
+		"category": "framework"
+	},
+	{
+		"name": "railway",
+		"category": "other"
+	},
+	{
+		"name": "raspberry",
+		"category": "other"
+	},
+	{
+		"name": "raycast",
+		"category": "other"
+	},
+	{
+		"name": "rbc",
+		"category": "other"
+	},
+	{
+		"name": "react-icons",
+		"category": "framework"
+	},
+	{
+		"name": "react-query",
+		"category": "framework"
+	},
+	{
+		"name": "react-router",
+		"category": "framework"
+	},
+	{
+		"name": "react-ts",
+		"category": "framework"
+	},
+	{
+		"name": "react",
+		"category": "framework"
+	},
+	{
+		"name": "realm",
+		"category": "other"
+	},
+	{
+		"name": "reasonml",
+		"category": "other"
+	},
+	{
+		"name": "recoil",
+		"category": "other"
+	},
+	{
+		"name": "reddit",
+		"category": "company"
+	},
+	{
+		"name": "redhat",
+		"category": "other"
+	},
+	{
+		"name": "redis",
+		"category": "database"
+	},
+	{
+		"name": "redshift",
+		"category": "other"
+	},
+	{
+		"name": "redux",
+		"category": "other"
+	},
+	{
+		"name": "remix",
+		"category": "framework"
+	},
+	{
+		"name": "renaissance",
+		"category": "other"
+	},
+	{
+		"name": "replit",
+		"category": "other"
+	},
+	{
+		"name": "rescript",
+		"category": "other"
+	},
+	{
+		"name": "resumx",
+		"category": "other"
+	},
+	{
+		"name": "retool",
+		"category": "other"
+	},
+	{
+		"name": "rider",
+		"category": "other"
+	},
+	{
+		"name": "roblox",
+		"category": "other"
+	},
+	{
+		"name": "rollup",
+		"category": "tool"
+	},
+	{
+		"name": "rstudio",
+		"category": "other"
+	},
+	{
+		"name": "rtx",
+		"category": "other"
+	},
+	{
+		"name": "ruby",
+		"category": "language"
+	},
+	{
+		"name": "rubymine",
+		"category": "language"
+	},
+	{
+		"name": "runway",
+		"category": "other"
+	},
+	{
+		"name": "rust",
+		"category": "language"
+	},
+	{
+		"name": "rustrover",
+		"category": "language"
+	},
+	{
+		"name": "rxjs",
+		"category": "other"
+	},
+	{
+		"name": "safari",
+		"category": "platform"
+	},
+	{
+		"name": "salesforce",
+		"category": "company"
+	},
+	{
+		"name": "samsung",
+		"category": "company"
+	},
+	{
+		"name": "sanity",
+		"category": "other"
+	},
+	{
+		"name": "santander",
+		"category": "other"
+	},
+	{
+		"name": "sap",
+		"category": "company"
+	},
+	{
+		"name": "sass",
+		"category": "design"
+	},
+	{
+		"name": "scala",
+		"category": "language"
+	},
+	{
+		"name": "seaborn",
+		"category": "other"
+	},
+	{
+		"name": "selenium",
+		"category": "tool"
+	},
+	{
+		"name": "sentry",
+		"category": "other"
+	},
+	{
+		"name": "servicenow",
+		"category": "other"
+	},
+	{
+		"name": "shadcn-ui",
+		"category": "other"
+	},
+	{
+		"name": "shopify",
+		"category": "company"
+	},
+	{
+		"name": "signal",
+		"category": "company"
+	},
+	{
+		"name": "sk-hynix",
+		"category": "other"
+	},
+	{
+		"name": "sketch",
+		"category": "company"
+	},
+	{
+		"name": "skype",
+		"category": "other"
+	},
+	{
+		"name": "slack",
+		"category": "company"
+	},
+	{
+		"name": "smfg",
+		"category": "other"
+	},
+	{
+		"name": "snowflake",
+		"category": "company"
+	},
+	{
+		"name": "socketio",
+		"category": "other"
+	},
+	{
+		"name": "sony",
+		"category": "company"
+	},
+	{
+		"name": "soundcloud",
+		"category": "other"
+	},
+	{
+		"name": "spacex",
+		"category": "other"
+	},
+	{
+		"name": "splunk",
+		"category": "other"
+	},
+	{
+		"name": "spotify",
+		"category": "company"
+	},
+	{
+		"name": "spring-boot",
+		"category": "framework"
+	},
+	{
+		"name": "spring",
+		"category": "framework"
+	},
+	{
+		"name": "sqlite",
+		"category": "database"
+	},
+	{
+		"name": "sqlserver",
+		"category": "database"
+	},
+	{
+		"name": "squarespace",
+		"category": "other"
+	},
+	{
+		"name": "sst",
+		"category": "other"
+	},
+	{
+		"name": "stackblitz",
+		"category": "other"
+	},
+	{
+		"name": "stackoverflow",
+		"category": "other"
+	},
+	{
+		"name": "steam",
+		"category": "other"
+	},
+	{
+		"name": "storyblok",
+		"category": "other"
+	},
+	{
+		"name": "storybook",
+		"category": "tool"
+	},
+	{
+		"name": "strapi",
+		"category": "other"
+	},
+	{
+		"name": "stripe",
+		"category": "company"
+	},
+	{
+		"name": "styled-components",
+		"category": "design"
+	},
+	{
+		"name": "stylus",
+		"category": "other"
+	},
+	{
+		"name": "sublime",
+		"category": "other"
+	},
+	{
+		"name": "substack",
+		"category": "other"
+	},
+	{
+		"name": "supabase",
+		"category": "company"
+	},
+	{
+		"name": "suse",
+		"category": "other"
+	},
+	{
+		"name": "svelte",
+		"category": "framework"
+	},
+	{
+		"name": "swagger",
+		"category": "other"
+	},
+	{
+		"name": "swift",
+		"category": "language"
+	},
+	{
+		"name": "swr",
+		"category": "other"
+	},
+	{
+		"name": "symfony",
+		"category": "other"
+	},
+	{
+		"name": "tableau",
+		"category": "other"
+	},
+	{
+		"name": "tailscale",
+		"category": "other"
+	},
+	{
+		"name": "tailwindcss",
+		"category": "design"
+	},
+	{
+		"name": "td-securities",
+		"category": "other"
+	},
+	{
+		"name": "teams",
+		"category": "other"
+	},
+	{
+		"name": "telegram",
+		"category": "company"
+	},
+	{
+		"name": "tencent",
+		"category": "company"
+	},
+	{
+		"name": "tensorflow",
+		"category": "other"
+	},
+	{
+		"name": "terraform",
+		"category": "cloud"
+	},
+	{
+		"name": "tesla",
+		"category": "company"
+	},
+	{
+		"name": "tex",
+		"category": "other"
+	},
+	{
+		"name": "the-trade-desk",
+		"category": "other"
+	},
+	{
+		"name": "threads",
+		"category": "other"
+	},
+	{
+		"name": "threejs",
+		"category": "other"
+	},
+	{
+		"name": "thymeleaf",
+		"category": "other"
+	},
+	{
+		"name": "tidal",
+		"category": "other"
+	},
+	{
+		"name": "tiktok",
+		"category": "company"
+	},
+	{
+		"name": "tmux",
+		"category": "other"
+	},
+	{
+		"name": "todoist",
+		"category": "other"
+	},
+	{
+		"name": "tomcat",
+		"category": "other"
+	},
+	{
+		"name": "toml",
+		"category": "other"
+	},
+	{
+		"name": "tor-browser",
+		"category": "other"
+	},
+	{
+		"name": "tor",
+		"category": "other"
+	},
+	{
+		"name": "trello",
+		"category": "company"
+	},
+	{
+		"name": "trpc",
+		"category": "other"
+	},
+	{
+		"name": "ts",
+		"category": "other"
+	},
+	{
+		"name": "tsmc",
+		"category": "other"
+	},
+	{
+		"name": "tumblr",
+		"category": "other"
+	},
+	{
+		"name": "turbopack",
+		"category": "other"
+	},
+	{
+		"name": "turborepo",
+		"category": "other"
+	},
+	{
+		"name": "tux",
+		"category": "other"
+	},
+	{
+		"name": "twilio",
+		"category": "company"
+	},
+	{
+		"name": "twitch",
+		"category": "other"
+	},
+	{
+		"name": "twitter",
+		"category": "company"
+	},
+	{
+		"name": "typesense",
+		"category": "other"
+	},
+	{
+		"name": "typst",
+		"category": "other"
+	},
+	{
+		"name": "uber",
+		"category": "company"
+	},
+	{
+		"name": "ubs",
+		"category": "other"
+	},
+	{
+		"name": "ubuntu",
+		"category": "platform"
+	},
+	{
+		"name": "udemy",
+		"category": "other"
+	},
+	{
+		"name": "uml",
+		"category": "other"
+	},
+	{
+		"name": "unity",
+		"category": "other"
+	},
+	{
+		"name": "unix",
+		"category": "other"
+	},
+	{
+		"name": "unreal",
+		"category": "other"
+	},
+	{
+		"name": "upstash",
+		"category": "other"
+	},
+	{
+		"name": "v0",
+		"category": "other"
+	},
+	{
+		"name": "v8",
+		"category": "other"
+	},
+	{
+		"name": "vagrant",
+		"category": "other"
+	},
+	{
+		"name": "valkey",
+		"category": "other"
+	},
+	{
+		"name": "vb-dotnet",
+		"category": "other"
+	},
+	{
+		"name": "vba",
+		"category": "other"
+	},
+	{
+		"name": "vercel",
+		"category": "company"
+	},
+	{
+		"name": "vim",
+		"category": "tool"
+	},
+	{
+		"name": "vimeo",
+		"category": "tool"
+	},
+	{
+		"name": "visa",
+		"category": "other"
+	},
+	{
+		"name": "visual-studio",
+		"category": "other"
+	},
+	{
+		"name": "vite",
+		"category": "tool"
+	},
+	{
+		"name": "vitest",
+		"category": "tool"
+	},
+	{
+		"name": "vscode",
+		"category": "tool"
+	},
+	{
+		"name": "vscodium",
+		"category": "other"
+	},
+	{
+		"name": "vue",
+		"category": "framework"
+	},
+	{
+		"name": "vulkan",
+		"category": "other"
+	},
+	{
+		"name": "wasm",
+		"category": "other"
+	},
+	{
+		"name": "webflow",
+		"category": "other"
+	},
+	{
+		"name": "webhooks",
+		"category": "other"
+	},
+	{
+		"name": "webpack",
+		"category": "tool"
+	},
+	{
+		"name": "websocket",
+		"category": "other"
+	},
+	{
+		"name": "webstorm",
+		"category": "tool"
+	},
+	{
+		"name": "weibo",
+		"category": "company"
+	},
+	{
+		"name": "wells-fargo",
+		"category": "other"
+	},
+	{
+		"name": "windows",
+		"category": "platform"
+	},
+	{
+		"name": "windsurf",
+		"category": "other"
+	},
+	{
+		"name": "wix",
+		"category": "other"
+	},
+	{
+		"name": "word",
+		"category": "other"
+	},
+	{
+		"name": "wordpress",
+		"category": "other"
+	},
+	{
+		"name": "workday",
+		"category": "other"
+	},
+	{
+		"name": "x",
+		"category": "company"
+	},
+	{
+		"name": "xai",
+		"category": "other"
+	},
+	{
+		"name": "xcode",
+		"category": "tool"
+	},
+	{
+		"name": "xd",
+		"category": "design"
+	},
+	{
+		"name": "xiaomi",
+		"category": "company"
+	},
+	{
+		"name": "yahoo",
+		"category": "other"
+	},
+	{
+		"name": "yaml",
+		"category": "other"
+	},
+	{
+		"name": "yarn",
+		"category": "tool"
+	},
+	{
+		"name": "yc",
+		"category": "other"
+	},
+	{
+		"name": "youtrack",
+		"category": "other"
+	},
+	{
+		"name": "youtube",
+		"category": "other"
+	},
+	{
+		"name": "zai",
+		"category": "other"
+	},
+	{
+		"name": "zapier",
+		"category": "other"
+	},
+	{
+		"name": "zed",
+		"category": "other"
+	},
+	{
+		"name": "zendesk",
+		"category": "company"
+	},
+	{
+		"name": "zig",
+		"category": "language"
+	},
+	{
+		"name": "zoom",
+		"category": "company"
+	},
+	{
+		"name": "zsh",
+		"category": "language"
+	}
+]

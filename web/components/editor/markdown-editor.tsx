@@ -1,52 +1,70 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import {
-	EditorView,
-	keymap,
-	highlightActiveLine,
-	lineNumbers,
-	highlightActiveLineGutter,
-} from '@codemirror/view'
-import { EditorState } from '@codemirror/state'
+import { EditorView, keymap, highlightActiveLine } from '@codemirror/view'
+import { EditorState, Compartment } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { syntaxHighlighting, defaultHighlightStyle } from '@codemirror/language'
+import {
+	iconAutoInsert,
+	iconAutoInsertConfig,
+} from '@/lib/editor/icon-auto-insert'
 import type { ResumeEditorSurfaceProps } from './types'
 
-// Light theme that matches our CSS design tokens
+// Light theme that matches our CSS design tokens.
+// The outer editor is transparent so the parent bg-background shows through.
+// Content is rendered as a centred A4-sized white paper (794 px wide).
 const lightTheme = EditorView.theme({
 	'&': {
 		height: '100%',
 		fontFamily: "'JetBrains Mono', 'Fira Mono', monospace",
 		fontSize: '13px',
-		backgroundColor: 'hsl(0 0% 100%)',
-		color: 'hsl(224 71.4% 4.1%)',
+		backgroundColor: 'transparent',
+		color: 'hsl(var(--foreground))',
+	},
+	'.cm-scroller': {
+		padding: '32px 24px',
+		alignItems: 'flex-start',
 	},
 	'.cm-content': {
-		padding: '16px',
-		caretColor: 'hsl(224 71.4% 4.1%)',
-		minHeight: '100%',
+		padding: '48px 56px',
+		caretColor: 'hsl(var(--foreground))',
+		maxWidth: '794px',
+		width: '100%',
+		margin: '0 auto',
+		minHeight: '1123px',
+		backgroundColor: 'hsl(var(--card))',
+		boxShadow: '0 1px 6px rgba(0,0,0,0.12)',
+		borderRadius: '2px',
 	},
 	'.cm-line': { lineHeight: '1.65' },
-	'.cm-activeLine': { backgroundColor: 'hsl(220 14.3% 95.9%)' },
-	'.cm-activeLineGutter': { backgroundColor: 'hsl(220 14.3% 95.9%)' },
-	'.cm-gutters': {
-		backgroundColor: 'hsl(0 0% 100%)',
-		borderRight: '1px solid hsl(220 13% 91%)',
-		color: 'hsl(220 8.9% 46.1%)',
-	},
-	'&.cm-focused .cm-cursor': { borderLeftColor: 'hsl(224 71.4% 4.1%)' },
+	'.cm-activeLine': { backgroundColor: 'hsl(var(--accent) / 0.35)' },
+	'.cm-gutters': { display: 'none' },
+	'&.cm-focused .cm-cursor': { borderLeftColor: 'hsl(var(--foreground))' },
 	'&.cm-focused': { outline: 'none' },
 })
+
+interface MarkdownEditorProps extends ResumeEditorSurfaceProps {
+	/** Current YAML frontmatter (without --- fences) for icon auto-insert */
+	frontmatter?: string
+	/** User-uploaded icons (name → URL) for icon auto-insert */
+	userIcons?: Map<string, string>
+	/** Callback to update frontmatter when icons are auto-detected */
+	onFrontmatterUpdate?: (newFrontmatter: string) => void
+}
 
 export function MarkdownEditor({
 	value,
 	onChange,
 	onActionsReady,
-}: ResumeEditorSurfaceProps) {
+	frontmatter,
+	userIcons,
+	onFrontmatterUpdate,
+}: MarkdownEditorProps) {
 	const containerRef = useRef<HTMLDivElement>(null)
 	const viewRef = useRef<EditorView | null>(null)
+	const iconConfigCompartment = useRef(new Compartment())
 
 	useEffect(() => {
 		if (!containerRef.current) return
@@ -55,9 +73,7 @@ export function MarkdownEditor({
 			doc: value,
 			extensions: [
 				history(),
-				lineNumbers(),
 				highlightActiveLine(),
-				highlightActiveLineGutter(),
 				markdown(),
 				syntaxHighlighting(defaultHighlightStyle),
 				lightTheme,
@@ -68,6 +84,14 @@ export function MarkdownEditor({
 					}
 				}),
 				EditorView.lineWrapping,
+				iconAutoInsert,
+				iconConfigCompartment.current.of(
+					iconAutoInsertConfig.of({
+						frontmatter: frontmatter ?? '',
+						userIcons: userIcons ?? new Map(),
+						onUpdate: onFrontmatterUpdate ?? (() => {}),
+					}),
+				),
 			],
 		})
 
@@ -96,6 +120,21 @@ export function MarkdownEditor({
 			})
 		}
 	}, [value])
+
+	// Reconfigure icon auto-insert when frontmatter or user icons change
+	useEffect(() => {
+		const view = viewRef.current
+		if (!view) return
+		view.dispatch({
+			effects: iconConfigCompartment.current.reconfigure(
+				iconAutoInsertConfig.of({
+					frontmatter: frontmatter ?? '',
+					userIcons: userIcons ?? new Map(),
+					onUpdate: onFrontmatterUpdate ?? (() => {}),
+				}),
+			),
+		})
+	}, [frontmatter, userIcons, onFrontmatterUpdate])
 
 	// Expose simple action helpers for toolbar
 	useEffect(() => {
@@ -290,6 +329,97 @@ export function MarkdownEditor({
 				})
 				view.focus()
 			},
+			setFontSize: (_size: 'small' | 'normal' | 'large') => {},
+			isMarkActive: (_mark: 'bold' | 'italic' | 'underline' | 'strike') =>
+				false,
+			isListActive: (_type: 'bullet' | 'ordered') => false,
+			insertTable: (rows: number, cols: number) => {
+				const state = view.state
+				const { from } = state.selection.main
+				const headers = Array.from(
+					{ length: cols },
+					(_, i) => `Col ${i + 1}`,
+				).join(' | ')
+				const separator = Array.from({ length: cols }, () => '-------').join(
+					' | ',
+				)
+				const dataRow =
+					'| '
+					+ Array.from({ length: cols }, () => '       ').join(' | ')
+					+ ' |'
+				const table = [
+					`| ${headers} |`,
+					`| ${separator} |`,
+					...Array.from({ length: rows }, () => dataRow),
+				].join('\n')
+				const insert = `\n${table}\n`
+				view.dispatch({
+					changes: { from, to: from, insert },
+					selection: { anchor: from + insert.length },
+				})
+				view.focus()
+			},
+			insertGrid: (cols: number) => {
+				const state = view.state
+				const { from, to } = state.selection.main
+				if (from !== to) {
+					const startLine = state.doc.lineAt(from)
+					const endLine = state.doc.lineAt(to)
+					const bullets = state.doc
+						.sliceString(startLine.from, endLine.to)
+						.split('\n')
+						.filter(l => l.trim())
+						.map(l => (l.trim().startsWith('- ') ? l.trim() : `- ${l.trim()}`))
+						.join('\n')
+					const wrapped = `::: {.grid .grid-cols-${cols}}\n${bullets}\n:::`
+					view.dispatch({
+						changes: { from: startLine.from, to: endLine.to, insert: wrapped },
+						selection: {
+							anchor: startLine.from,
+							head: startLine.from + wrapped.length,
+						},
+					})
+				} else {
+					const template = `::: {.grid .grid-cols-${cols}}\n- Item 1\n- Item 2\n- Item 3\n:::`
+					const insert = `\n${template}\n`
+					view.dispatch({
+						changes: { from, to: from, insert },
+						selection: { anchor: from + 1, head: from + template.length + 1 },
+					})
+				}
+				view.focus()
+			},
+			insertDefList: () => {
+				const state = view.state
+				const { from, to } = state.selection.main
+				if (from !== to) {
+					const converted = state.doc
+						.sliceString(from, to)
+						.split('\n')
+						.filter(l => l.trim())
+						.map(line => {
+							const colonIdx = line.indexOf(':')
+							if (colonIdx > 0) {
+								const term = line.slice(0, colonIdx).trim()
+								const values = line.slice(colonIdx + 1).trim()
+								return `${term}\n: ${values}`
+							}
+							return `${line.trim()}\n: `
+						})
+						.join('\n\n')
+					view.dispatch({
+						changes: { from, to, insert: converted },
+						selection: { anchor: from, head: from + converted.length },
+					})
+				} else {
+					const insert = `\nTerm\n: Values\n`
+					view.dispatch({
+						changes: { from, to: from, insert },
+						selection: { anchor: from + 1 },
+					})
+				}
+				view.focus()
+			},
 		}
 
 		onActionsReady(actions)
@@ -316,7 +446,24 @@ export function MarkdownEditor({
 		dom?.addEventListener('keydown', handler as any)
 		return () => {
 			dom?.removeEventListener('keydown', handler as any)
-			onActionsReady({})
+			onActionsReady?.({
+				toggleMark: () => {},
+				toggleList: () => {},
+				setHeader: () => {},
+				clearFormatting: () => {},
+				setAlign: () => {},
+				increaseIndent: () => {},
+				decreaseIndent: () => {},
+				setFont: () => {},
+				setColor: () => {},
+				setHighlight: () => {},
+				setFontSize: () => {},
+				isMarkActive: () => false,
+				isListActive: () => false,
+				insertTable: () => {},
+				insertGrid: () => {},
+				insertDefList: () => {},
+			})
 		}
 	}, [onActionsReady])
 

@@ -40,7 +40,7 @@ interface EditorToolbarProps {
 	frontmatter?: string
 	onSetFrontmatter?: (newFrontmatter: string) => void
 	// Editor action helpers (wired from WYSIWYG surface)
-	onToggleMark?: (mark: 'bold' | 'italic' | 'underline') => void
+	onToggleMark?: (mark: 'bold' | 'italic' | 'underline' | 'strike') => void
 	onToggleList?: (type: 'bullet' | 'ordered') => void
 	onSetFontSize?: (size: 'small' | 'normal' | 'large') => void
 	onClearFormatting?: () => void
@@ -54,8 +54,11 @@ interface EditorToolbarProps {
 	onIncreaseIndent?: () => void
 	onDecreaseIndent?: () => void
 	// Editor query helpers for UI active state
-	isMarkActive?: (mark: 'bold' | 'italic' | 'underline') => boolean
+	isMarkActive?: (mark: 'bold' | 'italic' | 'underline' | 'strike') => boolean
 	isListActive?: (type: 'bullet' | 'ordered') => boolean
+	onInsertTable?: (rows: number, cols: number) => void
+	onInsertGrid?: (cols: number) => void
+	onInsertDefList?: () => void
 }
 
 const EXPORT_LABELS: Record<ExportFormat, string> = {
@@ -93,8 +96,18 @@ export function EditorToolbar({
 	onToggleList,
 	onSetFontSize,
 	onClearFormatting,
+	onSetHeader,
+	onSetFont,
+	onSetColor,
+	onSetHighlight,
+	onSetAlign,
+	onIncreaseIndent,
+	onDecreaseIndent,
 	isMarkActive,
 	isListActive,
+	onInsertTable,
+	onInsertGrid,
+	onInsertDefList,
 }: EditorToolbarProps) {
 	const { toast } = useToast()
 	const [exporting, setExporting] = useState<ExportFormat | null>(null)
@@ -175,109 +188,118 @@ export function EditorToolbar({
 	}
 
 	return (
-		<div className='flex h-auto min-h-11 flex-wrap items-center gap-3 border-b bg-background/80 px-4 py-2 backdrop-blur shrink-0'>
-			<div className='flex min-w-0 flex-1 items-center gap-3'>
-				{/* Editable title */}
-				<input
-					type='text'
-					value={title}
-					onChange={e => onTitleChange(e.target.value)}
-					placeholder='Untitled Resume'
-					className='min-w-0 flex-1 truncate border-b border-transparent bg-transparent text-sm font-medium outline-none transition-colors placeholder:text-muted-foreground hover:border-border focus:border-foreground'
-				/>
-
-				<div className='inline-flex items-center rounded-md border bg-muted/40 p-0.5'>
-					<Button
-						type='button'
-						variant={editorMode === 'markdown' ? 'secondary' : 'ghost'}
-						size='sm'
-						onClick={() => onEditorModeChange('markdown')}
-						className='h-8 gap-1.5 px-2.5'
-						aria-pressed={editorMode === 'markdown'}
-					>
-						<FilePenLine className='h-3.5 w-3.5' />
-						Markdown
-					</Button>
-					<Button
-						type='button'
-						variant={editorMode === 'wysiwyg' ? 'secondary' : 'ghost'}
-						size='sm'
-						onClick={() => onEditorModeChange('wysiwyg')}
-						className='h-8 gap-1.5 px-2.5'
-						aria-pressed={editorMode === 'wysiwyg'}
-					>
-						<SquarePen className='h-3.5 w-3.5' />
-						Text
-					</Button>
-
-					<StyleToolbar
-						frontmatter={frontmatter}
-						onSetFrontmatter={onSetFrontmatter}
-						onToggleMark={onToggleMark}
-						onToggleList={onToggleList}
-						onSetFontSize={onSetFontSize}
-						onClearFormatting={onClearFormatting}
-						onSetHeader={onSetHeader}
-						onSetFont={onSetFont}
-						onSetColor={onSetColor}
-						onSetHighlight={onSetHighlight}
-						onSetAlign={onSetAlign}
-						onIncreaseIndent={onIncreaseIndent}
-						onDecreaseIndent={onDecreaseIndent}
-						editorMode={editorMode}
-						isMarkActive={isMarkActive}
-						isListActive={isListActive}
+		<div className='flex flex-col border-b bg-background/80 backdrop-blur shrink-0'>
+			{/* Row 1: title, mode toggle, save status, compile, export */}
+			<div className='flex h-auto min-h-11 flex-wrap items-center gap-3 px-4 py-2'>
+				<div className='flex min-w-0 flex-1 items-center gap-3'>
+					{/* Editable title */}
+					<input
+						type='text'
+						value={title}
+						onChange={e => onTitleChange(e.target.value)}
+						placeholder='Untitled Resume'
+						className='min-w-0 flex-1 truncate border-b border-transparent bg-transparent text-sm font-medium outline-none transition-colors placeholder:text-muted-foreground hover:border-border focus:border-foreground'
 					/>
 
-					{/* Removed Config button per new UI spec */}
+					<div className='inline-flex items-center rounded-md border bg-muted/40 p-0.5'>
+						<button
+							type='button'
+							onClick={() =>
+								onEditorModeChange(
+									editorMode === 'markdown' ? 'wysiwyg' : 'markdown',
+								)
+							}
+							className='inline-flex items-center gap-1.5 rounded px-2.5 h-8 text-sm font-medium transition-colors hover:bg-muted/60 text-muted-foreground hover:text-foreground'
+							title={`Switch to ${editorMode === 'markdown' ? 'Text' : 'Markdown'} mode`}
+						>
+							{editorMode === 'markdown' ?
+								<>
+									<FilePenLine className='h-3.5 w-3.5' />
+									Markdown
+								</>
+							:	<>
+									<SquarePen className='h-3.5 w-3.5' />
+									Text
+								</>
+							}
+						</button>
+					</div>
+				</div>
+
+				<div className='flex items-center gap-2 ml-auto'>
+					{/* Save status */}
+					<SaveIndicator status={saveStatus} />
+
+					{/* Compile button */}
+					<Button
+						variant='outline'
+						size='sm'
+						onClick={onCompile}
+						disabled={isCompiling}
+						className='shrink-0 gap-1.5'
+					>
+						{isCompiling ?
+							<Loader2 className='h-3.5 w-3.5 animate-spin' />
+						:	<Play className='h-3.5 w-3.5' />}
+						{isCompiling ? 'Compiling…' : 'Compile'}
+					</Button>
+
+					{/* Export dropdown */}
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								variant='default'
+								size='sm'
+								disabled={exporting !== null}
+								className='shrink-0'
+							>
+								{exporting ?
+									<Loader2 className='h-4 w-4 animate-spin' />
+								:	<Download className='h-4 w-4' />}
+								{exporting ? `Exporting…` : 'Export'}
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align='end'>
+							{(Object.keys(EXPORT_LABELS) as ExportFormat[]).map(fmt => (
+								<DropdownMenuItem
+									key={fmt}
+									onSelect={() => EXPORT_ENABLED[fmt] && handleExport(fmt)}
+									disabled={exporting !== null || !EXPORT_ENABLED[fmt]}
+								>
+									{EXPORT_LABELS[fmt]}
+								</DropdownMenuItem>
+							))}
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 			</div>
 
-			<div className='flex items-center gap-2 ml-auto'>
-				{/* Save status */}
-				<SaveIndicator status={saveStatus} />
-
-				{/* Compile button */}
-				<Button
-					variant='outline'
-					size='sm'
-					onClick={onCompile}
-					disabled={isCompiling}
-					className='shrink-0 gap-1.5'
-				>
-					{isCompiling ?
-						<Loader2 className='h-3.5 w-3.5 animate-spin' />
-					:	<Play className='h-3.5 w-3.5' />}
-					{isCompiling ? 'Compiling…' : 'Compile'}
-				</Button>
-
-				{/* Export dropdown */}
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							variant='default'
-							size='sm'
-							disabled={exporting !== null}
-							className='shrink-0'
-						>
-							{exporting ?
-								<Loader2 className='h-4 w-4 animate-spin' />
-							:	<Download className='h-4 w-4' />}
-							{exporting ? `Exporting…` : 'Export'}
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align='end'>
-						{(Object.keys(EXPORT_LABELS) as ExportFormat[]).map(fmt => (
-							<DropdownMenuItem
-								key={fmt}
-								onSelect={() => EXPORT_ENABLED[fmt] && handleExport(fmt)}
-								disabled={exporting !== null || !EXPORT_ENABLED[fmt]}
-							>
-								{EXPORT_LABELS[fmt]}
-							</DropdownMenuItem>
-						))}
-					</DropdownMenuContent>
-				</DropdownMenu>
+			{/* Row 2: style toolbar – overflow-x auto but must NOT clip y (for dropdowns) */}
+			<div
+				className='border-t px-2 py-1'
+				style={{ overflowX: 'auto', overflowY: 'visible' }}
+			>
+				<StyleToolbar
+					frontmatter={frontmatter}
+					onSetFrontmatter={onSetFrontmatter}
+					onToggleMark={onToggleMark}
+					onToggleList={onToggleList}
+					onSetFontSize={onSetFontSize}
+					onClearFormatting={onClearFormatting}
+					onSetHeader={onSetHeader}
+					onSetFont={onSetFont}
+					onSetColor={onSetColor}
+					onSetHighlight={onSetHighlight}
+					onSetAlign={onSetAlign}
+					onIncreaseIndent={onIncreaseIndent}
+					onDecreaseIndent={onDecreaseIndent}
+					editorMode={editorMode}
+					isMarkActive={isMarkActive}
+					isListActive={isListActive}
+					onInsertTable={onInsertTable}
+					onInsertGrid={onInsertGrid}
+					onInsertDefList={onInsertDefList}
+				/>
 			</div>
 		</div>
 	)

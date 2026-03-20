@@ -102,3 +102,27 @@
 	content: attr(data-placeholder);
 	@apply text-muted-foreground pointer-events-none float-left h-0;
 }
+
+/* ── Narrow scrollbars ───────────────────────────────────────── */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: hsl(var(--border)) transparent;
+}
+
+*::-webkit-scrollbar {
+	width: 4px;
+	height: 4px;
+}
+
+*::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+	background-color: hsl(var(--border));
+	border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+	background-color: hsl(var(--muted-foreground) / 0.5);
+}
