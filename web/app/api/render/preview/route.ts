@@ -1,11 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-
-// Rate limit: track last render time per user (in-memory, resets on cold start)
-// For production, use Upstash Redis or similar. This is sufficient for Vercel's
-// serverless model where each instance handles limited concurrency.
-const lastRender = new Map<string, number>()
-const RATE_LIMIT_MS = 2000 // 2 seconds between renders per user
+import { rateLimit } from '@/lib/rate-limit'
 
 export const maxDuration = 20 // seconds — allow for Playwright startup
 
@@ -20,15 +15,12 @@ export async function POST(request: Request) {
 	}
 
 	// Rate limiting
-	const now = Date.now()
-	const last = lastRender.get(user.id) ?? 0
-	if (now - last < RATE_LIMIT_MS) {
+	if (rateLimit(`preview:${user.id}`, { limit: 1, windowMs: 2_000 }).limited) {
 		return NextResponse.json(
 			{ error: 'Too many requests. Please wait a moment.' },
 			{ status: 429 },
 		)
 	}
-	lastRender.set(user.id, now)
 
 	const body = await request.json().catch(() => ({}))
 	const markdown = body?.markdown
@@ -50,7 +42,9 @@ export async function POST(request: Request) {
 	// Forward to the resumx render service.
 	// Configure RESUMX_API_URL to point to your own resumx deployment.
 	// Defaults to the live resumx.dev service (server-to-server, no CORS issues).
-	const resumxBaseUrl = (process.env.RESUMX_API_URL ?? 'https://resumx.dev').replace(/\/$/, '')
+	const resumxBaseUrl = (
+		process.env.RESUMX_API_URL ?? 'https://resumx.dev'
+	).replace(/\/$/, '')
 
 	const response = await fetch(`${resumxBaseUrl}/api/preview`, {
 		method: 'POST',

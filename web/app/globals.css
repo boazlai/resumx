@@ -58,6 +58,211 @@
 		--ring: 37 25% 55%;
 		--radius: 0.5rem;
 	}
+
+	/*
+	 * ── VS Code Theme → CSS Variable mapping formula ──────────────────────
+	 *
+	 * This is the translation key used to port any VS Code theme here.
+	 * Convert each hex color to HSL (H S% L%), then assign as below:
+	 *
+	 *  CSS variable            ← VS Code token                  Catppuccin semantic
+	 *  --background            ← editor.background              Base
+	 *  --foreground            ← editor.foreground              Text
+	 *  --card                  ← sideBar.background             Mantle
+	 *  --card-foreground       ← sideBar.foreground             Text
+	 *  --popover               ← dropdown.background            Mantle
+	 *  --popover-foreground    ← dropdown.foreground            Text
+	 *  --primary               ← button.background / focusBorder  Accent color (Mauve/Lavender)
+	 *  --primary-foreground    ← button.foreground              Crust / Base
+	 *  --secondary             ← list.hoverBackground           Surface0
+	 *  --secondary-foreground  ← list.hoverForeground           Text
+	 *  --muted                 ← tab.inactiveBackground         Surface0
+	 *  --muted-foreground      ← tab.inactiveForeground / comments  Subtext0
+	 *  --accent                ← list.activeSelectionBackground Surface1
+	 *  --accent-foreground     ← list.activeSelectionForeground Text
+	 *  --destructive           ← editorError.foreground         Red
+	 *  --destructive-foreground  (text on destructive bg)       Crust / Base
+	 *  --border                ← panel.border / widget.border   Surface1
+	 *  --input                 ← input.background               Surface0
+	 *  --ring                  ← focusBorder                    Accent color
+	 *
+	 * Dark variants also need class="dark" on <html> for Tailwind dark: utilities.
+	 * ─────────────────────────────────────────────────────────────────────────
+	 */
+
+	/* ── Catppuccin Mocha (dark) ─────────────────────────────── */
+	/* https://github.com/catppuccin/catppuccin                   */
+	.theme-catppuccin-mocha {
+		--background: 240 21% 15%; /* Base     #1e1e2e */
+		--foreground: 226 64% 88%; /* Text     #cdd6f4 */
+		--card: 240 21% 12%; /* Mantle   #181825 */
+		--card-foreground: 226 64% 88%;
+		--popover: 240 21% 12%;
+		--popover-foreground: 226 64% 88%;
+		--primary: 267 84% 81%; /* Mauve    #cba6f7 */
+		--primary-foreground: 240 23% 9%; /* Crust    #11111b */
+		--secondary: 237 16% 23%; /* Surface0 #313244 */
+		--secondary-foreground: 226 64% 88%;
+		--muted: 237 16% 23%;
+		--muted-foreground: 228 24% 72%; /* Subtext0 #a6adc8 */
+		--accent: 234 13% 31%; /* Surface1 #45475a */
+		--accent-foreground: 226 64% 88%;
+		--destructive: 343 81% 75%; /* Red      #f38ba8 */
+		--destructive-foreground: 240 23% 9%;
+		--border: 234 13% 31%; /* Surface1 #45475a */
+		--input: 237 16% 23%;
+		--ring: 267 84% 81%;
+		--radius: 0.5rem;
+	}
+
+	/* ── Catppuccin Latte (light) ────────────────────────────── */
+	.theme-catppuccin-latte {
+		--background: 220 24% 95%; /* Base     #eff1f5 */
+		--foreground: 234 16% 35%; /* Text     #4c4f69 */
+		--card: 220 22% 92%; /* Mantle   #e6e9ef */
+		--card-foreground: 234 16% 35%;
+		--popover: 220 22% 92%;
+		--popover-foreground: 234 16% 35%;
+		--primary: 266 85% 58%; /* Mauve    #8839ef */
+		--primary-foreground: 220 24% 95%;
+		--secondary: 222 16% 83%; /* Surface0 #ccd0da */
+		--secondary-foreground: 234 16% 35%;
+		--muted: 222 16% 83%;
+		--muted-foreground: 233 10% 47%; /* Subtext0 #6c6f85 */
+		--accent: 225 14% 77%; /* Surface1 #bcc0cc */
+		--accent-foreground: 234 16% 35%;
+		--destructive: 347 87% 44%; /* Red      #d20f39 */
+		--destructive-foreground: 220 24% 95%;
+		--border: 222 16% 83%;
+		--input: 222 16% 83%;
+		--ring: 231 97% 72%; /* Lavender #7287fd */
+		--radius: 0.5rem;
+	}
+
+	/* ── One Dark Pro (dark) ─────────────────────────────────── */
+	/* https://github.com/Binaryify/OneDark-Pro                  */
+	.theme-one-dark-pro {
+		--background: 220 13% 18%; /* #282c34 */
+		--foreground: 220 14% 71%; /* #abb2bf */
+		--card: 220 13% 15%; /* #21252b */
+		--card-foreground: 220 14% 71%;
+		--popover: 220 13% 15%;
+		--popover-foreground: 220 14% 71%;
+		--primary: 207 82% 66%; /* #61afef blue */
+		--primary-foreground: 220 13% 15%;
+		--secondary: 221 13% 28%; /* #3e4451 */
+		--secondary-foreground: 220 14% 71%;
+		--muted: 221 13% 28%;
+		--muted-foreground: 220 10% 40%; /* #5c6370 */
+		--accent: 219 9% 20%; /* #2c313a */
+		--accent-foreground: 220 14% 71%;
+		--destructive: 355 65% 65%; /* #e06c75 */
+		--destructive-foreground: 220 13% 15%;
+		--border: 221 13% 28%; /* #3e4451 */
+		--input: 221 13% 28%;
+		--ring: 207 82% 66%;
+		--radius: 0.5rem;
+	}
+
+	/* ── Dracula (dark) ──────────────────────────────────────── */
+	/* https://draculatheme.com                                   */
+	.theme-dracula {
+		--background: 231 15% 18%; /* #282a36 */
+		--foreground: 60 30% 96%; /* #f8f8f2 */
+		--card: 235 14% 15%; /* #21222c */
+		--card-foreground: 60 30% 96%;
+		--popover: 235 14% 15%;
+		--popover-foreground: 60 30% 96%;
+		--primary: 265 89% 78%; /* #bd93f9 purple */
+		--primary-foreground: 235 14% 15%;
+		--secondary: 232 14% 31%; /* #44475a */
+		--secondary-foreground: 60 30% 96%;
+		--muted: 232 14% 31%;
+		--muted-foreground: 226 27% 51%; /* #6272a4 */
+		--accent: 232 14% 31%;
+		--accent-foreground: 60 30% 96%;
+		--destructive: 0 100% 67%; /* #ff5555 */
+		--destructive-foreground: 235 14% 15%;
+		--border: 232 14% 31%; /* #44475a */
+		--input: 232 14% 31%;
+		--ring: 265 89% 78%;
+		--radius: 0.5rem;
+	}
+
+	/* ── Nord (dark) ─────────────────────────────────────────── */
+	/* https://www.nordtheme.com                                  */
+	.theme-nord {
+		--background: 220 16% 22%; /* #2e3440 Polar Night */
+		--foreground: 219 28% 88%; /* #d8dee9 Snow Storm */
+		--card: 220 16% 18%; /* #272c36 */
+		--card-foreground: 219 28% 88%;
+		--popover: 220 16% 18%;
+		--popover-foreground: 219 28% 88%;
+		--primary: 193 43% 68%; /* #88c0d0 Frost */
+		--primary-foreground: 220 16% 22%;
+		--secondary: 222 16% 28%; /* #3b4252 */
+		--secondary-foreground: 219 28% 88%;
+		--muted: 222 16% 28%;
+		--muted-foreground: 220 17% 56%; /* #7b88a1 */
+		--accent: 220 17% 32%; /* #434c5e */
+		--accent-foreground: 219 28% 88%;
+		--destructive: 354 42% 57%; /* #bf616a Aurora red */
+		--destructive-foreground: 219 28% 88%;
+		--border: 222 16% 28%; /* #3b4252 */
+		--input: 222 16% 28%;
+		--ring: 193 43% 68%;
+		--radius: 0.5rem;
+	}
+
+	/* ── Solarized Light ─────────────────────────────────────── */
+	/* https://ethanschoonover.com/solarized/                     */
+	.theme-solarized-light {
+		--background: 44 87% 94%; /* #fdf6e3 */
+		--foreground: 196 13% 46%; /* #657b83 */
+		--card: 46 42% 88%; /* #eee8d5 */
+		--card-foreground: 196 13% 46%;
+		--popover: 46 42% 88%;
+		--popover-foreground: 196 13% 46%;
+		--primary: 205 69% 49%; /* #268bd2 blue */
+		--primary-foreground: 44 87% 94%;
+		--secondary: 44 30% 83%; /* #e0d9c5 */
+		--secondary-foreground: 196 13% 46%;
+		--muted: 44 30% 83%;
+		--muted-foreground: 180 7% 60%; /* #93a1a1 */
+		--accent: 46 23% 75%; /* #cdc6b0 */
+		--accent-foreground: 196 13% 46%;
+		--destructive: 1 71% 52%; /* #dc322f */
+		--destructive-foreground: 44 87% 94%;
+		--border: 46 23% 75%; /* #cdc6b0 */
+		--input: 44 30% 83%;
+		--ring: 205 69% 49%;
+		--radius: 0.5rem;
+	}
+
+	/* ── Tokyo Night (dark) ──────────────────────────────────── */
+	/* https://github.com/enkia/tokyo-night-vscode-theme          */
+	.theme-tokyo-night {
+		--background: 235 19% 13%; /* #1a1b26 */
+		--foreground: 229 35% 75%; /* #a9b1d6 */
+		--card: 240 15% 10%; /* #16161e */
+		--card-foreground: 229 35% 75%;
+		--popover: 240 15% 10%;
+		--popover-foreground: 229 35% 75%;
+		--primary: 221 89% 72%; /* #7aa2f7 blue */
+		--primary-foreground: 240 15% 10%;
+		--secondary: 230 24% 19%; /* #24283b */
+		--secondary-foreground: 229 35% 75%;
+		--muted: 230 24% 19%;
+		--muted-foreground: 229 23% 44%; /* #565f89 */
+		--accent: 228 23% 21%; /* #292e42 */
+		--accent-foreground: 229 35% 75%;
+		--destructive: 349 89% 72%; /* #f7768e */
+		--destructive-foreground: 240 15% 10%;
+		--border: 228 23% 21%; /* #292e42 */
+		--input: 230 24% 19%;
+		--ring: 221 89% 72%;
+		--radius: 0.5rem;
+	}
 }
 
 @layer base {
@@ -67,40 +272,6 @@
 	body {
 		@apply bg-background text-foreground;
 	}
-}
-
-/* Editor styles */
-.tiptap-editor {
-	outline: none;
-}
-
-.tiptap-editor h1 {
-	@apply text-2xl font-bold mb-1;
-}
-
-.tiptap-editor h2 {
-	@apply text-lg font-semibold uppercase tracking-wide border-b border-foreground/20 pb-0.5 mt-5 mb-2;
-}
-
-.tiptap-editor h3 {
-	@apply text-base font-semibold mt-3 mb-0.5;
-}
-
-.tiptap-editor p {
-	@apply text-sm leading-relaxed;
-}
-
-.tiptap-editor ul {
-	@apply list-disc ml-4 text-sm space-y-0.5;
-}
-
-.tiptap-editor .tag-chip {
-	@apply inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-700 font-mono ml-1;
-}
-
-.tiptap-editor .is-empty::before {
-	content: attr(data-placeholder);
-	@apply text-muted-foreground pointer-events-none float-left h-0;
 }
 
 /* ── Narrow scrollbars ───────────────────────────────────────── */

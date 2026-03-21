@@ -19,6 +19,7 @@ export async function GET() {
 		.select({
 			id: resumes.id,
 			title: resumes.title,
+			tags: resumes.tags,
 			createdAt: resumes.createdAt,
 			updatedAt: resumes.updatedAt,
 		})

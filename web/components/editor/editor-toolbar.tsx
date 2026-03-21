@@ -7,8 +7,13 @@ import {
 	Loader2,
 	AlertCircle,
 	Play,
-	FilePenLine,
-	SquarePen,
+	Printer,
+	Copy,
+	Share2,
+	History,
+	Eye,
+	EyeOff,
+	PenLine,
 } from 'lucide-react'
 import StyleToolbar from './style-toolbar'
 import { Button } from '@/components/ui/button'
@@ -18,9 +23,15 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useToast } from '@/lib/toast'
 import { cn } from '@/lib/utils'
-import type { EditorMode, SaveStatus } from './types'
+import type { SaveStatus } from './types'
 
 type ExportFormat = 'pdf' | 'html' | 'docx'
 
@@ -28,18 +39,13 @@ interface EditorToolbarProps {
 	resumeId: string
 	title: string
 	saveStatus: SaveStatus
-	editorMode: EditorMode
-	onEditorModeChange: (mode: EditorMode) => void
 	onTitleChange: (value: string) => void
 	markdown: string
 	onCompile: () => void
 	isCompiling: boolean
-	// Toggle visibility of the frontmatter/config panel (optional)
-	onToggleFrontmatter?: () => void
 	// Frontmatter payload (YAML string) and setter for quick controls (style/pages)
 	frontmatter?: string
 	onSetFrontmatter?: (newFrontmatter: string) => void
-	// Editor action helpers (wired from WYSIWYG surface)
 	onToggleMark?: (mark: 'bold' | 'italic' | 'underline' | 'strike') => void
 	onToggleList?: (type: 'bullet' | 'ordered') => void
 	onSetFontSize?: (size: 'small' | 'normal' | 'large') => void
@@ -59,6 +65,16 @@ interface EditorToolbarProps {
 	onInsertTable?: (rows: number, cols: number) => void
 	onInsertGrid?: (cols: number) => void
 	onInsertDefList?: () => void
+	// Extra actions
+	wordCount?: number
+	previewUrl?: string | null
+	onDuplicate?: () => void
+	onPrint?: () => void
+	onOpenShare?: () => void
+	onOpenHistory?: () => void
+	showPreview?: boolean
+	onTogglePreview?: () => void
+	isNarrow?: boolean
 }
 
 const EXPORT_LABELS: Record<ExportFormat, string> = {
@@ -83,13 +99,10 @@ export function EditorToolbar({
 	resumeId,
 	title,
 	saveStatus,
-	editorMode,
-	onEditorModeChange,
 	onTitleChange,
 	markdown,
 	onCompile,
 	isCompiling,
-	onToggleFrontmatter,
 	frontmatter,
 	onSetFrontmatter,
 	onToggleMark,
@@ -108,6 +121,15 @@ export function EditorToolbar({
 	onInsertTable,
 	onInsertGrid,
 	onInsertDefList,
+	wordCount,
+	previewUrl,
+	onDuplicate,
+	onPrint,
+	onOpenShare,
+	onOpenHistory,
+	showPreview = true,
+	onTogglePreview,
+	isNarrow = false,
 }: EditorToolbarProps) {
 	const { toast } = useToast()
 	const [exporting, setExporting] = useState<ExportFormat | null>(null)
@@ -200,35 +222,91 @@ export function EditorToolbar({
 						placeholder='Untitled Resume'
 						className='min-w-0 flex-1 truncate border-b border-transparent bg-transparent text-sm font-medium outline-none transition-colors placeholder:text-muted-foreground hover:border-border focus:border-foreground'
 					/>
-
-					<div className='inline-flex items-center rounded-md border bg-muted/40 p-0.5'>
-						<button
-							type='button'
-							onClick={() =>
-								onEditorModeChange(
-									editorMode === 'markdown' ? 'wysiwyg' : 'markdown',
-								)
-							}
-							className='inline-flex items-center gap-1.5 rounded px-2.5 h-8 text-sm font-medium transition-colors hover:bg-muted/60 text-muted-foreground hover:text-foreground'
-							title={`Switch to ${editorMode === 'markdown' ? 'Text' : 'Markdown'} mode`}
-						>
-							{editorMode === 'markdown' ?
-								<>
-									<FilePenLine className='h-3.5 w-3.5' />
-									Markdown
-								</>
-							:	<>
-									<SquarePen className='h-3.5 w-3.5' />
-									Text
-								</>
-							}
-						</button>
-					</div>
 				</div>
 
 				<div className='flex items-center gap-2 ml-auto'>
 					{/* Save status */}
 					<SaveIndicator status={saveStatus} />
+
+					{/* Word count */}
+					{wordCount !== undefined && (
+						<span className='text-xs text-muted-foreground shrink-0 select-none tabular-nums'>
+							{wordCount} {wordCount === 1 ? 'word' : 'words'}
+						</span>
+					)}
+
+					<TooltipProvider delayDuration={400}>
+						{/* History */}
+						{onOpenHistory && (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										variant='ghost'
+										size='sm'
+										className='h-8 w-8 p-0 shrink-0'
+										onClick={onOpenHistory}
+									>
+										<History className='h-4 w-4' />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>Version history</TooltipContent>
+							</Tooltip>
+						)}
+
+						{/* Share */}
+						{onOpenShare && (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										variant='ghost'
+										size='sm'
+										className='h-8 w-8 p-0 shrink-0'
+										onClick={onOpenShare}
+									>
+										<Share2 className='h-4 w-4' />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>Share resume</TooltipContent>
+							</Tooltip>
+						)}
+
+						{/* Duplicate */}
+						{onDuplicate && (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										variant='ghost'
+										size='sm'
+										className='h-8 w-8 p-0 shrink-0'
+										onClick={onDuplicate}
+									>
+										<Copy className='h-4 w-4' />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>Duplicate resume</TooltipContent>
+							</Tooltip>
+						)}
+
+						{/* Print */}
+						{onPrint && (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										variant='ghost'
+										size='sm'
+										className='h-8 w-8 p-0 shrink-0'
+										onClick={onPrint}
+										disabled={!previewUrl}
+									>
+										<Printer className='h-4 w-4' />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>
+									{previewUrl ? 'Print' : 'Compile first to print'}
+								</TooltipContent>
+							</Tooltip>
+						)}
+					</TooltipProvider>
 
 					{/* Compile button */}
 					<Button
@@ -276,30 +354,65 @@ export function EditorToolbar({
 
 			{/* Row 2: style toolbar – overflow-x auto but must NOT clip y (for dropdowns) */}
 			<div
-				className='border-t px-2 py-1'
+				className='border-t px-2 py-1 flex items-center gap-1'
 				style={{ overflowX: 'auto', overflowY: 'visible' }}
 			>
-				<StyleToolbar
-					frontmatter={frontmatter}
-					onSetFrontmatter={onSetFrontmatter}
-					onToggleMark={onToggleMark}
-					onToggleList={onToggleList}
-					onSetFontSize={onSetFontSize}
-					onClearFormatting={onClearFormatting}
-					onSetHeader={onSetHeader}
-					onSetFont={onSetFont}
-					onSetColor={onSetColor}
-					onSetHighlight={onSetHighlight}
-					onSetAlign={onSetAlign}
-					onIncreaseIndent={onIncreaseIndent}
-					onDecreaseIndent={onDecreaseIndent}
-					editorMode={editorMode}
-					isMarkActive={isMarkActive}
-					isListActive={isListActive}
-					onInsertTable={onInsertTable}
-					onInsertGrid={onInsertGrid}
-					onInsertDefList={onInsertDefList}
-				/>
+				<div className='flex-1'>
+					<StyleToolbar
+						frontmatter={frontmatter}
+						onSetFrontmatter={onSetFrontmatter}
+						onToggleMark={onToggleMark}
+						onToggleList={onToggleList}
+						onSetFontSize={onSetFontSize}
+						onClearFormatting={onClearFormatting}
+						onSetHeader={onSetHeader}
+						onSetFont={onSetFont}
+						onSetColor={onSetColor}
+						onSetHighlight={onSetHighlight}
+						onSetAlign={onSetAlign}
+						onIncreaseIndent={onIncreaseIndent}
+						onDecreaseIndent={onDecreaseIndent}
+						isMarkActive={isMarkActive}
+						isListActive={isListActive}
+						onInsertTable={onInsertTable}
+						onInsertGrid={onInsertGrid}
+						onInsertDefList={onInsertDefList}
+						isNarrow={isNarrow}
+					/>
+				</div>
+
+				{/* Toggle preview */}
+				{onTogglePreview && (
+					<TooltipProvider delayDuration={400}>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									variant='ghost'
+									size='sm'
+									className='h-7 w-7 p-0 shrink-0'
+									onClick={onTogglePreview}
+								>
+									{isNarrow ?
+										showPreview ?
+											<PenLine className='h-4 w-4' />
+										:	<Eye className='h-4 w-4' />
+									: showPreview ?
+										<Eye className='h-4 w-4' />
+									:	<EyeOff className='h-4 w-4' />}
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>
+								{isNarrow ?
+									showPreview ?
+										'Back to editor'
+									:	'Switch to preview'
+								: showPreview ?
+									'Hide preview'
+								:	'Show preview'}
+							</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
+				)}
 			</div>
 		</div>
 	)

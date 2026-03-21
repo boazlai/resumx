@@ -1,9 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-
-// Rate limit: max 1 export every 5 seconds per user (in-memory, resets on cold start)
-const lastExport = new Map<string, number>()
-const RATE_LIMIT_MS = 5000
+import { rateLimit } from '@/lib/rate-limit'
 
 export const maxDuration = 30 // seconds — exports can take longer than previews
 
@@ -27,15 +24,12 @@ export async function POST(request: Request) {
 	}
 
 	// Rate limiting
-	const now = Date.now()
-	const last = lastExport.get(user.id) ?? 0
-	if (now - last < RATE_LIMIT_MS) {
+	if (rateLimit(`export:${user.id}`, { limit: 1, windowMs: 5_000 }).limited) {
 		return NextResponse.json(
 			{ error: 'Too many requests. Please wait a few seconds.' },
 			{ status: 429 },
 		)
 	}
-	lastExport.set(user.id, now)
 
 	const body = await request.json().catch(() => ({}))
 	const { markdown, format } = body

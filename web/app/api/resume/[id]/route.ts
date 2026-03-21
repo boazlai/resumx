@@ -48,7 +48,8 @@ export async function PATCH(request: Request, { params }: Params) {
 		return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
 	const body = await request.json().catch(() => ({}))
-	const updates: Partial<{ title: string; markdown: string }> = {}
+	const updates: Partial<{ title: string; markdown: string; tags: string[] }> =
+		{}
 
 	if (typeof body.title === 'string') updates.title = body.title.slice(0, 200)
 	if (typeof body.markdown === 'string') {
@@ -59,6 +60,12 @@ export async function PATCH(request: Request, { params }: Params) {
 			)
 		}
 		updates.markdown = body.markdown
+	}
+	if (Array.isArray(body.tags)) {
+		updates.tags = body.tags
+			.filter((t: unknown): t is string => typeof t === 'string')
+			.slice(0, 10)
+			.map((t: string) => t.slice(0, 50))
 	}
 
 	const [updated] = await db

@@ -12,6 +12,7 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SettingsPanel } from '@/components/settings-panel'
+import { ProfilePanel } from '@/components/profile-panel'
 
 interface UserMenuProps {
 	email: string
@@ -33,6 +34,7 @@ export function UserMenu({ email, name, avatarUrl }: UserMenuProps) {
 	const router = useRouter()
 	const initials = getInitials(name, email)
 	const [settingsOpen, setSettingsOpen] = useState(false)
+	const [profileOpen, setProfileOpen] = useState(false)
 
 	async function handleSignOut() {
 		await fetch('/auth/sign-out', { method: 'POST' })
@@ -66,7 +68,7 @@ export function UserMenu({ email, name, avatarUrl }: UserMenuProps) {
 						</div>
 					</DropdownMenuLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem disabled>
+					<DropdownMenuItem onSelect={() => setProfileOpen(true)}>
 						<User className='mr-2 h-4 w-4' />
 						Profile
 					</DropdownMenuItem>
@@ -86,6 +88,13 @@ export function UserMenu({ email, name, avatarUrl }: UserMenuProps) {
 			</DropdownMenu>
 
 			<SettingsPanel open={settingsOpen} onOpenChange={setSettingsOpen} />
+			<ProfilePanel
+				open={profileOpen}
+				onOpenChange={setProfileOpen}
+				initialName={name}
+				initialEmail={email}
+				avatarUrl={avatarUrl}
+			/>
 		</>
 	)
 }

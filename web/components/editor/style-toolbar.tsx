@@ -3,13 +3,17 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useDebouncedCallback } from 'use-debounce'
+import { FONT_GROUPS } from './font-map'
 import {
 	AlignCenter,
 	AlignJustify,
 	AlignLeft,
 	AlignRight,
+	ALargeSmall,
 	Bold,
 	ChevronDown,
+	ChevronUp,
+	Heading,
 	Highlighter,
 	Italic,
 	LayoutGrid,
@@ -18,11 +22,26 @@ import {
 	ListOrdered,
 	Pipette,
 	RefreshCw,
+	SlidersHorizontal,
 	Strikethrough,
 	Table2,
+	Type,
 	Underline,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
 interface StyleToolbarProps {
@@ -39,12 +58,12 @@ interface StyleToolbarProps {
 	onSetAlign?: (align: 'left' | 'center' | 'right' | 'justify') => void
 	onIncreaseIndent?: () => void
 	onDecreaseIndent?: () => void
-	editorMode?: 'markdown' | 'wysiwyg'
 	isMarkActive?: (mark: 'bold' | 'italic' | 'underline' | 'strike') => boolean
 	isListActive?: (type: 'bullet' | 'ordered') => boolean
 	onInsertTable?: (rows: number, cols: number) => void
 	onInsertGrid?: (cols: number) => void
 	onInsertDefList?: () => void
+	isNarrow?: boolean
 }
 
 function readYamlTopLevel(key: string, fm: string | undefined) {
@@ -71,6 +90,26 @@ function setYamlTopLevel(
 	}
 	if (!fmText.trim()) return `${line}\n`
 	return `${line}\n${fmText}`
+}
+
+function readStyleKey(key: string, fm: string | undefined) {
+	if (!fm) return null
+	const m = fm.match(new RegExp(`^[ \\t]+${key}:\\s*(.+)$`, 'm'))
+	if (!m) return null
+	return m[1].trim().replace(/^["'](.*)["|']$/, '$1')
+}
+
+function setStyleKey(key: string, value: string, fm: string | undefined) {
+	const fmText = fm ?? ''
+	const line = `  ${key}: ${value}`
+	if (fmText.match(new RegExp(`^[ \\t]+${key}:`, 'm'))) {
+		return fmText.replace(new RegExp(`^([ \\t]+)${key}:.*$`, 'm'), line)
+	}
+	if (fmText.match(/^style:/m)) {
+		// insert after the style: header line
+		return fmText.replace(/^(style:[^\n]*)$/m, `$1\n${line}`)
+	}
+	return fmText.trimEnd() + `\nstyle:\n${line}\n`
 }
 
 // Google Docs-style color palette: 10 cols × 5 rows
@@ -239,7 +278,7 @@ function InlineColorPicker({
 							left: panelPos.left,
 							zIndex: 9999,
 						}}
-						className='min-w-[240px] rounded border bg-white p-3 shadow-lg'
+						className='min-w-[240px] rounded border bg-popover text-popover-foreground p-3 shadow-lg'
 					>
 						{mode === 'highlight' && (
 							<button
@@ -377,7 +416,7 @@ function TablePicker({
 							left: panelPos.left,
 							zIndex: 9999,
 						}}
-						className='rounded border bg-white p-3 shadow-lg'
+						className='rounded border bg-popover text-popover-foreground p-3 shadow-lg'
 						onMouseLeave={() => setHover(null)}
 					>
 						<p className='mb-2 text-xs text-muted-foreground'>
@@ -478,7 +517,7 @@ function GridPicker({
 							left: panelPos.left,
 							zIndex: 9999,
 						}}
-						className='w-44 rounded border bg-white py-1 shadow-lg'
+						className='w-44 rounded border bg-popover text-popover-foreground py-1 shadow-lg'
 					>
 						<p className='px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground'>
 							Skills Grid
@@ -502,6 +541,163 @@ function GridPicker({
 								<span className='ml-1 shrink-0 text-xs text-muted-foreground'>
 									{cols} cols
 								</span>
+							</button>
+						))}
+					</div>,
+					document.body,
+				)}
+		</div>
+	)
+}
+
+function FontSizeControl({
+	currentFontSize,
+	onSetFrontmatter,
+	frontmatter,
+}: {
+	currentFontSize: string
+	onSetFrontmatter?: (s: string) => void
+	frontmatter?: string
+}) {
+	const rawNum = currentFontSize.replace(/pt$/, '')
+	const [inputVal, setInputVal] = useState(rawNum)
+	const [open, setOpen] = useState(false)
+	const [panelPos, setPanelPos] = useState<{
+		top: number
+		left: number
+	} | null>(null)
+	const containerRef = useRef<HTMLDivElement>(null)
+	const panelRef = useRef<HTMLDivElement>(null)
+	const chevRef = useRef<HTMLButtonElement>(null)
+
+	const debouncedSet = useDebouncedCallback((next: string) => {
+		onSetFrontmatter?.(next)
+	}, 250)
+
+	useEffect(() => {
+		setInputVal(currentFontSize.replace(/pt$/, ''))
+	}, [currentFontSize])
+
+	useEffect(() => {
+		if (!open) return
+		const handleOut = (e: MouseEvent) => {
+			if (
+				panelRef.current
+				&& !panelRef.current.contains(e.target as Node)
+				&& containerRef.current
+				&& !containerRef.current.contains(e.target as Node)
+			) {
+				setOpen(false)
+			}
+		}
+		document.addEventListener('mousedown', handleOut)
+		return () => document.removeEventListener('mousedown', handleOut)
+	}, [open])
+
+	const PRESETS = [
+		'8',
+		'9',
+		'9.5',
+		'10',
+		'10.5',
+		'11',
+		'11.5',
+		'12',
+		'13',
+		'14',
+		'16',
+		'18',
+	]
+
+	function commit(val: string) {
+		const n = parseFloat(val)
+		if (isNaN(n) || n < 6 || n > 72) return
+		debouncedSet(setStyleKey('font-size', `${n}pt`, frontmatter))
+	}
+
+	return (
+		<div
+			ref={containerRef}
+			className='relative inline-flex h-8 items-center overflow-hidden rounded border bg-background focus-within:ring-1 focus-within:ring-ring'
+		>
+			<ALargeSmall className='ml-1.5 h-3.5 w-3.5 shrink-0 text-muted-foreground' />
+			<input
+				type='text'
+				value={inputVal}
+				onChange={e => setInputVal(e.target.value)}
+				onBlur={() => commit(inputVal)}
+				onKeyDown={e => {
+					if (e.key === 'Enter') {
+						e.currentTarget.blur()
+						commit(inputVal)
+					}
+					if (e.key === 'ArrowUp') {
+						e.preventDefault()
+						const n = parseFloat(inputVal)
+						if (!isNaN(n)) {
+							const next = String(
+								Math.min(72, parseFloat((n + 0.5).toFixed(1))),
+							)
+							setInputVal(next)
+							commit(next)
+						}
+					}
+					if (e.key === 'ArrowDown') {
+						e.preventDefault()
+						const n = parseFloat(inputVal)
+						if (!isNaN(n)) {
+							const next = String(Math.max(6, parseFloat((n - 0.5).toFixed(1))))
+							setInputVal(next)
+							commit(next)
+						}
+					}
+				}}
+				className='w-9 bg-transparent px-1.5 text-xs text-center focus:outline-none'
+				aria-label='Font size'
+			/>
+			<button
+				ref={chevRef}
+				type='button'
+				onClick={() => {
+					if (!open && chevRef.current) {
+						const rect = chevRef.current.getBoundingClientRect()
+						setPanelPos({ top: rect.bottom + 4, left: rect.left - 20 })
+					}
+					setOpen(o => !o)
+				}}
+				className='flex h-full w-5 items-center justify-center hover:bg-foreground/5'
+				aria-label='Font size presets'
+			>
+				<ChevronDown className='h-3 w-3 text-muted-foreground' />
+			</button>
+			{open
+				&& panelPos
+				&& createPortal(
+					<div
+						ref={panelRef}
+						style={{
+							position: 'fixed',
+							top: panelPos.top,
+							left: panelPos.left,
+							zIndex: 9999,
+						}}
+						className='w-14 rounded border bg-popover text-popover-foreground py-1 shadow-lg'
+					>
+						{PRESETS.map(s => (
+							<button
+								key={s}
+								type='button'
+								onClick={() => {
+									setInputVal(s)
+									commit(s)
+									setOpen(false)
+								}}
+								className={cn(
+									'w-full px-3 py-1 text-xs text-right hover:bg-foreground/5',
+									inputVal === s ? 'bg-foreground/5 font-medium' : '',
+								)}
+							>
+								{s}
 							</button>
 						))}
 					</div>,
@@ -596,7 +792,7 @@ function AlignDropdown({
 							left: panelPos.left,
 							zIndex: 9999,
 						}}
-						className='w-32 rounded border bg-white py-1 shadow-lg'
+						className='w-32 rounded border bg-popover text-popover-foreground py-1 shadow-lg'
 					>
 						{ALIGN_OPTIONS.map(opt => (
 							<button
@@ -635,85 +831,560 @@ export default function StyleToolbar({
 	onSetHighlight,
 	onClearFormatting,
 	onSetAlign,
-	editorMode = 'wysiwyg',
 	isMarkActive,
 	isListActive,
 	onInsertTable,
 	onInsertGrid,
 	onInsertDefList,
+	isNarrow = false,
 }: StyleToolbarProps) {
 	const currentPages =
 		parseInt(readYamlTopLevel('pages', frontmatter) ?? '1', 10) || 1
+	const currentFontSize = readStyleKey('font-size', frontmatter) ?? '11pt'
 
 	const debouncedSetFrontmatter = useDebouncedCallback((next: string) => {
 		onSetFrontmatter?.(next)
 	}, 250)
 
+	const [selectedHeaderLabel, setSelectedHeaderLabel] = useState('Normal')
+	const [selectedFont, setSelectedFont] = useState('')
+
+	// YAML panel state
+	const [showYamlPanel, setShowYamlPanel] = useState(false)
+	const [yamlPanelPos, setYamlPanelPos] = useState<{
+		top: number
+		left: number
+	} | null>(null)
+	const [localYaml, setLocalYaml] = useState(frontmatter ?? '')
+	const yamlBtnRef = useRef<HTMLButtonElement>(null)
+	const yamlPanelRef = useRef<HTMLDivElement>(null)
+
+	useEffect(() => {
+		if (!showYamlPanel) setLocalYaml(frontmatter ?? '')
+	}, [frontmatter, showYamlPanel])
+
+	useEffect(() => {
+		if (!showYamlPanel) return
+		const handleOut = (e: MouseEvent) => {
+			if (
+				yamlPanelRef.current
+				&& !yamlPanelRef.current.contains(e.target as Node)
+				&& yamlBtnRef.current
+				&& !yamlBtnRef.current.contains(e.target as Node)
+			) {
+				setShowYamlPanel(false)
+			}
+		}
+		document.addEventListener('mousedown', handleOut)
+		return () => document.removeEventListener('mousedown', handleOut)
+	}, [showYamlPanel])
+
+	function handleYamlBtnClick() {
+		if (showYamlPanel) {
+			setShowYamlPanel(false)
+			return
+		}
+		const rect = yamlBtnRef.current?.getBoundingClientRect()
+		if (rect) {
+			setYamlPanelPos({ top: rect.bottom + 6, left: rect.left })
+		}
+		setLocalYaml(frontmatter ?? '')
+		setShowYamlPanel(true)
+	}
+
 	const iconBtn = (active?: boolean) =>
 		cn('h-8 w-8 p-0', active ? 'bg-foreground/10' : '')
+
+	const groupTriggerCls =
+		'flex items-center gap-1 h-8 rounded px-2 text-xs hover:bg-muted transition-colors focus:outline-none border bg-background shrink-0'
+
+	const yamlPortal =
+		showYamlPanel
+		&& yamlPanelPos
+		&& createPortal(
+			<div
+				ref={yamlPanelRef}
+				style={{
+					position: 'fixed',
+					top: yamlPanelPos.top,
+					left: yamlPanelPos.left,
+					zIndex: 9999,
+				}}
+				className='w-80 rounded-lg border bg-background shadow-xl'
+			>
+				<div className='flex items-center justify-between border-b px-3 py-2'>
+					<span className='text-xs font-medium text-muted-foreground'>
+						Resume configuration (YAML)
+					</span>
+					<button
+						type='button'
+						onClick={() => setShowYamlPanel(false)}
+						className='text-muted-foreground hover:text-foreground text-sm leading-none'
+						aria-label='Close'
+					>
+						✕
+					</button>
+				</div>
+				<div className='p-3'>
+					<textarea
+						value={localYaml}
+						onChange={e => {
+							setLocalYaml(e.target.value)
+							debouncedSetFrontmatter(e.target.value)
+						}}
+						className='h-48 w-full rounded border bg-background p-2 font-mono text-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring'
+						spellCheck={false}
+						placeholder='pages: 1&#10;style:&#10;  font-size: 11pt'
+					/>
+				</div>
+			</div>,
+			document.body,
+		)
+
+	if (isNarrow) {
+		return (
+			<div className='inline-flex flex-nowrap items-center gap-1 px-2'>
+				{/* Pages stepper */}
+				<div className='inline-flex h-8 items-center gap-1 overflow-hidden rounded border bg-background px-2 shrink-0'>
+					<span className='text-xs text-muted-foreground select-none'>
+						page:
+					</span>
+					<span className='min-w-[1.25ch] text-center text-sm'>
+						{currentPages}
+					</span>
+					<div className='flex flex-col -my-0.5'>
+						<button
+							type='button'
+							onClick={() => {
+								if (!onSetFrontmatter) return
+								const next = currentPages + 1
+								debouncedSetFrontmatter(
+									setYamlTopLevel('pages', next, frontmatter),
+								)
+							}}
+							className='flex h-3.5 w-4 items-center justify-center rounded-sm hover:bg-foreground/5'
+							aria-label='Increase pages'
+						>
+							<ChevronUp className='h-2.5 w-2.5' />
+						</button>
+						<button
+							type='button'
+							onClick={() => {
+								if (!onSetFrontmatter) return
+								const next = Math.max(1, currentPages - 1)
+								debouncedSetFrontmatter(
+									setYamlTopLevel('pages', next, frontmatter),
+								)
+							}}
+							className='flex h-3.5 w-4 items-center justify-center rounded-sm hover:bg-foreground/5'
+							aria-label='Decrease pages'
+						>
+							<ChevronDown className='h-2.5 w-2.5' />
+						</button>
+					</div>
+				</div>
+
+				<div className='mx-0.5 h-6 w-px bg-border shrink-0' />
+
+				{/* Text group */}
+				<Popover>
+					<PopoverTrigger asChild>
+						<button type='button' className={groupTriggerCls}>
+							<Bold className='h-3.5 w-3.5' />
+							<span>Text</span>
+							<ChevronDown className='h-3 w-3 text-muted-foreground' />
+						</button>
+					</PopoverTrigger>
+					<PopoverContent className='w-auto p-2' align='start' sideOffset={6}>
+						<div className='flex items-center gap-0.5'>
+							<Button
+								type='button'
+								variant='ghost'
+								size='sm'
+								onMouseDown={e => e.preventDefault()}
+								onClick={() => onToggleMark?.('bold')}
+								aria-label='Bold'
+								className={iconBtn(isMarkActive?.('bold'))}
+							>
+								<Bold className='h-4 w-4' />
+							</Button>
+							<Button
+								type='button'
+								variant='ghost'
+								size='sm'
+								onMouseDown={e => e.preventDefault()}
+								onClick={() => onToggleMark?.('italic')}
+								aria-label='Italic'
+								className={iconBtn(isMarkActive?.('italic'))}
+							>
+								<Italic className='h-4 w-4' />
+							</Button>
+							<Button
+								type='button'
+								variant='ghost'
+								size='sm'
+								onMouseDown={e => e.preventDefault()}
+								onClick={() => onToggleMark?.('underline')}
+								aria-label='Underline'
+								className={iconBtn(isMarkActive?.('underline'))}
+							>
+								<Underline className='h-4 w-4' />
+							</Button>
+							<Button
+								type='button'
+								variant='ghost'
+								size='sm'
+								onMouseDown={e => e.preventDefault()}
+								onClick={() => onToggleMark?.('strike')}
+								aria-label='Strikethrough'
+								className={iconBtn(isMarkActive?.('strike'))}
+							>
+								<Strikethrough className='h-4 w-4' />
+							</Button>
+							<div className='mx-1 h-6 w-px bg-border' />
+							<Button
+								type='button'
+								variant='ghost'
+								size='sm'
+								onMouseDown={e => e.preventDefault()}
+								onClick={() => onClearFormatting?.()}
+								className='h-8 w-8 p-0'
+								aria-label='Clear formatting'
+							>
+								<RefreshCw className='h-4 w-4' />
+							</Button>
+						</div>
+					</PopoverContent>
+				</Popover>
+
+				{/* Styles group */}
+				<Popover>
+					<PopoverTrigger asChild>
+						<button type='button' className={groupTriggerCls}>
+							<Heading className='h-3.5 w-3.5' />
+							<span>Styles</span>
+							<ChevronDown className='h-3 w-3 text-muted-foreground' />
+						</button>
+					</PopoverTrigger>
+					<PopoverContent className='w-auto p-2' align='start' sideOffset={6}>
+						<div className='flex flex-col gap-2'>
+							<div className='flex items-center gap-1 flex-wrap'>
+								{/* Header dropdown */}
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<button
+											type='button'
+											className='flex items-center gap-1.5 h-8 rounded-md border bg-background px-2 text-xs hover:bg-muted transition-colors focus:outline-none min-w-[84px]'
+											aria-label='Header level'
+										>
+											<Heading className='h-3.5 w-3.5 text-muted-foreground shrink-0' />
+											<span className='flex-1 text-left'>
+												{selectedHeaderLabel}
+											</span>
+											<ChevronDown className='h-3 w-3 text-muted-foreground shrink-0' />
+										</button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent
+										align='start'
+										className='rounded-xl p-1 min-w-[100px]'
+									>
+										{[
+											{ label: 'Normal', value: 0 },
+											{ label: 'H1', value: 1 },
+											{ label: 'H2', value: 2 },
+											{ label: 'H3', value: 3 },
+											{ label: 'H4', value: 4 },
+											{ label: 'H5', value: 5 },
+											{ label: 'H6', value: 6 },
+										].map(item => (
+											<DropdownMenuItem
+												key={item.value}
+												onClick={() => {
+													onSetHeader?.(item.value)
+													setSelectedHeaderLabel(item.label)
+												}}
+												className={cn(
+													'text-xs rounded-lg cursor-pointer',
+													selectedHeaderLabel === item.label
+														&& 'bg-foreground/5 font-medium',
+												)}
+											>
+												{item.label}
+											</DropdownMenuItem>
+										))}
+									</DropdownMenuContent>
+								</DropdownMenu>
+
+								{/* Font size */}
+								<FontSizeControl
+									currentFontSize={currentFontSize}
+									onSetFrontmatter={onSetFrontmatter}
+									frontmatter={frontmatter}
+								/>
+							</div>
+
+							{/* Font selector */}
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<button
+										type='button'
+										className='flex items-center gap-1.5 h-8 rounded-md border bg-background px-2 text-xs hover:bg-muted transition-colors focus:outline-none w-full'
+										aria-label='Font'
+									>
+										<Type className='h-3.5 w-3.5 text-muted-foreground shrink-0' />
+										<span className='flex-1 text-left truncate'>
+											{selectedFont || 'Font…'}
+										</span>
+										<ChevronDown className='h-3 w-3 text-muted-foreground shrink-0' />
+									</button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent
+									align='start'
+									className='rounded-xl p-1 max-h-72 overflow-y-auto w-32'
+								>
+									{FONT_GROUPS.map((group, gi) => (
+										<React.Fragment key={group.label}>
+											{gi > 0 && <DropdownMenuSeparator />}
+											<DropdownMenuLabel className='text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-2 py-1'>
+												{group.label}
+											</DropdownMenuLabel>
+											{group.fonts.map(font => (
+												<DropdownMenuItem
+													key={font}
+													onClick={() => {
+														onSetFont?.(font)
+														setSelectedFont(font)
+													}}
+													className={cn(
+														'text-xs rounded-lg cursor-pointer',
+														selectedFont === font
+															&& 'bg-foreground/5 font-medium',
+													)}
+												>
+													{font}
+												</DropdownMenuItem>
+											))}
+										</React.Fragment>
+									))}
+								</DropdownMenuContent>
+							</DropdownMenu>
+
+							{/* Alignment */}
+							<div className='flex items-center gap-1'>
+								<AlignDropdown onSetAlign={onSetAlign} />
+							</div>
+						</div>
+					</PopoverContent>
+				</Popover>
+
+				{/* Insert group */}
+				<Popover>
+					<PopoverTrigger asChild>
+						<button type='button' className={groupTriggerCls}>
+							<Table2 className='h-3.5 w-3.5' />
+							<span>Insert</span>
+							<ChevronDown className='h-3 w-3 text-muted-foreground' />
+						</button>
+					</PopoverTrigger>
+					<PopoverContent className='w-auto p-2' align='start' sideOffset={6}>
+						<div className='flex items-center gap-0.5'>
+							<Button
+								type='button'
+								variant='ghost'
+								size='sm'
+								onMouseDown={e => e.preventDefault()}
+								onClick={() => onToggleList?.('bullet')}
+								aria-label='Bullet list'
+								className={iconBtn(isListActive?.('bullet'))}
+							>
+								<List className='h-4 w-4' />
+							</Button>
+							<Button
+								type='button'
+								variant='ghost'
+								size='sm'
+								onMouseDown={e => e.preventDefault()}
+								onClick={() => onToggleList?.('ordered')}
+								aria-label='Numbered list'
+								className={iconBtn(isListActive?.('ordered'))}
+							>
+								<ListOrdered className='h-4 w-4' />
+							</Button>
+							<Button
+								type='button'
+								variant='ghost'
+								size='sm'
+								onClick={() => onInsertDefList?.()}
+								className='h-8 w-8 p-0'
+								aria-label='Insert definition list'
+							>
+								<LayoutList className='h-4 w-4' />
+							</Button>
+							<TablePicker onInsertTable={onInsertTable} />
+							<GridPicker onInsertGrid={onInsertGrid} />
+						</div>
+					</PopoverContent>
+				</Popover>
+
+				{/* Format (always visible) */}
+				<button
+					ref={yamlBtnRef}
+					type='button'
+					onClick={handleYamlBtnClick}
+					className={cn(
+						'inline-flex h-8 items-center gap-1.5 rounded px-2 text-sm hover:bg-foreground/5 shrink-0',
+						showYamlPanel && 'bg-foreground/10',
+					)}
+					aria-label='Edit frontmatter'
+					title='Edit frontmatter YAML'
+				>
+					<SlidersHorizontal className='h-4 w-4' />
+				</button>
+
+				{yamlPortal}
+			</div>
+		)
+	}
 
 	return (
 		<div className='inline-flex flex-wrap items-center gap-1 px-2'>
 			{/* Pages stepper */}
-			<div className='inline-flex h-8 items-center overflow-hidden rounded border bg-background'>
-				<button
-					type='button'
-					onClick={() => {
-						if (!onSetFrontmatter) return
-						const next = Math.max(1, currentPages - 1)
-						debouncedSetFrontmatter(setYamlTopLevel('pages', next, frontmatter))
-					}}
-					className='flex h-full w-7 items-center justify-center border-r text-sm hover:bg-foreground/5'
-					aria-label='Decrease pages'
-				>
-					−
-				</button>
-				<span className='w-6 text-center text-sm'>{currentPages}</span>
-				<button
-					type='button'
-					onClick={() => {
-						if (!onSetFrontmatter) return
-						const next = currentPages + 1
-						debouncedSetFrontmatter(setYamlTopLevel('pages', next, frontmatter))
-					}}
-					className='flex h-full w-7 items-center justify-center border-l text-sm hover:bg-foreground/5'
-					aria-label='Increase pages'
-				>
-					+
-				</button>
+			<div className='inline-flex h-8 items-center gap-1 overflow-hidden rounded border bg-background px-2'>
+				<span className='text-xs text-muted-foreground select-none'>page:</span>
+				<span className='min-w-[1.25ch] text-center text-sm'>
+					{currentPages}
+				</span>
+				<div className='flex flex-col -my-0.5'>
+					<button
+						type='button'
+						onClick={() => {
+							if (!onSetFrontmatter) return
+							const next = currentPages + 1
+							debouncedSetFrontmatter(
+								setYamlTopLevel('pages', next, frontmatter),
+							)
+						}}
+						className='flex h-3.5 w-4 items-center justify-center rounded-sm hover:bg-foreground/5'
+						aria-label='Increase pages'
+					>
+						<ChevronUp className='h-2.5 w-2.5' />
+					</button>
+					<button
+						type='button'
+						onClick={() => {
+							if (!onSetFrontmatter) return
+							const next = Math.max(1, currentPages - 1)
+							debouncedSetFrontmatter(
+								setYamlTopLevel('pages', next, frontmatter),
+							)
+						}}
+						className='flex h-3.5 w-4 items-center justify-center rounded-sm hover:bg-foreground/5'
+						aria-label='Decrease pages'
+					>
+						<ChevronDown className='h-2.5 w-2.5' />
+					</button>
+				</div>
 			</div>
+
+			{/* Font size (writes style.font-size in frontmatter) */}
+			<FontSizeControl
+				currentFontSize={currentFontSize}
+				onSetFrontmatter={onSetFrontmatter}
+				frontmatter={frontmatter}
+			/>
 
 			<div className='mx-1 h-6 w-px bg-border' />
 
 			{/* Header level dropdown */}
 			<label className='sr-only'>Header level</label>
-			<select
-				className='h-8 w-24 rounded border bg-background px-2 text-sm'
-				aria-label='Header level'
-				onChange={e => onSetHeader?.(parseInt(e.target.value, 10))}
-			>
-				<option value={0}>Normal</option>
-				<option value={1}>H1</option>
-				<option value={2}>H2</option>
-				<option value={3}>H3</option>
-				<option value={4}>H4</option>
-				<option value={5}>H5</option>
-				<option value={6}>H6</option>
-			</select>
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<button
+						type='button'
+						className='flex items-center gap-1.5 h-8 rounded-md border bg-background px-2 text-xs hover:bg-muted transition-colors focus:outline-none min-w-[84px]'
+						aria-label='Header level'
+					>
+						<Heading className='h-3.5 w-3.5 text-muted-foreground shrink-0' />
+						<span className='flex-1 text-left'>{selectedHeaderLabel}</span>
+						<ChevronDown className='h-3 w-3 text-muted-foreground shrink-0' />
+					</button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent
+					align='start'
+					className='rounded-xl p-1 min-w-[100px]'
+				>
+					{[
+						{ label: 'Normal', value: 0 },
+						{ label: 'H1', value: 1 },
+						{ label: 'H2', value: 2 },
+						{ label: 'H3', value: 3 },
+						{ label: 'H4', value: 4 },
+						{ label: 'H5', value: 5 },
+						{ label: 'H6', value: 6 },
+					].map(item => (
+						<DropdownMenuItem
+							key={item.value}
+							onClick={() => {
+								onSetHeader?.(item.value)
+								setSelectedHeaderLabel(item.label)
+							}}
+							className={cn(
+								'text-xs rounded-lg cursor-pointer',
+								selectedHeaderLabel === item.label
+									&& 'bg-foreground/5 font-medium',
+							)}
+						>
+							{item.label}
+						</DropdownMenuItem>
+					))}
+				</DropdownMenuContent>
+			</DropdownMenu>
 
 			{/* Font selector */}
 			<label className='sr-only'>Font</label>
-			<select
-				className='h-8 w-28 rounded border bg-background px-2 text-sm'
-				aria-label='Font'
-				onChange={e => onSetFont?.(e.target.value)}
-			>
-				<option value='Inter'>Inter</option>
-				<option value='Roboto'>Roboto</option>
-				<option value='Open Sans'>Open Sans</option>
-				<option value='Georgia'>Georgia</option>
-				<option value='Source Code Pro'>Mono</option>
-			</select>
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<button
+						type='button'
+						className='flex items-center gap-1.5 h-8 rounded-md border bg-background px-2 text-xs hover:bg-muted transition-colors focus:outline-none w-24'
+						aria-label='Font'
+					>
+						<Type className='h-3.5 w-3.5 text-muted-foreground shrink-0' />
+						<span className='flex-1 text-left truncate'>
+							{selectedFont || 'Font…'}
+						</span>
+						<ChevronDown className='h-3 w-3 text-muted-foreground shrink-0' />
+					</button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent
+					align='start'
+					className='rounded-xl p-1 max-h-72 overflow-y-auto w-32'
+				>
+					{FONT_GROUPS.map((group, gi) => (
+						<React.Fragment key={group.label}>
+							{gi > 0 && <DropdownMenuSeparator />}
+							<DropdownMenuLabel className='text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-2 py-1'>
+								{group.label}
+							</DropdownMenuLabel>
+							{group.fonts.map(font => (
+								<DropdownMenuItem
+									key={font}
+									onClick={() => {
+										onSetFont?.(font)
+										setSelectedFont(font)
+									}}
+									className={cn(
+										'text-xs rounded-lg cursor-pointer',
+										selectedFont === font && 'bg-foreground/5 font-medium',
+									)}
+								>
+									{font}
+								</DropdownMenuItem>
+							))}
+						</React.Fragment>
+					))}
+				</DropdownMenuContent>
+			</DropdownMenu>
 
 			<div className='mx-1 h-6 w-px bg-border' />
 
@@ -812,20 +1483,13 @@ export default function StyleToolbar({
 
 			{/* Structure insertion: table, skills grid, definition list (markdown only) */}
 			<div className='inline-flex items-center gap-0.5'>
-				<TablePicker
-					onInsertTable={onInsertTable}
-					disabled={editorMode === 'wysiwyg'}
-				/>
-				<GridPicker
-					onInsertGrid={onInsertGrid}
-					disabled={editorMode === 'wysiwyg'}
-				/>
+				<TablePicker onInsertTable={onInsertTable} />
+				<GridPicker onInsertGrid={onInsertGrid} />
 				<Button
 					type='button'
 					variant='ghost'
 					size='sm'
 					onClick={() => onInsertDefList?.()}
-					disabled={editorMode === 'wysiwyg'}
 					className='h-8 w-8 p-0 disabled:opacity-40'
 					aria-label='Insert definition list'
 					title='Definition list (markdown)'
@@ -849,6 +1513,26 @@ export default function StyleToolbar({
 				<RefreshCw className='h-4 w-4' />
 				Clear
 			</Button>
+
+			<div className='mx-1 h-6 w-px bg-border' />
+
+			{/* YAML frontmatter editor */}
+			<button
+				ref={yamlBtnRef}
+				type='button'
+				onClick={handleYamlBtnClick}
+				className={cn(
+					'inline-flex h-8 items-center gap-1.5 rounded px-2 text-sm hover:bg-foreground/5',
+					showYamlPanel && 'bg-foreground/10',
+				)}
+				aria-label='Edit frontmatter'
+				title='Edit frontmatter YAML'
+			>
+				<SlidersHorizontal className='h-4 w-4' />
+				<span className='hidden sm:inline'>Format</span>
+			</button>
+
+			{yamlPortal}
 		</div>
 	)
 }
