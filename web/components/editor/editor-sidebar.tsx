@@ -43,6 +43,7 @@ interface EditorSidebarProps {
 	chatActions: ChatActions
 	onInsert?: (syntax: string, url: string) => void
 	isNarrow?: boolean
+	canUseAi?: boolean
 }
 
 export function EditorSidebar({
@@ -53,6 +54,7 @@ export function EditorSidebar({
 	chatActions,
 	onInsert,
 	isNarrow = false,
+	canUseAi = true,
 }: EditorSidebarProps) {
 	const [activePanel, setActivePanel] = useState<PanelId | null>(null)
 	const [settingsOpen, setSettingsOpen] = useState(false)
@@ -156,7 +158,7 @@ export function EditorSidebar({
 						<RailButton
 							label='AI Assistant'
 							active={activePanel === 'ai'}
-							onClick={() => toggle('ai')}
+							onClick={() => canUseAi && toggle('ai')}
 						>
 							<Sparkles className='h-5 w-5' />
 						</RailButton>
@@ -219,7 +221,7 @@ export function EditorSidebar({
 											<TooltipContent side='bottom'>New resume</TooltipContent>
 										</Tooltip>
 									)}
-									{activePanel === 'ai' && (
+									{activePanel === 'ai' && canUseAi && (
 										<Tooltip>
 											<TooltipTrigger asChild>
 												<button
@@ -284,12 +286,17 @@ export function EditorSidebar({
 								{activePanel === 'icons' && (
 									<IconBrowser variant='sidebar' onInsert={onInsert} />
 								)}
-								{activePanel === 'ai' && (
+								{activePanel === 'ai' && canUseAi && (
 									<ChatPanel
 										key={chatKey}
 										markdown={markdown}
 										chatActions={chatActions}
 									/>
+								)}
+								{activePanel === 'ai' && !canUseAi && (
+									<div className='flex h-full items-center justify-center px-6 text-center text-sm text-muted-foreground'>
+										AI tools are available only while editing.
+									</div>
 								)}
 							</div>
 						</div>

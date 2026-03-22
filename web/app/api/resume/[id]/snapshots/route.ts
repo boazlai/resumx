@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/db'
 import { resumeSnapshots, resumes } from '@/lib/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
+import { getResumeAccess } from '@/lib/resume-access'
 
 const MAX_SNAPSHOTS = 50
 
@@ -18,12 +19,15 @@ export async function GET(
 		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
 	const { id } = await params
-
-	const resume = await db.query.resumes.findFirst({
-		where: and(eq(resumes.id, id), eq(resumes.userId, user.id)),
-		columns: { id: true },
+	const access = await getResumeAccess(id, {
+		id: user.id,
+		email: user.email,
+		name: user.user_metadata?.full_name ?? '',
+		avatarUrl: user.user_metadata?.avatar_url ?? '',
 	})
-	if (!resume) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+	if (!access) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+	if (!access.canRestoreSnapshots)
+		return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
 	const snapshots = await db
 		.select()
@@ -31,7 +35,7 @@ export async function GET(
 		.where(
 			and(
 				eq(resumeSnapshots.resumeId, id),
-				eq(resumeSnapshots.userId, user.id),
+				eq(resumeSnapshots.userId, access.resume.userId),
 			),
 		)
 		.orderBy(desc(resumeSnapshots.createdAt))
@@ -52,12 +56,15 @@ export async function POST(
 		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
 	const { id } = await params
-
-	const resume = await db.query.resumes.findFirst({
-		where: and(eq(resumes.id, id), eq(resumes.userId, user.id)),
-		columns: { id: true },
+	const access = await getResumeAccess(id, {
+		id: user.id,
+		email: user.email,
+		name: user.user_metadata?.full_name ?? '',
+		avatarUrl: user.user_metadata?.avatar_url ?? '',
 	})
-	if (!resume) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+	if (!access) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+	if (!access.canCreateSnapshots)
+		return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
 	const body = await req.json().catch(() => ({}))
 	const { markdown, label } = body as { markdown?: string; label?: string }
@@ -72,7 +79,7 @@ export async function POST(
 		.where(
 			and(
 				eq(resumeSnapshots.resumeId, id),
-				eq(resumeSnapshots.userId, user.id),
+				eq(resumeSnapshots.userId, access.resume.userId),
 			),
 		)
 		.orderBy(desc(resumeSnapshots.createdAt))
@@ -87,7 +94,7 @@ export async function POST(
 		.insert(resumeSnapshots)
 		.values({
 			resumeId: id,
-			userId: user.id,
+			userId: access.resume.userId,
 			markdown,
 			label: label ?? null,
 		})

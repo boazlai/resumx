@@ -32,6 +32,7 @@ import {
 import { useToast } from '@/lib/toast'
 import { cn } from '@/lib/utils'
 import type { SaveStatus } from './types'
+import type { ResumeAccessRole } from '@/lib/resume-access'
 
 type ExportFormat = 'pdf' | 'html' | 'docx'
 
@@ -71,10 +72,14 @@ interface EditorToolbarProps {
 	onDuplicate?: () => void
 	onPrint?: () => void
 	onOpenShare?: () => void
+	onOpenCollaborators?: () => void
 	onOpenHistory?: () => void
 	showPreview?: boolean
 	onTogglePreview?: () => void
 	isNarrow?: boolean
+	accessRole?: ResumeAccessRole
+	canEdit?: boolean
+	canManageCollaborators?: boolean
 }
 
 const EXPORT_LABELS: Record<ExportFormat, string> = {
@@ -126,10 +131,14 @@ export function EditorToolbar({
 	onDuplicate,
 	onPrint,
 	onOpenShare,
+	onOpenCollaborators,
 	onOpenHistory,
 	showPreview = true,
 	onTogglePreview,
 	isNarrow = false,
+	accessRole = 'owner',
+	canEdit = true,
+	canManageCollaborators = false,
 }: EditorToolbarProps) {
 	const { toast } = useToast()
 	const [exporting, setExporting] = useState<ExportFormat | null>(null)
@@ -220,8 +229,12 @@ export function EditorToolbar({
 						value={title}
 						onChange={e => onTitleChange(e.target.value)}
 						placeholder='Untitled Resume'
+						readOnly={!canEdit}
 						className='min-w-0 flex-1 truncate border-b border-transparent bg-transparent text-sm font-medium outline-none transition-colors placeholder:text-muted-foreground hover:border-border focus:border-foreground'
 					/>
+					<span className='rounded-full border px-2.5 py-1 text-xs font-medium capitalize text-muted-foreground'>
+						{accessRole}
+					</span>
 				</div>
 
 				<div className='flex items-center gap-2 ml-auto'>
@@ -270,6 +283,23 @@ export function EditorToolbar({
 							</Tooltip>
 						)}
 
+						{onOpenCollaborators && canManageCollaborators && (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										variant='ghost'
+										size='sm'
+										className='h-8 px-2 shrink-0'
+										onClick={onOpenCollaborators}
+									>
+										<Share2 className='h-4 w-4' />
+										<span className='sr-only'>Manage collaborators</span>
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>Manage collaborators</TooltipContent>
+							</Tooltip>
+						)}
+
 						{/* Duplicate */}
 						{onDuplicate && (
 							<Tooltip>
@@ -313,7 +343,7 @@ export function EditorToolbar({
 						variant='outline'
 						size='sm'
 						onClick={onCompile}
-						disabled={isCompiling}
+						disabled={isCompiling || !canEdit}
 						className='shrink-0 gap-1.5'
 					>
 						{isCompiling ?
@@ -328,7 +358,7 @@ export function EditorToolbar({
 							<Button
 								variant='default'
 								size='sm'
-								disabled={exporting !== null}
+								disabled={exporting !== null || !canEdit}
 								className='shrink-0'
 							>
 								{exporting ?
@@ -359,6 +389,7 @@ export function EditorToolbar({
 			>
 				<div className='flex-1'>
 					<StyleToolbar
+						disabled={!canEdit}
 						frontmatter={frontmatter}
 						onSetFrontmatter={onSetFrontmatter}
 						onToggleMark={onToggleMark}

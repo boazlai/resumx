@@ -1,9 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { db } from '@/lib/db'
-import { resumes } from '@/lib/db/schema'
-import { eq, and } from 'drizzle-orm'
 import { EditorShell } from '@/components/editor/editor-shell'
+import { getResumeAccess } from '@/lib/resume-access'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -21,22 +19,24 @@ export default async function ResumePage({ params }: Props) {
 	} = await supabase.auth.getUser()
 	if (!user) redirect('/sign-in')
 
-	const [row] = await db
-		.select()
-		.from(resumes)
-		.where(and(eq(resumes.id, id), eq(resumes.userId, user.id)))
-		.limit(1)
+	const access = await getResumeAccess(id, {
+		id: user.id,
+		email: user.email,
+		name: user.user_metadata?.full_name ?? '',
+		avatarUrl: user.user_metadata?.avatar_url ?? '',
+	})
 
-	if (!row) notFound()
+	if (!access) notFound()
 
 	return (
 		<EditorShell
-			resume={row}
+			resume={access.resume}
 			user={{
 				email: user.email ?? '',
 				name: user.user_metadata?.full_name ?? '',
 				avatarUrl: user.user_metadata?.avatar_url ?? '',
 			}}
+			access={access}
 		/>
 	)
 }

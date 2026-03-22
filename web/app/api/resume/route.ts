@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { resumes } from '@/lib/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
+import { listAccessibleResumes } from '@/lib/resume-access'
 
 // GET /api/resume — list all resumes for the current user
 export async function GET() {
@@ -15,17 +16,12 @@ export async function GET() {
 		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 	}
 
-	const rows = await db
-		.select({
-			id: resumes.id,
-			title: resumes.title,
-			tags: resumes.tags,
-			createdAt: resumes.createdAt,
-			updatedAt: resumes.updatedAt,
-		})
-		.from(resumes)
-		.where(eq(resumes.userId, user.id))
-		.orderBy(resumes.updatedAt)
+	const rows = await listAccessibleResumes({
+		id: user.id,
+		email: user.email,
+		name: user.user_metadata?.full_name ?? '',
+		avatarUrl: user.user_metadata?.avatar_url ?? '',
+	})
 
 	return NextResponse.json(rows)
 }

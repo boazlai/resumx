@@ -49,7 +49,7 @@ Most resume effort goes to layout and styling, the factors that matter least for
   ```
 - **Markdown in, schema out.** Write plain Markdown. The [schema is inferred](https://resumx.dev/guide/semantic-selectors.html).
 - **PDF, HTML, DOCX, and PNG** from a single source.
-- **Multi-language, variables, live preview, and more.**
+- **Multi-language, variables, live preview, shared viewer/editor access in the web app, and more.**
 
 ## Already Have a Resume?
 

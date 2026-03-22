@@ -1,5 +1,6 @@
 import {
 	pgTable,
+	pgEnum,
 	uuid,
 	text,
 	timestamp,
@@ -25,6 +26,12 @@ export const resumes = pgTable('resumes', {
 
 export type Resume = typeof resumes.$inferSelect
 export type NewResume = typeof resumes.$inferInsert
+
+export const collaborationRoleEnum = pgEnum('collaboration_role', [
+	'viewer',
+	'commenter',
+	'editor',
+])
 
 export const userIcons = pgTable(
 	'user_icons',
@@ -89,3 +96,27 @@ export const resumeShares = pgTable(
 )
 
 export type ResumeShare = typeof resumeShares.$inferSelect
+
+export const resumeCollaborators = pgTable(
+	'resume_collaborators',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		resumeId: uuid('resume_id').notNull(),
+		ownerUserId: uuid('owner_user_id').notNull(),
+		userId: uuid('user_id'),
+		email: text('email').notNull(),
+		displayName: text('display_name'),
+		avatarUrl: text('avatar_url'),
+		role: collaborationRoleEnum('role').notNull().default('viewer'),
+		acceptedAt: timestamp('accepted_at', { withTimezone: true }),
+		createdAt: timestamp('created_at', { withTimezone: true })
+			.notNull()
+			.defaultNow(),
+		updatedAt: timestamp('updated_at', { withTimezone: true })
+			.notNull()
+			.defaultNow(),
+	},
+	t => [unique().on(t.resumeId, t.email), unique().on(t.resumeId, t.userId)],
+)
+
+export type ResumeCollaborator = typeof resumeCollaborators.$inferSelect

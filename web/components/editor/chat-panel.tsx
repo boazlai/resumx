@@ -204,6 +204,8 @@ function TypedText({ text }: { text: string }) {
 
 export function ChatPanel({ markdown, chatActions }: ChatPanelProps) {
 	const [messages, setMessages] = useState<Message[]>([])
+	const messagesRef = useRef<Message[]>([])
+	messagesRef.current = messages
 	const [input, setInput] = useState('')
 	const [isStreaming, setIsStreaming] = useState(false)
 	const [mode, setMode] = useState<'plan' | 'edit' | 'evaluate'>('edit')
@@ -373,22 +375,8 @@ export function ChatPanel({ markdown, chatActions }: ChatPanelProps) {
 					// Register inline editor callbacks for each suggestion
 					for (const s of suggestions) {
 						registerDiffActions(s.id, {
-							onAccept: () =>
-								setMessages(prev => {
-									const msg = prev.find(m =>
-										m.suggestions?.some(x => x.id === s.id),
-									)
-									if (msg) handleAcceptOne(msg, s.id)
-									return prev
-								}),
-							onReject: () =>
-								setMessages(prev => {
-									const msg = prev.find(m =>
-										m.suggestions?.some(x => x.id === s.id),
-									)
-									if (msg) handleRejectOne(msg, s.id)
-									return prev
-								}),
+							onAccept: () => handleAcceptOneById(s.id),
+							onReject: () => handleRejectOneById(s.id),
 						})
 					}
 
@@ -410,22 +398,8 @@ export function ChatPanel({ markdown, chatActions }: ChatPanelProps) {
 							{ id: '__suggestion__', from, to, replacement: suggestion },
 						])
 						registerDiffActions('__suggestion__', {
-							onAccept: () =>
-								setMessages(prev => {
-									const msg = prev.find(m =>
-										m.suggestions?.some(x => x.id === '__suggestion__'),
-									)
-									if (msg) handleAcceptOne(msg, '__suggestion__')
-									return prev
-								}),
-							onReject: () =>
-								setMessages(prev => {
-									const msg = prev.find(m =>
-										m.suggestions?.some(x => x.id === '__suggestion__'),
-									)
-									if (msg) handleRejectOne(msg, '__suggestion__')
-									return prev
-								}),
+							onAccept: () => handleAcceptOneById('__suggestion__'),
+							onReject: () => handleRejectOneById('__suggestion__'),
 						})
 						setMessages(prev =>
 							prev.map(m =>
@@ -500,6 +474,63 @@ export function ChatPanel({ markdown, chatActions }: ChatPanelProps) {
 	const handleRejectOne = useCallback(
 		(msg: Message, suggestionId: string) => {
 			const s = msg.suggestions?.find(s => s.id === suggestionId)
+			if (!s || s.accepted !== null) return
+			chatActions.clearDiffById(s.id)
+			unregisterDiffActions(s.id)
+			setMessages(prev =>
+				prev.map(m =>
+					m.id === msg.id ?
+						{
+							...m,
+							suggestions: m.suggestions!.map(x =>
+								x.id === suggestionId ? { ...x, accepted: false } : x,
+							),
+						}
+					:	m,
+				),
+			)
+		},
+		[chatActions],
+	)
+
+	/** Called directly from CodeMirror widget buttons — avoids nesting setMessages inside setMessages. */
+	const handleAcceptOneById = useCallback(
+		(suggestionId: string) => {
+			const msg = messagesRef.current.find(m =>
+				m.suggestions?.some(x => x.id === suggestionId),
+			)
+			if (!msg) return
+			const s = msg.suggestions!.find(x => x.id === suggestionId)
+			if (!s || s.accepted !== null) return
+			const from = bodyOf(markdownRef.current).indexOf(s.findText)
+			if (from !== -1) {
+				chatActions.applyEdit(from, from + s.findText.length, s.replaceText)
+			}
+			chatActions.clearDiffById(s.id)
+			unregisterDiffActions(s.id)
+			setMessages(prev =>
+				prev.map(m =>
+					m.id === msg.id ?
+						{
+							...m,
+							suggestions: m.suggestions!.map(x =>
+								x.id === suggestionId ? { ...x, accepted: true } : x,
+							),
+						}
+					:	m,
+				),
+			)
+		},
+		[chatActions],
+	)
+
+	const handleRejectOneById = useCallback(
+		(suggestionId: string) => {
+			const msg = messagesRef.current.find(m =>
+				m.suggestions?.some(x => x.id === suggestionId),
+			)
+			if (!msg) return
+			const s = msg.suggestions!.find(x => x.id === suggestionId)
 			if (!s || s.accepted !== null) return
 			chatActions.clearDiffById(s.id)
 			unregisterDiffActions(s.id)

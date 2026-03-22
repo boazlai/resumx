@@ -18,6 +18,16 @@ export type Theme =
 	| 'nord'
 	| 'solarized-light'
 	| 'tokyo-night'
+	| 'github-light'
+	| 'github-dark'
+	| 'monokai-pro'
+	| 'ayu-dark'
+	| 'ayu-light'
+	| 'panda'
+	| 'winter-is-coming-dark'
+	| 'shades-of-purple'
+	| 'material-dark'
+	| 'gruvbox-dark'
 
 /** Themes that require Tailwind's `.dark` class on <html> */
 const DARK_THEMES: Theme[] = [
@@ -27,6 +37,14 @@ const DARK_THEMES: Theme[] = [
 	'dracula',
 	'nord',
 	'tokyo-night',
+	'github-dark',
+	'monokai-pro',
+	'ayu-dark',
+	'panda',
+	'winter-is-coming-dark',
+	'shades-of-purple',
+	'material-dark',
+	'gruvbox-dark',
 ]
 
 interface ThemeContextType {
@@ -47,6 +65,16 @@ const THEME_CLASSES: Record<Exclude<Theme, 'light' | 'dark'>, string> = {
 	nord: 'theme-nord',
 	'solarized-light': 'theme-solarized-light',
 	'tokyo-night': 'theme-tokyo-night',
+	'github-light': 'theme-github-light',
+	'github-dark': 'theme-github-dark',
+	'monokai-pro': 'theme-monokai-pro',
+	'ayu-dark': 'theme-ayu-dark',
+	'ayu-light': 'theme-ayu-light',
+	panda: 'theme-panda',
+	'winter-is-coming-dark': 'theme-winter-is-coming-dark',
+	'shades-of-purple': 'theme-shades-of-purple',
+	'material-dark': 'theme-material-dark',
+	'gruvbox-dark': 'theme-gruvbox-dark',
 }
 
 function applyTheme(theme: Theme) {
@@ -75,6 +103,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 			'nord',
 			'solarized-light',
 			'tokyo-night',
+			'github-light',
+			'github-dark',
+			'monokai-pro',
+			'ayu-dark',
+			'ayu-light',
+			'panda',
+			'winter-is-coming-dark',
+			'shades-of-purple',
+			'material-dark',
+			'gruvbox-dark',
 		]
 		const resolved: Theme =
 			stored && validThemes.includes(stored) ? stored : 'light'

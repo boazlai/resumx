@@ -73,6 +73,56 @@ const THEMES: { id: Theme; label: string; swatches: string[] }[] = [
 		label: 'Tokyo Night',
 		swatches: ['#1a1b26', '#24283b', '#7aa2f7', '#a9b1d6'],
 	},
+	{
+		id: 'github-light',
+		label: 'GitHub Light',
+		swatches: ['#f6f8fa', '#d0d7de', '#0969da', '#24292f'],
+	},
+	{
+		id: 'github-dark',
+		label: 'GitHub Dark',
+		swatches: ['#0d1117', '#30363d', '#58a6ff', '#c9d1d9'],
+	},
+	{
+		id: 'monokai-pro',
+		label: 'Monokai Pro',
+		swatches: ['#2d2a2e', '#5b595c', '#ff6188', '#fcfcfa'],
+	},
+	{
+		id: 'ayu-dark',
+		label: 'Ayu Dark',
+		swatches: ['#0f1419', '#27333f', '#ffb454', '#bfbdb6'],
+	},
+	{
+		id: 'ayu-light',
+		label: 'Ayu Light',
+		swatches: ['#fafafa', '#e8e3d9', '#ff9940', '#4a5568'],
+	},
+	{
+		id: 'panda',
+		label: 'Panda',
+		swatches: ['#292a36', '#34353e', '#ffb86c', '#e6e6e6'],
+	},
+	{
+		id: 'winter-is-coming-dark',
+		label: 'Winter Is Coming Dark',
+		swatches: ['#0b1220', '#26314a', '#94f3ff', '#c9e7ff'],
+	},
+	{
+		id: 'shades-of-purple',
+		label: 'Shades of Purple',
+		swatches: ['#2d2b55', '#4b4673', '#ff9d00', '#b9f2ff'],
+	},
+	{
+		id: 'material-dark',
+		label: 'Material Dark',
+		swatches: ['#212121', '#37474f', '#80cbc4', '#eeeeee'],
+	},
+	{
+		id: 'gruvbox-dark',
+		label: 'Gruvbox Dark',
+		swatches: ['#282828', '#3c3836', '#b8bb26', '#ebdbb2'],
+	},
 ]
 
 export function SettingsPanel({ open, onOpenChange }: SettingsPanelProps) {

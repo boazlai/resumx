@@ -3,17 +3,9 @@ import { db } from '@/lib/db'
 import { resumes } from '@/lib/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
+import { getResumeAccess } from '@/lib/resume-access'
 
 type Params = { params: Promise<{ id: string }> }
-
-async function getAuthorizedResume(userId: string, id: string) {
-	const [row] = await db
-		.select()
-		.from(resumes)
-		.where(and(eq(resumes.id, id), eq(resumes.userId, userId)))
-		.limit(1)
-	return row ?? null
-}
 
 // GET /api/resume/[id]
 export async function GET(_req: Request, { params }: Params) {
@@ -26,10 +18,15 @@ export async function GET(_req: Request, { params }: Params) {
 	if (!user)
 		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-	const row = await getAuthorizedResume(user.id, id)
-	if (!row) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+	const access = await getResumeAccess(id, {
+		id: user.id,
+		email: user.email,
+		name: user.user_metadata?.full_name ?? '',
+		avatarUrl: user.user_metadata?.avatar_url ?? '',
+	})
+	if (!access) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-	return NextResponse.json(row)
+	return NextResponse.json({ ...access.resume, accessRole: access.role })
 }
 
 // PATCH /api/resume/[id] — update title and/or markdown
@@ -43,9 +40,15 @@ export async function PATCH(request: Request, { params }: Params) {
 	if (!user)
 		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-	const existing = await getAuthorizedResume(user.id, id)
-	if (!existing)
-		return NextResponse.json({ error: 'Not found' }, { status: 404 })
+	const access = await getResumeAccess(id, {
+		id: user.id,
+		email: user.email,
+		name: user.user_metadata?.full_name ?? '',
+		avatarUrl: user.user_metadata?.avatar_url ?? '',
+	})
+	if (!access) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+	if (!access.canEdit)
+		return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
 	const body = await request.json().catch(() => ({}))
 	const updates: Partial<{ title: string; markdown: string; tags: string[] }> =
@@ -70,8 +73,8 @@ export async function PATCH(request: Request, { params }: Params) {
 
 	const [updated] = await db
 		.update(resumes)
-		.set(updates)
-		.where(and(eq(resumes.id, id), eq(resumes.userId, user.id)))
+		.set({ ...updates, updatedAt: new Date() })
+		.where(eq(resumes.id, id))
 		.returning()
 
 	return NextResponse.json(updated)
@@ -88,13 +91,17 @@ export async function DELETE(_req: Request, { params }: Params) {
 	if (!user)
 		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-	const existing = await getAuthorizedResume(user.id, id)
-	if (!existing)
-		return NextResponse.json({ error: 'Not found' }, { status: 404 })
+	const access = await getResumeAccess(id, {
+		id: user.id,
+		email: user.email,
+		name: user.user_metadata?.full_name ?? '',
+		avatarUrl: user.user_metadata?.avatar_url ?? '',
+	})
+	if (!access) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+	if (!access.canDelete)
+		return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-	await db
-		.delete(resumes)
-		.where(and(eq(resumes.id, id), eq(resumes.userId, user.id)))
+	await db.delete(resumes).where(eq(resumes.id, id))
 
 	return new NextResponse(null, { status: 204 })
 }

@@ -263,6 +263,246 @@
 		--ring: 221 89% 72%;
 		--radius: 0.5rem;
 	}
+
+	/* ── GitHub Light ────────────────────────────────────────── */
+	.theme-github-light {
+		--background: 210 17% 98%; /* #f6f8fa */
+		--foreground: 213 18% 20%; /* #24292f */
+		--card: 0 0% 100%; /* #ffffff */
+		--card-foreground: 213 18% 20%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 213 18% 20%;
+		--primary: 212 92% 45%; /* #0969da */
+		--primary-foreground: 0 0% 100%;
+		--secondary: 210 14% 93%; /* #eaeef2 */
+		--secondary-foreground: 213 18% 20%;
+		--muted: 210 14% 93%;
+		--muted-foreground: 215 8% 47%; /* #6e7781 */
+		--accent: 210 14% 89%; /* #d8dee4 */
+		--accent-foreground: 213 18% 20%;
+		--destructive: 356 72% 45%; /* #cf222e */
+		--destructive-foreground: 0 0% 100%;
+		--border: 214 13% 84%; /* #d0d7de */
+		--input: 210 14% 93%;
+		--ring: 212 92% 45%;
+		--radius: 0.5rem;
+	}
+
+	/* ── GitHub Dark ─────────────────────────────────────────── */
+	.theme-github-dark {
+		--background: 216 28% 7%; /* #0d1117 */
+		--foreground: 213 23% 88%; /* #c9d1d9 */
+		--card: 216 21% 11%; /* #161b22 */
+		--card-foreground: 213 23% 88%;
+		--popover: 216 21% 11%;
+		--popover-foreground: 213 23% 88%;
+		--primary: 212 100% 68%; /* #58a6ff */
+		--primary-foreground: 216 28% 7%;
+		--secondary: 215 16% 18%; /* #21262d */
+		--secondary-foreground: 213 23% 88%;
+		--muted: 215 16% 18%;
+		--muted-foreground: 215 9% 55%; /* #8b949e */
+		--accent: 215 16% 23%; /* slightly raised */
+		--accent-foreground: 213 23% 88%;
+		--destructive: 356 100% 68%; /* #ff7b72 */
+		--destructive-foreground: 216 28% 7%;
+		--border: 215 14% 24%; /* #30363d */
+		--input: 215 16% 18%;
+		--ring: 212 100% 68%;
+		--radius: 0.5rem;
+	}
+
+	/* ── Monokai Pro (dark) ──────────────────────────────────── */
+	.theme-monokai-pro {
+		--background: 232 19% 12%; /* #2d2a2e */
+		--foreground: 60 30% 96%; /* #fcfcfa */
+		--card: 233 15% 16%; /* #363337 */
+		--card-foreground: 60 30% 96%;
+		--popover: 233 15% 16%;
+		--popover-foreground: 60 30% 96%;
+		--primary: 326 100% 74%; /* #ff6188 */
+		--primary-foreground: 232 19% 12%;
+		--secondary: 232 12% 22%; /* #5b595c-ish muted surface */
+		--secondary-foreground: 60 30% 96%;
+		--muted: 232 12% 22%;
+		--muted-foreground: 51 18% 61%; /* #939293 */
+		--accent: 189 100% 43%; /* #78dce8 / cooler accent area */
+		--accent-foreground: 232 19% 12%;
+		--destructive: 24 100% 67%; /* #fc9867 */
+		--destructive-foreground: 232 19% 12%;
+		--border: 232 12% 22%;
+		--input: 232 12% 22%;
+		--ring: 95 38% 62%; /* #a9dc76 */
+		--radius: 0.5rem;
+	}
+
+	/* ── Ayu Dark ────────────────────────────────────────────── */
+	.theme-ayu-dark {
+		--background: 215 41% 11%; /* #0f1419 */
+		--foreground: 210 17% 82%; /* #bfbdb6-ish text */
+		--card: 215 32% 15%; /* #14191f */
+		--card-foreground: 210 17% 82%;
+		--popover: 215 32% 15%;
+		--popover-foreground: 210 17% 82%;
+		--primary: 36 100% 65%; /* #ffb454 */
+		--primary-foreground: 215 41% 11%;
+		--secondary: 215 24% 20%; /* #27333f */
+		--secondary-foreground: 210 17% 82%;
+		--muted: 215 24% 20%;
+		--muted-foreground: 212 13% 58%; /* #7f8790 */
+		--accent: 196 100% 44%; /* #39bae6 */
+		--accent-foreground: 215 41% 11%;
+		--destructive: 0 84% 63%; /* #f07178 */
+		--destructive-foreground: 215 41% 11%;
+		--border: 215 24% 20%;
+		--input: 215 24% 20%;
+		--ring: 36 100% 65%;
+		--radius: 0.5rem;
+	}
+
+	/* ── Ayu Light ───────────────────────────────────────────── */
+	.theme-ayu-light {
+		--background: 42 100% 98%; /* #fafafa */
+		--foreground: 216 25% 20%; /* #4a5568-ish ayu text */
+		--card: 48 100% 96%; /* subtle warm card */
+		--card-foreground: 216 25% 20%;
+		--popover: 48 100% 96%;
+		--popover-foreground: 216 25% 20%;
+		--primary: 34 100% 50%; /* #ff9940-ish */
+		--primary-foreground: 0 0% 100%;
+		--secondary: 42 36% 91%;
+		--secondary-foreground: 216 25% 20%;
+		--muted: 42 36% 91%;
+		--muted-foreground: 214 13% 50%;
+		--accent: 196 89% 45%;
+		--accent-foreground: 0 0% 100%;
+		--destructive: 0 72% 55%;
+		--destructive-foreground: 0 0% 100%;
+		--border: 42 20% 84%;
+		--input: 42 36% 91%;
+		--ring: 34 100% 50%;
+		--radius: 0.5rem;
+	}
+
+	/* ── Panda (dark) ───────────────────────────────────────── */
+	.theme-panda {
+		--background: 231 21% 15%; /* #292a36 */
+		--foreground: 60 30% 96%; /* #e6e6e6-ish */
+		--card: 233 18% 18%; /* #34353e */
+		--card-foreground: 60 30% 96%;
+		--popover: 233 18% 18%;
+		--popover-foreground: 60 30% 96%;
+		--primary: 29 91% 68%; /* #ffb86c */
+		--primary-foreground: 231 21% 15%;
+		--secondary: 232 15% 24%;
+		--secondary-foreground: 60 30% 96%;
+		--muted: 232 15% 24%;
+		--muted-foreground: 232 11% 63%;
+		--accent: 326 100% 74%; /* pink accent */
+		--accent-foreground: 231 21% 15%;
+		--destructive: 2 100% 68%;
+		--destructive-foreground: 231 21% 15%;
+		--border: 232 15% 24%;
+		--input: 232 15% 24%;
+		--ring: 173 100% 40%; /* teal */
+		--radius: 0.5rem;
+	}
+
+	/* ── Winter Is Coming Dark ──────────────────────────────── */
+	.theme-winter-is-coming-dark {
+		--background: 222 47% 10%; /* deep winter navy */
+		--foreground: 205 58% 86%;
+		--card: 222 35% 14%;
+		--card-foreground: 205 58% 86%;
+		--popover: 222 35% 14%;
+		--popover-foreground: 205 58% 86%;
+		--primary: 191 97% 77%; /* icy cyan */
+		--primary-foreground: 222 47% 10%;
+		--secondary: 220 24% 21%;
+		--secondary-foreground: 205 58% 86%;
+		--muted: 220 24% 21%;
+		--muted-foreground: 214 20% 64%;
+		--accent: 271 100% 80%;
+		--accent-foreground: 222 47% 10%;
+		--destructive: 357 80% 67%;
+		--destructive-foreground: 222 47% 10%;
+		--border: 220 24% 21%;
+		--input: 220 24% 21%;
+		--ring: 191 97% 77%;
+		--radius: 0.5rem;
+	}
+
+	/* ── Shades Of Purple ───────────────────────────────────── */
+	.theme-shades-of-purple {
+		--background: 249 35% 17%; /* #2d2b55 */
+		--foreground: 193 100% 92%; /* bright cool text */
+		--card: 249 31% 21%;
+		--card-foreground: 193 100% 92%;
+		--popover: 249 31% 21%;
+		--popover-foreground: 193 100% 92%;
+		--primary: 33 100% 65%; /* orange accent */
+		--primary-foreground: 249 35% 17%;
+		--secondary: 248 23% 28%;
+		--secondary-foreground: 193 100% 92%;
+		--muted: 248 23% 28%;
+		--muted-foreground: 250 23% 67%;
+		--accent: 292 66% 71%; /* neon purple */
+		--accent-foreground: 249 35% 17%;
+		--destructive: 350 100% 72%;
+		--destructive-foreground: 249 35% 17%;
+		--border: 248 23% 28%;
+		--input: 248 23% 28%;
+		--ring: 292 66% 71%;
+		--radius: 0.5rem;
+	}
+
+	/* ── Material Dark ───────────────────────────────────────── */
+	.theme-material-dark {
+		--background: 216 15% 12%; /* #212121 */
+		--foreground: 0 0% 93%; /* #eeeeee */
+		--card: 216 13% 16%;
+		--card-foreground: 0 0% 93%;
+		--popover: 216 13% 16%;
+		--popover-foreground: 0 0% 93%;
+		--primary: 174 100% 40%; /* #80cbc4-ish teal */
+		--primary-foreground: 216 15% 12%;
+		--secondary: 220 9% 24%; /* #37474f */
+		--secondary-foreground: 0 0% 93%;
+		--muted: 220 9% 24%;
+		--muted-foreground: 220 10% 63%;
+		--accent: 36 100% 65%; /* amber */
+		--accent-foreground: 216 15% 12%;
+		--destructive: 0 79% 63%;
+		--destructive-foreground: 216 15% 12%;
+		--border: 220 9% 24%;
+		--input: 220 9% 24%;
+		--ring: 174 100% 40%;
+		--radius: 0.5rem;
+	}
+
+	/* ── Gruvbox Dark ───────────────────────────────────────── */
+	.theme-gruvbox-dark {
+		--background: 28 17% 13%; /* #282828 */
+		--foreground: 39 36% 79%; /* #ebdbb2 */
+		--card: 25 17% 18%; /* #32302f */
+		--card-foreground: 39 36% 79%;
+		--popover: 25 17% 18%;
+		--popover-foreground: 39 36% 79%;
+		--primary: 95 25% 58%; /* #b8bb26 green */
+		--primary-foreground: 28 17% 13%;
+		--secondary: 28 14% 23%; /* #3c3836 */
+		--secondary-foreground: 39 36% 79%;
+		--muted: 28 14% 23%;
+		--muted-foreground: 33 20% 55%; /* #a89984 */
+		--accent: 43 74% 49%; /* #fabd2f yellow */
+		--accent-foreground: 28 17% 13%;
+		--destructive: 6 96% 59%; /* #fb4934 */
+		--destructive-foreground: 28 17% 13%;
+		--border: 28 14% 23%;
+		--input: 28 14% 23%;
+		--ring: 217 27% 65%; /* #83a598 blue */
+		--radius: 0.5rem;
+	}
 }
 
 @layer base {

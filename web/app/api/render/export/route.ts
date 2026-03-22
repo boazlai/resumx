@@ -23,11 +23,18 @@ export async function POST(request: Request) {
 		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 	}
 
-	// Rate limiting
-	if (rateLimit(`export:${user.id}`, { limit: 1, windowMs: 5_000 }).limited) {
+	const limit = await rateLimit(`export:${user.id}`, {
+		limit: 2,
+		windowMs: 20_000,
+	})
+
+	if (limit.limited) {
 		return NextResponse.json(
 			{ error: 'Too many requests. Please wait a few seconds.' },
-			{ status: 429 },
+			{
+				status: 429,
+				headers: { 'Retry-After': String(limit.retryAfter) },
+			},
 		)
 	}
 

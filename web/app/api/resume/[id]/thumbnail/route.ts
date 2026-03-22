@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { resumes } from '@/lib/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
+import { getResumeAccess } from '@/lib/resume-access'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -20,11 +21,20 @@ export async function POST(_req: Request, { params }: Params) {
 
 	if (!user)
 		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+	const access = await getResumeAccess(id, {
+		id: user.id,
+		email: user.email,
+		name: user.user_metadata?.full_name ?? '',
+		avatarUrl: user.user_metadata?.avatar_url ?? '',
+	})
+	if (!access) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+	if (!access.canGenerateThumbnail)
+		return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
 	const [row] = await db
 		.select({ markdown: resumes.markdown })
 		.from(resumes)
-		.where(and(eq(resumes.id, id), eq(resumes.userId, user.id)))
+		.where(eq(resumes.id, id))
 		.limit(1)
 
 	if (!row) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -44,7 +54,7 @@ export async function POST(_req: Request, { params }: Params) {
 	}
 
 	const imageBuffer = Buffer.from(await screenshotRes.arrayBuffer())
-	const storagePath = `${user.id}/${id}.jpg`
+	const storagePath = `${access.resume.userId}/${id}.jpg`
 
 	const { error: storageError } = await supabase.storage
 		.from('thumbnails')
@@ -67,7 +77,7 @@ export async function POST(_req: Request, { params }: Params) {
 	await db
 		.update(resumes)
 		.set({ thumbnailUrl: publicUrl })
-		.where(and(eq(resumes.id, id), eq(resumes.userId, user.id)))
+		.where(eq(resumes.id, id))
 
 	return NextResponse.json({ url: publicUrl })
 }

@@ -12,10 +12,18 @@ export async function GET(
 ) {
 	const { token } = await params
 
-	if (rateLimit(`share:${token}`, { limit: 5, windowMs: 10_000 }).limited) {
+	const limit = await rateLimit(`share:${token}`, {
+		limit: 5,
+		windowMs: 10_000,
+	})
+
+	if (limit.limited) {
 		return NextResponse.json(
 			{ error: 'Too many requests. Please wait a moment.' },
-			{ status: 429 },
+			{
+				status: 429,
+				headers: { 'Retry-After': String(limit.retryAfter) },
+			},
 		)
 	}
 

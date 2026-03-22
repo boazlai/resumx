@@ -9,7 +9,7 @@ export async function POST(request: Request) {
 		?? request.headers.get('x-real-ip')
 		?? 'unknown'
 
-	const { limited } = rateLimit(`forgot-password:${ip}`, {
+	const { limited } = await rateLimit(`forgot-password:${ip}`, {
 		limit: 5,
 		windowMs: 60 * 60_000,
 	})

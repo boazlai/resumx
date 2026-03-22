@@ -30,6 +30,7 @@ Resumx is built on four bets:
 ## Ground Rules
 
 - Keep the README, docs, and skill file (under skills/) in sync with any functionality change.
+- When working on a user-facing feature, read the corresponding file under `features/` first. If the feature behavior, status, gaps, or next steps change, update that feature file in the same task. If no feature file exists yet, create one.
 
 ## Design Principles
 

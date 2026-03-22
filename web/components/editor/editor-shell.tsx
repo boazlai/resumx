@@ -11,10 +11,12 @@ import { PdfPreview } from './pdf-preview'
 import { EditorSidebar } from './editor-sidebar'
 import { VersionHistoryDialog } from './version-history-dialog'
 import { ShareDialog } from './share-dialog'
+import { CollaboratorDialog } from './collaborator-dialog'
 import type { SaveStatus, ChatActions, ResumeEditorSurfaceProps } from './types'
 import { usePreferences } from '@/lib/hooks/use-preferences'
 import { useMediaQuery } from '@/lib/hooks/use-media-query'
 import { useToast } from '@/lib/toast'
+import type { ResumeAccess } from '@/lib/resume-access'
 
 function countWords(text: string): number {
 	const stripped = text
@@ -35,9 +37,10 @@ interface EditorShellProps {
 		name: string
 		avatarUrl: string
 	}
+	access: ResumeAccess
 }
 
-export function EditorShell({ resume, user }: EditorShellProps) {
+export function EditorShell({ resume, user, access }: EditorShellProps) {
 	const router = useRouter()
 	const { toast } = useToast()
 	const { prefs } = usePreferences()
@@ -83,7 +86,9 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 	const pendingPrintRef = useRef(false)
 	const [showHistory, setShowHistory] = useState(false)
 	const [showShare, setShowShare] = useState(false)
+	const [showCollaborators, setShowCollaborators] = useState(false)
 	const [showPreview, setShowPreview] = useState(true)
+	const canEdit = access.canEdit
 
 	const isNarrow = useMediaQuery('(max-width: 1023px)')
 	useEffect(() => {
@@ -97,7 +102,7 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 	// Auto-save markdown after a debounce period matching the user's preference
 	const autoSave = useDebouncedCallback(
 		async (value: string) => {
-			if (!prefsRef.current.autoSave) return
+			if (!prefsRef.current.autoSave || !canEdit) return
 			setSaveStatus('saving')
 			const res = await fetch(`/api/resume/${resume.id}`, {
 				method: 'PATCH',
@@ -141,7 +146,7 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 				setPreviewUrl(url)
 
 				// Auto-snapshot on every manual compile (fire-and-forget)
-				if (isManual) {
+				if (isManual && canEdit) {
 					fetch(`/api/resume/${resume.id}/snapshots`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
@@ -150,9 +155,11 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 				}
 
 				// Refresh dashboard thumbnail (fire-and-forget)
-				fetch(`/api/resume/${resume.id}/thumbnail`, {
-					method: 'POST',
-				}).catch(() => {})
+				if (canEdit) {
+					fetch(`/api/resume/${resume.id}/thumbnail`, {
+						method: 'POST',
+					}).catch(() => {})
+				}
 			} catch {
 				setPreviewError('Network error — could not reach server')
 			} finally {
@@ -160,7 +167,7 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 				isCompilingRef.current = false
 			}
 		},
-		[resume.id],
+		[canEdit, resume.id],
 	)
 
 	// Auto-compile once when the editor first mounts
@@ -202,6 +209,7 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 
 	// Duplicate: create a copy and navigate to it
 	const handleDuplicate = useCallback(async () => {
+		if (!access.canDuplicate) return
 		try {
 			const res = await fetch('/api/resume', {
 				method: 'POST',
@@ -217,7 +225,7 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 		} catch {
 			toast({ title: 'Could not duplicate resume', variant: 'destructive' })
 		}
-	}, [title, router, toast])
+	}, [access.canDuplicate, title, router, toast])
 
 	// Restore: overwrite editor content with snapshot markdown
 	const handleRestore = useCallback(
@@ -239,6 +247,7 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 	const handleChange = useCallback(
 		// Called by the Markdown editor with just the body content (no frontmatter block).
 		(value: string) => {
+			if (!canEdit) return
 			setBody(value)
 			const full =
 				frontmatterRef.current ?
@@ -249,12 +258,13 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 			autoSave(full)
 			autoCompile()
 		},
-		[autoSave],
+		[autoSave, canEdit],
 	)
 
 	// Update frontmatter from the toolbar controls/YAML panel and persist.
 	const setFrontmatterAndSave = useCallback(
 		(newFrontmatter: string) => {
+			if (!canEdit) return
 			setFrontmatter(newFrontmatter)
 			frontmatterRef.current = newFrontmatter
 			const currentBody =
@@ -267,10 +277,11 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 			markdownRef.current = full
 			autoSave(full)
 		},
-		[body, autoSave],
+		[body, autoSave, canEdit],
 	)
 
 	const handleTitleChange = useDebouncedCallback(async (value: string) => {
+		if (!canEdit) return
 		await fetch(`/api/resume/${resume.id}`, {
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
@@ -350,13 +361,22 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 				markdown={markdown}
 				chatActions={chatActions}
 				isNarrow={isNarrow}
+				canUseAi={canEdit}
 			/>
 			<div className='flex flex-col flex-1 min-h-0 overflow-hidden'>
+				{!canEdit && (
+					<div className='border-b bg-amber-50 px-4 py-2 text-sm text-amber-900'>
+						{access.role === 'commenter' ?
+							'Commenter suggestion mode is not wired yet. This resume is currently read-only.'
+						:	'You have view-only access to this resume.'}
+					</div>
+				)}
 				<EditorToolbar
 					resumeId={resume.id}
 					title={title}
 					saveStatus={saveStatus}
 					onTitleChange={(v: string) => {
+						if (!canEdit) return
 						setTitle(v)
 						handleTitleChange(v)
 					}}
@@ -383,13 +403,25 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 					onInsertDefList={editorActions.insertDefList}
 					wordCount={wordCount}
 					previewUrl={previewUrl}
-					onDuplicate={handleDuplicate}
+					onDuplicate={access.canDuplicate ? handleDuplicate : undefined}
 					onPrint={handlePrint}
-					onOpenShare={() => setShowShare(true)}
-					onOpenHistory={() => setShowHistory(true)}
+					onOpenShare={
+						access.canManageShare ? () => setShowShare(true) : undefined
+					}
+					onOpenCollaborators={
+						access.canManageCollaborators ?
+							() => setShowCollaborators(true)
+						:	undefined
+					}
+					onOpenHistory={
+						access.canRestoreSnapshots ? () => setShowHistory(true) : undefined
+					}
 					showPreview={showPreview}
 					onTogglePreview={() => setShowPreview(v => !v)}
 					isNarrow={isNarrow}
+					accessRole={access.role}
+					canEdit={canEdit}
+					canManageCollaborators={access.canManageCollaborators}
 				/>
 
 				{isNarrow ?
@@ -409,6 +441,7 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 									frontmatter={frontmatter}
 									userIcons={userIcons}
 									onFrontmatterUpdate={setFrontmatterAndSave}
+									editable={canEdit}
 								/>
 							</div>
 						}
@@ -428,6 +461,7 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 									frontmatter={frontmatter}
 									userIcons={userIcons}
 									onFrontmatterUpdate={setFrontmatterAndSave}
+									editable={canEdit}
 								/>
 							</div>
 						</Panel>
@@ -460,6 +494,16 @@ export function EditorShell({ resume, user }: EditorShellProps) {
 				resumeId={resume.id}
 				open={showShare}
 				onClose={() => setShowShare(false)}
+			/>
+			<CollaboratorDialog
+				resumeId={resume.id}
+				open={showCollaborators}
+				onClose={() => setShowCollaborators(false)}
+				ownerEmail={user.email}
+				ownerName={user.name || user.email}
+				ownerAvatarUrl={user.avatarUrl}
+				currentRole={access.role}
+				canManage={access.canManageCollaborators}
 			/>
 		</div>
 	)

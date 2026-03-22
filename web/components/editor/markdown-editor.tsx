@@ -107,6 +107,7 @@ interface MarkdownEditorProps extends ResumeEditorSurfaceProps {
 	userIcons?: Map<string, string>
 	/** Callback to update frontmatter when icons are auto-detected */
 	onFrontmatterUpdate?: (newFrontmatter: string) => void
+	editable?: boolean
 }
 
 export function MarkdownEditor({
@@ -117,10 +118,12 @@ export function MarkdownEditor({
 	frontmatter,
 	userIcons,
 	onFrontmatterUpdate,
+	editable = true,
 }: MarkdownEditorProps) {
 	const containerRef = useRef<HTMLDivElement>(null)
 	const viewRef = useRef<EditorView | null>(null)
 	const iconConfigCompartment = useRef(new Compartment())
+	const editableCompartment = useRef(new Compartment())
 	const [popoverInfo, setPopoverInfo] = useState<SpanPopoverInfo | null>(null)
 
 	useEffect(() => {
@@ -162,6 +165,10 @@ export function MarkdownEditor({
 						onUpdate: onFrontmatterUpdate ?? (() => {}),
 					}),
 				),
+				editableCompartment.current.of([
+					EditorState.readOnly.of(!editable),
+					EditorView.editable.of(editable),
+				]),
 			],
 		})
 
@@ -205,6 +212,17 @@ export function MarkdownEditor({
 			),
 		})
 	}, [frontmatter, userIcons, onFrontmatterUpdate])
+
+	useEffect(() => {
+		const view = viewRef.current
+		if (!view) return
+		view.dispatch({
+			effects: editableCompartment.current.reconfigure([
+				EditorState.readOnly.of(!editable),
+				EditorView.editable.of(editable),
+			]),
+		})
+	}, [editable])
 
 	// Expose simple action helpers for toolbar
 	useEffect(() => {
